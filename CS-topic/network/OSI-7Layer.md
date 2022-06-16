@@ -83,3 +83,16 @@
 7) Application Layer : 응용 계층
 >- 사용자와 가장 밀접한 계층으로 인터페이스 역할
 >- 응용 프로세스 간의 정보 교환을 담당
+
+<br/>
+
+
+### 구조별 사용 프로토콜
+
+<br/>
+
+![OSI7_Protocol](./img/OSI_Pt.png)
+
+<br/>
+
+<div style="text-align: right">22-06-16</div>
