@@ -17,7 +17,7 @@
 
 <br>
 
-#### IoC 동작 순서
+#### 스프링컨테이너 동작 순서
 >1) Web Application이 실행되면 Tomcat에 의해 web.xml이 Loading 된다.
 >2) web.xml에 등록되어 있는 ContextLoaderListener가 생성된다. ContextLoaderListener Class는 ServletContextListener 인터페이스를 구현하고 있으며, ApplicationContext를 생성하는 역할을 수행한다.
 >3) 생성된 ContextLoaderListener는 root-context.xml을 Loading 한다.
@@ -27,7 +27,7 @@
 >7) DispatcherServlet은 servlet-context.xml을 Loading 한다.
 >8) 두 번째 Spring Container가 구동되며 응답에 맞는 PageController들이 동작한다. 이때 첫 번째 Spring Container가 구동되면서 생성된 DAO, VO, ServiceImpl 클래스들과 협업하여 알맞은 작업을 처리한다.
 
-<br>
+<br><br>
 
 ![Spring-DI](./img/DI.png)
 
