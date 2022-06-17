@@ -27,7 +27,7 @@
 >7) DispatcherServlet은 servlet-context.xml을 Loading 한다.
 >8) 두 번째 Spring Container가 구동되며 응답에 맞는 PageController들이 동작한다. 이때 첫 번째 Spring Container가 구동되면서 생성된 DAO, VO, ServiceImpl 클래스들과 협업하여 알맞은 작업을 처리한다.
 
-<br>
+<br><br>
 
 ![Spring-DI](./img/DI.png)
 
