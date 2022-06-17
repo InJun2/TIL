@@ -2,7 +2,7 @@
 
 <br/>
 
-![OSI7](./img/OSI_Model.png)
+![OSI7](./img/network_structure.PNG)
 
 <br/>
 

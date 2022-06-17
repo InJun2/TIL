@@ -58,19 +58,19 @@
 
 <br/>
 
-### /* 3way-hand-shake 방식 (STN, ACK)?
+### \* 3way-hand-shake 방식 (STN, ACK)?
 >- TCP 통신을 위한 네트워크 연결 방식
 >- 서로의 통신을 위한 관문을 확인하고 연결하기 위하여 3번의 요청/응답 후에 연결이 되는 것. 해당 과정에서 UDP 보다 느려지는 주 원인
 >>- 동작 과정
->>		1) Client에서 Server에 연결 요청을 하기 위해 SYN 데이터를 전송
->>		2) Server에서 해당 포트는 LISTEN 상태에서 SYN 데이터를 받고 SYN_RCV로 상태가 변경됨
->>		3) 이후 요청을 정상적으로 받았다는 대답(ACK)와 Client도 포트를 열어달라는 SYN을 같이 보냄
->>		4) Client에서는 SYN+ACK를 받고 ESTABLISHED로 상태를 변경하고 서버에 ACK를 전송
->>		5) ACK를 받은 서버는 상태가 ESTABLSHED로 변경 
+>>1) Client에서 Server에 연결 요청을 하기 위해 SYN 데이터를 전송
+>>2) Server에서 해당 포트는 LISTEN 상태에서 SYN 데이터를 받고 SYN_RCV로 상태가 변경됨
+>>3) 이후 요청을 정상적으로 받았다는 대답(ACK)와 Client도 포트를 열어달라는 SYN을 같이 보냄
+>>4) Client에서는 SYN+ACK를 받고 ESTABLISHED로 상태를 변경하고 서버에 ACK를 전송
+>>5) ACK를 받은 서버는 상태가 ESTABLSHED로 변경 
 
 <br/>
 
-### /* 흐름제어(Flow Control), 혼잡제어(Congestion Control) 란?
+### \* 흐름제어(Flow Control), 혼잡제어(Congestion Control) 란?
 >1) 흐름제어 
 >>- 흐름제어는 데이터를 송신하는 곳과 수신하는 곳의 데이터 처리 속도를 조절하여 수신자의 버퍼 오버플로우를 방지하는 것.
 >>- 송신하는 곳에서 감당할수 있도록 데이터 처리 속도 조절.
