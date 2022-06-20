@@ -1,11 +1,14 @@
 # SOLID
->- SOLID는 객체지향 5대 원칙
+
+### SOLID 란?
 >- 객체지향은 캡슐화, 상속, 추상화, 다형성의 특성을 가지고 설계 원칙에 따라서 설계를 진행하여야 하는데 이를 올바르게 설계할 수 있도록 도와주는 원칙들임
->1) SRP ( Single Responsibility Principle : 단일책임의 원칙 )
->2) OCP ( Open Close Principle : 개방폐쇄의 원칙 )
->3) LSP ( The Liskov Substitution Principle : 리스코브 치환의 원칙 )
->4) ISP ( Interface Segregation Principle : 인터페이스 분리의 원칙 )
->5) DIP ( Dependency Inversion Principle : 의존성 역전의 원칙 )
+>
+>- SOLID는 객체지향 5대 원칙
+>>1) SRP ( Single Responsibility Principle : 단일책임의 원칙 )
+>>2) OCP ( Open Close Principle : 개방폐쇄의 원칙 )
+>>3) LSP ( The Liskov Substitution Principle : 리스코브 치환의 원칙 )
+>>4) ISP ( Interface Segregation Principle : 인터페이스 분리의 원칙 )
+>>5) DIP ( Dependency Inversion Principle : 의존성 역전의 원칙 )
 
 <br>
 
