@@ -19,7 +19,7 @@
 
 <br>
 
-### Java 자료구조 유형
+### Java 자료구조 유형 ( Collectcion + Map )
 >- 순서가 있는 목록인 List
 >- 순서가 중요하지 않은 목록인 Set
 >- 먼저 들어온 것이 먼저 나가는 Queue
@@ -29,10 +29,10 @@
 
 |인터페이스|설명|구현 클래스|
 |:---:|:---:|:---:|
-|List<E>|순서가 있는 데이터의 집합으로, 데이터의 중복을 허용|Vector, ArratList, LinkedList, Stack|
-|Queue<E>|순서가 있는 데이터 집합으로, 데이터의 중복을 허용. 선입선출(FIFO)방식. List와 유사하나 구현목적의 차이|LinkedList, PriorityQueue, ArrayDeque|
-|Set<E>|순서가 없는 데이터의 집합으로, 데이터의 중복을 허용하지 않음|HashSet, TreeSet|
-|Map<K,Y>|키와 값의 한 쌍으로 이루어지는 데이터의 집합으로 순서가 없음. 이때 키는 중복을 허용하지 않지만 값은 중복될 수 있음|HashMap, TreeMap, Hashtable, Properties|
+|List\<E>|순서가 있는 데이터의 집합으로, 데이터의 중복을 허용|Vector, ArratList, LinkedList, Stack|
+|Queue\<E>| 선입선출(FIFO)방식. List와 유사하나 구현목적의 차이|LinkedList, PriorityQueue, ArrayDeque|
+|Set\<E>|순서가 없는 데이터의 집합으로, 데이터의 중복을 허용하지 않음|HashSet, TreeSet|
+|Map\<K,Y>|키와 값의 한 쌍으로 이루어지는 데이터의 집합으로 순서가 없음. 이때 키는 중복을 허용하지 않지만 값은 중복될 수 있음|HashMap, TreeMap, Hashtable, Properties|
 
 
 <br>
