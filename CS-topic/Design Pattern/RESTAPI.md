@@ -91,7 +91,7 @@
 >       - REST API는 메시지 바디 내용의 포맷을 나타내기 위한 파일 확장자를 URI안에 포함시키지 않는다
 >       - 대신 Accept Header를 사용 
 >```http
->GET : http://restapi.exam.com/orders/2/Accept: image/jpg )
+>GET : http://restapi.exam.com/orders/2/Accept: image/jpg 
 >``` 
 >7. 리소스 간에 연관 관계가 있는 경우
         - /리소스명/리소스ID/관계가 있는 다른 리소스 명
