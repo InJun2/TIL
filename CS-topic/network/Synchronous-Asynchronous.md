@@ -1,6 +1,9 @@
 # Synchronous vs Asynchronous
 
+<div style="background-color:white">
+
 ![Sync-Async](./img/Sync_Async.png)
+</div>
 
 <br>
 
