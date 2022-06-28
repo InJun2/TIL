@@ -1,9 +1,3 @@
-<style>
-.background-color{
-    background-color: #FFFFFF;
-}
-</style>
-
 # Synchronous vs Asynchronous
 
 <div class="background-color">
