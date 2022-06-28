@@ -1,6 +1,12 @@
+<style>
+.background-color{
+    background-color: #FFFFFF;
+}
+</style>
+
 # Synchronous vs Asynchronous
 
-<div style="background-color:#FFFFFF;">
+<div class="background-color">
 
 ![Sync-Async](./img/Sync_Async.png)
 </div>
@@ -31,10 +37,13 @@
 - 여러 개의 요청을 동시에 처리할 수 있는 장점이 있지만 동기 방식보다 속도가 떨어질 수도 있음
 - 동기보다 복잡하지만 결과가 주어지는데 시간이 걸리더라도 그 시간 동안 작업을 할 수 있으므로 자원을 효율적으로 사용할 수 있는 장점이 있음
 
-<code>콜백함수(callback) 
+```
+콜백함수(callback) 
 - 어떤 함수를 실행시키고 난 이후에 결과를 받을 함수 또는 그 다음에 실행될 함수를 의미. 
 - 주로 특정 함수에 매개변수로 함수를 전달하여 콜백함수를 전달 받은 함수 내에서 콜백함수가 실행됨
-- 상황에 따라 어떤 작업이 끝났다는 것을 사용자에게 알려주거나 코드 내부에서 콜백함수를 받았을 경우에만 처리하는 로직을 짤 수 있음.</code>
+- 상황에 따라 어떤 작업이 끝났다는 것을 사용자에게 알려주거나 코드 내부에서 콜백함수를 받았을 경우에만 처리하는 로직을 짤 수 있음.
+
+```
 
 
 <br>
