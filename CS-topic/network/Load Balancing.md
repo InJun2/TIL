@@ -104,7 +104,7 @@
 >
 >#### L7 Load Balancing
 >- OSI 계층인 '애플리케이션 계층'의 L7 스위치
->- 애플리케이션 계층(HTTP,FTP,SMTP)에서 로드(부하)를 분산(밸런싱)하기 때문에 HTTP 헤더, 쿠키 등과 같은 사용자 요청을 기준으로 특정 서버에 트래픽을 분산. 즉, 패킷의 내용을 확인하고 그 내용에 따라 로드를 특정 서버에 분배하는 것이 가능
+>- 애플리케이션 계층(HTTP,FTP,SMTP)에서 로드(부하)를 분산(밸런싱)하기 때문에 HTTP 헤더, 쿠키 등과 같은 사용자 요청을 기준으로 특정 서버에 트래픽을 분산. 즉, 패킷의 내용을 확인하고 그 내용에 따라 로드를 특정 서버에 분배하는 것이 가능. 그래서 콘텐츠 기반 스위칭이라고도 함.
 >- 캐싱(Cashing)기능 제공
 >- L7 로드밸런서의 경우 특정한 패턴을 지닌 바이러스를 감지해 네트워크 보호
 >- DoS/DDoS 와 같은 비정상적인 트래픽을 필터링할 수 있어 그만큼 자원의 소모가 크지만 네트워크 보안 분야에서도 활용됨.
@@ -126,6 +126,31 @@
 
 <br>
 
+### AWS
+#### 1. CLB (Classic Load Balancer)
+- Layer4, Layer7 부하 분산
+- listen : TCP, SSL/TLS, HTTP, HTTPS 
+- 현재는 거의 사용되지 않음.
+
+#### 2. ALB (Application Load Balancer)
+- Layer7 부하 분산
+- listen : HTTP, HTTPS, gRPC
+- target : IP, Instance, Lambda
+- 가장 기본적
+
+#### 3. NLB (Network Load Balancer)
+- Layer4 부하 분산
+- listen : TCP, UDP, TLS
+- target : IP, Instance
+- 탁월한 성능
+
+#### 4. GLB (Gateway Load Balancer)
+- Layer3, Layer4 부하 분산
+- listen : IP
+- target : IP, Instance
+
+<br>
+
 <div style="text-align: right">22-06-29</div>
 
 <br>
@@ -135,3 +160,4 @@
 - https://velog.io/@makeitcloud/란-L4-load-balancer-vs-L7-load-balancer-란
 - https://co-no.tistory.com/22
 - https://www.stevenjlee.net/2020/06/30/이해하기-네트워크의-부하분산-로드밸런싱-load-balancing-그/
+- https://jaehoney.tistory.com/73
