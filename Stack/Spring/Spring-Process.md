@@ -1,4 +1,4 @@
-# Spring의 동작 과정
+# Spring Process
 
 ![Spring Process](./img/spring_process.png)
 
