@@ -70,6 +70,7 @@
 - 스프링 컨테이너는 설정을 자바코드로 하던지 XML으로 하던지 몰라도 되고 오직 BeanDefinition만 알면 됨
 - BeanDefinition을 빈 설정 메타 정보라고 함 : @Bean, \<bean\>당 각각 하나씩 메타 정보가 생성됨
 - 스프링 컨테이너는 이 메타정보를 기반으로 스프링 빈을 생성함
+- BeanDefinition은 직접 생성해서 스프링 컨테이너로 등록할 수 있으나 실무에서 직접 정의하거나 사용할 일은 거의 없음 -> 스프링이 다양한 형태의 설정 정보를 BeanDefinition으로 추상화해서 사용하는 것 정도만 이해하면 됨
 > BeanDefinitnion 정보
 >- BeanClassName : 생성할 빈의 클래스 명 ( 자바 설정 처럼 팩토리 역할의 빈을 사용하면 없음 )
 >- factoryBeanName : 팩토리 역할의 빈을 사용할 경우 이름 ( ex) appConfig )
