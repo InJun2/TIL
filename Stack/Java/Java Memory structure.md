@@ -47,10 +47,12 @@
 
 <br>
 
-<img src="./img/java_stack1.png" width="200">
-<img src="./img/java_stack2.png" width="200">
-<img src="./img/java_stack3.png" width="200">
-<img src="./img/java_stack4.png" width="200">
+<p>
+<img src="./img/java_stack1.png" width="200" height="400">
+<img src="./img/java_stack2.png" width="200" height="400">
+<img src="./img/java_stack3.png" width="200" height="400">
+<img src="./img/java_stack4.png" width="200" height="400">
+</p>
 
 #### Stack
 - Heap 영역에 생성된 Object 타입의 데이터 참조값이 할당됨
