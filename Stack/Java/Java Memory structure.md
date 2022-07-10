@@ -76,9 +76,37 @@
 >```
 
 <br>
+<br>
+<br>
 
-#### Stack
+<img src="./img/java_heap1.png" width="800" height="400">
+<img src="./img/java_heap2.png" width="800" height="400">
+<img src="./img/java_heap3.png" width="800" height="400">
 
+#### Heap
+- Heap 영역에는 주로 긴 생명주기를 가지는 데이터들이 저장됨 ( 대부분의 오브젝트는 크기가 크고 서로 다른 코드블럭에서 공유되는 경유가 많음 )
+- 어플리케이션의 모든 메모맂 중 stack에 있는 데이터를 제외한 부분이라고 보면 된다고 함
+- 모든 Obejct 타입은 Heap 영역에 생성됨
+- 몇개의 스레드가 존재하든 상관없이 단 하나의 heap 영역만 존재
+- Heap 영역에 있는 오브젝트들을 가리키는 레퍼런스 변수가 stack에 올라가게 됨
+- 사진 예시 코드
+>``` java
+>public class Main {
+>    public static void main(String[] args) {
+>        List<String> listArgument = new ArrayList<>();
+>        listArgument.add("yaboong");
+>        listArgument.add("github");
+>
+>        print(listArgument);
+>    }
+>
+>    private static void print(List<String> listParam) {
+>        String value = listParam.get(0);
+>        listParam.add("io");
+>        System.out.println(value);
+>    }
+>}
+>```
 
 
 
