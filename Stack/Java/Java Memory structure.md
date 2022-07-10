@@ -47,10 +47,10 @@
 
 <br>
 
-![Java Stack1](./img/java_stack1.png)
-![Java Stack2](./img/java_stack2.png)
-![Java Stack3](./img/java_stack3.png)
-![Java Stack4](./img/java_stack4.png)
+<img src="./img/java_stack1.png" width="200">
+<img src="./img/java_stack2.png" width="200">
+<img src="./img/java_stack3.png" width="200">
+<img src="./img/java_stack4.png" width="200">
 
 #### Stack
 - Heap 영역에 생성된 Object 타입의 데이터 참조값이 할당됨
