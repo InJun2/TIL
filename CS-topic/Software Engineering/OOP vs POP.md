@@ -36,7 +36,7 @@
 >       - 부모 클래스의 메소드를 자식 클래스가 오버라이딩(재정의)해서 자신의 역할에 맞게 활용하는 것이 다형성
 >       - 구체적으로 현재 어떤 클래스 객체가 참조되는 지는 무관하게 프로그래밍 가능
 >
-><code>[객체지향 설계 원칙 (SOLID)](../../Design%20Pattern/SOLID.md)</code>
+><code>[객체지향 설계 원칙 (SOLID)](https://github.com/InJun2/TIL/blob/main/CS-topic/Design%20Pattern/SOLID.md)</code>
 
 <br>
 
