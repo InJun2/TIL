@@ -21,7 +21,7 @@
 - 싱글톤 빈은 스프링 컨테이너가 관리하기 때문에 스프링 컨테이너가 종료될 때 빈의 종료 메서드 실행
 
 ```java
-@Test
+    @Test
     void singletonBeanFInd(){
         AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(SingletonBean.class);
 
