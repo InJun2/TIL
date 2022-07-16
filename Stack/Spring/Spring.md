@@ -91,7 +91,6 @@ Spring에서는 MVC에서는 Model2 구조로 Apllication을 만들 수 있도�
 >2. [자동 의존성 주입](../Inflearn/스프링핵심원리-김영한강사/Auto%20DI.md)
 >3. [싱글톤 컨테이너](../Inflearn/스프링핵심원리-김영한강사/Singleton%20Container.md)
 
-
 <br>
 
 ![Spring MVC](./img/spring_mvc.png)
