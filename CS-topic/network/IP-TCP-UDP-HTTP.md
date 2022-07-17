@@ -59,6 +59,7 @@
 >- IP패킷을 사용하기 전에 TCP 데이터를 <code>소켓</code>에 담음
 >- 3-way-handshaking 과정을 통해 연결을 설정하고 4-way-handshaking을 통해 해제
 >- 흐름 제어 및 혼잡 제어 기능. 해당 기능의 영향으로 UDP보다 속도가 느림
+>- TCP/IP 패킷에서 Port는 해당 프로세스 출발지,목적지임 IP는 기기간의 연결. Port는 .0~65535할당 가능하고 잘알려져있는 포트는 FTP - 20,21 , TELNET - 23, HTTP - 80, HTTPS - 443 이있어 해당 포트는 사용하지 않는 것이 좋음
 >- 높은 신뢰성을 보장
 >- 전이중(Full-Duplex), 점대점(Point to Point) 방식
 ```
