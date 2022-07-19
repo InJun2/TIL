@@ -10,6 +10,7 @@
     - 동일한 쿼리를 받으면 이전에 파싱된 쿼리를 재사용
     - 필드가 많아질 경우 전체필드 Update 쿼리가 부담이 됨 -> @DynamicUpdate로 변경 필드만 변경 가능
 - Dirty Checking 대상은 영속성 컨텍스트가 관리하는 엔티티에만 적용
+- 영속성 컨텍스트가 중간에서 쿼리들을 모았다가 한 번에 반영해주어 리소스 감소가 있음 -> 쓰기 지연
 - 준영속, 비영속 상태의 엔티티는 Dirty Checking 대상에 포함되지 않음
     - Detech 된 엔티티 - 준영속
     - DB 에 반영되기 전 처음 생성된 엔티티 - 비영속
@@ -45,26 +46,7 @@ public class BookService {
       @Column(name = "BOOK_NAME")
       private String bookName;
   
-      @Column(name = "AUTHOR")
-      private String author;
-  
-      @Column(name = "PUBLISHER")
-      private String publisher;
-  
-      @Column(name = "contents")
-      private String contents;
-  
-      @Column(name = "KDC")
-      private String kdc;
-  
-      @Column(name = "CATEGORY")
-      private String category;
-  
-      @Column(name = "KEYWORD")
-      private String keyword;
-  
-      @Column(name = "BOOK_IMAGE")
-      private String img;
+     ...
   
       @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
       private List<BookReview> bookReviewList = new ArrayList<>();
@@ -74,13 +56,7 @@ public class BookService {
                   String kdc, String category, String keyword, String img, String contents) {
           this.isbn = isbn;
           this.bookName = bookName;
-          this.author = author;
-          this.publisher = publisher;
-          this.kdc = kdc;
-          this.category = category;
-          this.keyword = keyword;
-          this.img = img;
-          this.contents = contents;
+          ...
       }
   
       /**
