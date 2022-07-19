@@ -15,7 +15,6 @@
 >- 자바 클래스이기에 자바의 특징을 가짐
 >- 서블릿 컨테이너에서 실행됨
 
-
 <br>
 
 ![DispatcherServlet](./img/dispatcher-servlet.png)
