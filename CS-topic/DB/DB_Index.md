@@ -129,8 +129,6 @@ ALTER INDEX EX_INDEX REBUILD;
 
 <br>
 
-
-
 #### 3. B+Tree 
 - B-Tree의 확장 개념으로 B-Tree와 다르게 브랜치 노드는 Value에 대한 정보가 존재하지 않고 단순히 Key 값만 존재
 - 리프 노드(leaf node)에서만 Value를 관리
@@ -139,6 +137,7 @@ ALTER INDEX EX_INDEX REBUILD;
 - 모든 리프노드는 같은 레벨에 존재
 - 브랜치 노드에 Value가 없어서 B-Tree보다 차지하는 메모리가 적지만 Value를 찾기위해 리프 노드 까지 이동해아 함
 - 브랜치 노드와 리프 노드에 모두 Key가 존재하므로 Key 중복이 발생
+- 리프 노드에 데이터가 없으면 디스크에서 탐색 진행 
 
 <br>
 
@@ -153,6 +152,8 @@ ALTER INDEX EX_INDEX REBUILD;
 
 <br>
 
+추가해야 하는 내용 B트리 내용 + 카디널리티 + 인덱스 탐색 방법 + 인덱스 메타 데이터 (myi) https://solbel.tistory.com/739
+
 <div style="text-align: right">22-07-08</div>
 
 -------
@@ -163,3 +164,5 @@ ALTER INDEX EX_INDEX REBUILD;
 - https://mangkyu.tistory.com/96
 - https://junhyunny.github.io/information/data-structure/db-index-data-structure/
 - https://ssocoit.tistory.com/217
+- https://velog.io/@emplam27/자료구조-그림으로-알아보는-B-Tree (+ 추가예정)
+- https://yurimkoo.github.io/db/2020/03/14/db-index.html (+ 추가예정)
