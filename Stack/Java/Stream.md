@@ -117,10 +117,10 @@ IntStream intStream = Arrays.stream({1,2,3,4,5});
 
 // 컬렉션
 List<String> list = Arrays.asList("test1","test2","test3");
-Stream<Stirng> stream = list.stream();
+Stream<String> stream = list.stream();
 
 // 빌더
-String<String> stream = Stream<String>builder()
+Stream<String> stream = Stream<String>builder()
                             .add("Aplle")
                             .add("Banana")
                             .add("Melon")
