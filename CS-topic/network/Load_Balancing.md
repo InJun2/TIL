@@ -43,7 +43,7 @@
     - 데이터 스트림을 인터넷 상에서 가상의 파이프를 통해 전달시키는 기술로 패킷 내의 터널링할 대상을 캡슐화 시켜 목적지 까지 전송
     - 연결된 상호 간에만 캡슐화된 패킷을 구별해 캡슐화를 해제하게 함
 3. NAT (Network Address Translation)
-    - 내부 네트워크에서 사용하는 사설 IP 주소와 로드밸런서 외부의 공인 IP 주소 간의 변환 역할 ([NAT 설명 링크](./OSI%20L4.md))
+    - 내부 네트워크에서 사용하는 사설 IP 주소와 로드밸런서 외부의 공인 IP 주소 간의 변환 역할 ([NAT 설명 링크](./OSI_L4.md))
     - 로드밸런싱 관점에서는 여러 개의 호스트가 하나의 공인 IP 주소(VLAN or VIP)를 통해 접속하는 것이 주 목적
     - SNAT (Source Network Address Translation) : 내부에서 외부로 트래픽이 나가는 경우 내부 사설 IP주소 -> 외부 공인 IP 주소로 변환
     - DNAT (Destination Network Address Translation) : 외부에서 내부로 트래픽이 들어오는 경우 외부 공인 IP 주소 -> 내부 사설 IP 주소로 변환

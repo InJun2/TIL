@@ -86,11 +86,3 @@
 
 ---
 - 2022-07-08
-
---- 
-## intellij 단축키 (window)
-- Ctrl + Art + V : 변수 생성
-- "iter" 작성 후 + tab : 자동으로 위의 배열의 for 문 생성 
-- Ctrl + e : 다른 클래스로 이동
-- Art + inesrt : 클래스 / 메소드 생성
-- 파일 이름 변경 : Shift + F6

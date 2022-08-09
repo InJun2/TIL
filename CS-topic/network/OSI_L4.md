@@ -2,7 +2,7 @@
 
 ### L4 Swich?
 - OSI 4계층에서 이용하는 스위치로 L4 라고 함
-- 서버의 부하 분산([로드밸런싱 설명 링크](./Load%20Balancing.md))을 처리하는 장비  
+- 서버의 부하 분산([로드밸런싱 설명 링크](./Load_Balancing.md))을 처리하는 장비  
 - 외부에서 들어오는 모든 요청을 L4 스위치가 받아 서버들에게 적절히 나누어줌
 - TCP, UDP, HTTP와 같은 Protocol들의 Header를 분석하여 그 정보를 바탕으로 부하 분산을 실시하고 거기에 더해 Source IP 혹은 Destination IP를 NAT(Network Address Translation)하여 보낼 수 있음
 - L4는 4계층 장비인 만큼 외부에서 접근할 IP + Port(TCP 헤더 : Source Port, Destination Port 존재)를 명시해주어야 함. 

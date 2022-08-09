@@ -34,8 +34,8 @@
 
 #### 스프링에 관한 이전 정리 내용
 - [Spring 정리 내용](./Spring.md)
-- [Spring 의 특징 IOC, DI, AOP](./IOC%20DI%20AOP.md)
-- [Spring Container 정리 내용](./Spring%20Container.md)
+- [Spring 의 특징 IOC, DI, AOP](./IOC-DI-AOP.md)
+- [Spring Container 정리 내용](./Spring_Container.md)
 
 <br>
 
