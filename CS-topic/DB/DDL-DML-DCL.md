@@ -114,6 +114,13 @@ ROLLBACK;
 <br>
 
 #### DCL 권한 유형
+권한 ROLE
+- DBA: 모든 DB 권한 가짐 -> DB 관리자에게만 부여
+- RESOURCE: 객체(CREATE, ALTER, DROP), 데이터(SELECT, INSERT, UPDATE, DELETE) 권한
+- CONNECT: 단순 접속 권한
+
+<br>
+
 - 시스템 권한
     - CREATE USER : 계정 생성 권한
     - DROP USER : 계정 삭제 권한
