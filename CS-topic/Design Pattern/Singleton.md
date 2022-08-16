@@ -11,6 +11,23 @@
     - 싱글톤 인스턴스가 전역으로 사용되는 인스턴스기 때문에 다른 클래스의 인스턴스들이 접근하여 사용 가능해 데이터 공유가 쉬움
 
 ```java
+// 늦은 초기화 -> 아래 문제점 존재
+public class Singleton {
+
+    private static Singleton instance;
+	
+    private Singleton () {} //생성자를 private로
+	
+    public static Singleton getInstance() {
+        if (instance == null){
+            instance = new Singleton();
+        }    
+        
+        return instance;
+    }
+}
+
+// 이른 초기화
 public class Singleton{
     private static Singleton instance = new Singleton();
 
@@ -29,7 +46,7 @@ public class Singleton{
 
 ### Multi-Thread 싱글톤 문제
 - 여러개의 인스턴스 생성
-    - 멀티스레드 환경에서 인스턴스가 없을 때 동시에 생성하게 만들어 둔다면 각각 새로운 인스턴스 생성됨 -> 위의 예시코드의 경우에는 클래스에서 전역변수로 하나만 생성되기 때문에 해당되지 않음
+    - 멀티스레드 환경에서 인스턴스가 없을 때 동시에 생성하게 만들어 둔다면 각각 새로운 인스턴스 생성됨 -> 위의 늦은 초기화만 해당됨
 - 변수 값의 일관성 실패
     - 여러개의 스레드에서 다른 전역변수의 값을 동시에 변경한다면 일관되지 않은 값이 생길 수 있음
 
@@ -41,8 +58,27 @@ public class Singleton{
     - 초기에 인스턴스를 생성하면 멀티스레드 환경에서도 다른 객체들은 getInstance 를 통해 하나의 인스턴스를 공유할 수 있음
 - synchronzied 사용
     - synchronzied 를 사용하여 동시성 문제를 해결하는 방법
+    - 늦은 초기화에서 synchronzied를 사용하여 이후 호출될 때는 인스턴스가 이미 생성되어 있기 때문에 해당 synchronzied 블록에 접근 하지 않음 
     - 그러나 Thread-safe를 보장하기 위해 성능 저하가 발생함
+```java
+public class Singleton {
 
+    private static Singleton instance;
+	
+    private Singleton () {} //생성자를 private로
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            //synchroized를 활용하여 여러 인스턴스를 생성하는 것을 방지
+            synchronized (Singleton.class) {
+                if (instance == null)
+                    instance = new Singleton();
+                }
+            }
+        return instance;
+    }
+}
+```
 
 <div style="text-align: right">22-08-15</div>
 
@@ -51,3 +87,4 @@ public class Singleton{
 ## Reference
 - https://tecoble.techcourse.co.kr/post/2020-11-07-singleton/
 - https://velog.io/@seongwon97/싱글톤Singleton-패턴이란
+- https://coding-factory.tistory.com/709
