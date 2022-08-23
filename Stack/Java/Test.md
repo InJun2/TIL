@@ -55,8 +55,6 @@ void lottoNumberInvalidMoneyTest() {
 }
 ```
 
-
-
 <br>
 
 <div style="text-align: right">22-08-18</div>
