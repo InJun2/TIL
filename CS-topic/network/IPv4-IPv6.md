@@ -132,6 +132,10 @@ Host ID = 16
 #### 헤더 변환(Translation)
 - IPv6 시스템이 IPv4 수신자가 이해할 수 있는, 또는 그 반대로 헤더 변환(Translation)하는 기술.
 - 기술 종류 : NAT-PT, CGN(Carrier Grade NAT), A+P, DS-Lite 등
+- 주소 전환 프로토콜 계층에 따라서 다음의 3가지로 분류할 수 있음
+    - SIIT(Stateless Ip/Icmp Translation)
+    - TRT(Transport relay Translator)
+    - ALG(Application Level Gateway)
 
 <br>
 
