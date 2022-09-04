@@ -117,12 +117,21 @@ Host ID = 16
 
 <br>
 
-### Tunneling
+### IPv4/IPv6 전환
+#### Tunneling
 - Tunneling은 IPv4를 사용하는 라우터들 사이에서 IPv6 데이터그램이 IPv4 데이터그램 안에 payload로써 이동되어지도록 IPv6를 IPv4로 캡슐화하는 기법
 - 모든 라우터가 동시에 업그레이드 되어질 수 없어서 실제로 IPv6가 보편화되는데에는 시간이 걸림
 - 해당 문제 해결을 위해 터널링 기법을 통해 IPv4와 IPv6 혼용하여 사용
 - IPv4와 IPv6 모두 허용하는 라우터마다 IPv6를 IPv4로 캡슐화하고, 도착지에서 받은 데이터는 헤드가 벗겨지면서 IPv6로 받음
 
+#### Dual Stack
+- 하나의 장비에서 IPv4와 IPv6 모두 지원, 동시 처리 가능하도록하는 기술
+- 단, IPv4 주소가 필요하게되어, IPv4 주소 부족 문제에는 별 도움이 안됨
+- 동작 우선순위 결정. 동작 우선순위는 상대 목적지 주소가 IPv4 형식인지 IPv6 형식인지에 따라 달라짐  
+
+#### 헤더 변환(Translation)
+- IPv6 시스템이 IPv4 수신자가 이해할 수 있는, 또는 그 반대로 헤더 변환(Translation)하는 기술.
+- 기술 종류 : NAT-PT, CGN(Carrier Grade NAT), A+P, DS-Lite 등
 
 <br>
 
