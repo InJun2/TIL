@@ -3,7 +3,7 @@
 ### HTTP
 - Hyper Text Transfer Protocol으로 서버/클라이언트 모델을 따라 데이터를 주고 받기 위한 프로토콜
 - 인터넷에서 하이퍼텍스트를 교환하기 위한 통신 규약으로, 주로 80번 포트를 사용하여 HTTP 서버가 80번 포트에서 요청을 기다리고 있으며 클라이언트는 80번 포트로 요청을 보냄
-- HTTP는 애플리케이션 레벨의 프로토콜로 TCP/IP 위에서 작동. HTTP는 상태를 가지고 있지 않은 Stateless 프로토콜이며 Mthod, Path, Version, Headers, Body 등으로 구성됨
+- HTTP는 애플리케이션 레벨의 프로토콜로 TCP/IP 위에서 작동. HTTP는 상태를 가지고 있지 않은 Stateless 프로토콜이며 Method, Path, Version, Headers, Body 등으로 구성됨
 - HTTP는 암호화가 되지 않은 평문 데이터를 전송하는 프토콜이었기 때문에 HTTP로 비밀번호나 주민번호 등을 주고 받으면 제3자가 정보를 조회할 수 있었음. 이러한 문제를 해결하기 위해 HTTPS 등장
 - 상세 정리 내용 링크
     - [IP-TCP-UDP-HTTP](./IP-TCP-UDP-HTTP.md)
