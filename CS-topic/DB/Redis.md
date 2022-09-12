@@ -8,7 +8,7 @@
 - 캐싱도 가능하여 실시간 채팅에 적합하며 세션 공유를 위해 세션 클러스트링에도 활용
 - 다양한 자료 구조를 지원
 - 싱글 스레드 방식으로 인해 연산을 원자적으로 수행이 가능 -> 싱글 스레드기 때문에 시간 복잡도 고려
-- In-memory 특성상 메모리 파편화, 가상 메모리등의 이해가 필요
+- In-memory 특성 상 메모리 파편화, 가상 메모리등의 이해가 필요
 - 읽기 성능 증대를 위한 서버측 리플리케이션 지원, 쓰기 성능 증대를 위한 클아이언트 측 샤딩 지원
 - RAM의 휘발성을 막기위해 snapshot, AOF(Append Only File)의 백업 과정 존재
 
@@ -25,7 +25,7 @@
 
 <br>
 
-#### Redis 특징 재정리
+#### Redis 특징
 - 영속성을 지원하는 인 메모리 데이터 저장소 ( RAM의 휘발성을 막기위해 snapshot, AOF 사용 )
     - snapshot : 특정 지점을 설정하고 디스크에 백업, 순간적으로 메모리에 있는 내용 전체를 디스크에 옮겨 담는 방식
     - AOF(Append Only File) : 모든 write/update 연산 자체를 모두 log 파일로 기록하고, 서버가 셧다운되면 재실행해서 다시 만들어 놓는 것
@@ -68,6 +68,40 @@
 
 <br>
 
+![Redis vs Memcahed](./img/Redis-Memcached.png)
+
+### VS Memcached?
+- 인 메모리 데이터 저장소로 Redis와 다르게 종료시 메모리의 데이터가 휘발성으로 영속성을 지원하지 않음
+- Redis가 다양한 용도에 효과적으로 사용할 수 있도록 많은 특징을 가지고 있다면 Memcached는 명료하고 단순함을 위해 개발
+- Redis와의 공통점
+    - 모두 Key-Value 모델에 기반을 둔 NoSQL 솔루션이며, 두 솔루션 모두 캐시 레이어로서 동작
+    - 빠른 응답 시간. 속도는 거의 유사
+    - 문법적으로 사용하기 쉽고 개발코드 양이 적음
+    - 데이터 파티셔닝을 통해 데이터를 여러 노드에 분산하여 저장 가능
+    - 다양한 프로그래밍 언어 지원
+- Redis와의 차이점
+    - 멀티스레드를 지원하기 때문에 멀티프로세스코어를 사용할 수 있음
+    - Memcached는 Redis의 비해 제공 용량이 적음
+    - Memcached의 확장성은 Scale up을 통해서 얻을 수 있는 반면, Redis는 Scale out을 통해 얻을 수 있음
+    - Data Eviction 전략. 캐시도 유한한 리소스를 지니므로 결국 메모리에 자리잡은 자원을 쫒아내야 함. Memcached의 경우 LRU(Least Recently Used) 알고리즘만을 채택하고 있고 Redis의 방법은 다음과 같음
+        - No Eviction 안하기 : 메모리가 부족하면 에러를 내뱉음
+        - All Keys LRU : LRU에 근거하여 eviction 하기
+        - Volatile LRU : LRU를 따르되, 만료 시점이 지정된 것들에 한해서 eviction을 수행
+        - All Keys Random : 랜덤하게 키 삭제
+        - Volatile Random : 랜덤하게 키 삭제하되, 그 대상은 만료 시점이 지정된 것들로 한정
+        - Volatile TTL : TTL 값을 기반으로 만료시점이 빨리 도래하는 순서대로 삭제
+    - Redis는 다양한 데이터 타입 지원. Redis는 여러 자료 구조 제공 및 최대 512MB의 key와 512MB의 value 까지 지원. Memcached는 별도의 데이터 타입 없이, 문자열을 저장하여 최대 250B key와 1MB value를 지원
+    - Persistance : 데이터를 저장할 수 있는지의 여부로 Redis는 AOF 기반으로 데이터를 저장할 수 있는 기능이 있는데 비해, Memcached는 들고 있는 데이터를 저장할 수 있는 기능이 없음. 따라서 Memcached는 캐시로서의 기능만 수행할 수 있지만 Redis는 캐시로도 쓰일 수 있고 Data Store로도 사용할 수 있음
+    - Redis는 트랜잭션 지원함. WATCH / MULTI / EXEC 등의 명령어를 기반으로 optimistic lock 기반 트랜잭션을 지원
+        - MULTI : 트랜잭션 시작
+        - DISCARD : 트랜잭션 취소
+        - EXEC : 트랜잭션 커밋
+        - WATCH : 특정 key의 변경 여부 감시
+        - UNWATCH : watch 취소
+    - Pub / Sub 지원. Redis는 메세징 솔루션으로 Pub/Sub 지원. 메시지들을 queue로 관리하지 않고 publish 하는 시점 기준으로 미리 subscribe 등록 대기 중인 클라이언트들을 대상으로만 메시지를 전달
+    - Redis가 더욱 많은 기능을 제공하므로 대부분의 기능을 커버가능
+<br>
+
 <div style="text-align: right">22-07-20</div>
 
 -------
@@ -77,4 +111,6 @@
 - https://github.com/gyoogle/tech-interview-for-developer/blob/master/Computer%20Science/Database/Redis.md
 - https://www.tibco.com/ko/reference-center/what-is-an-in-memory-database
 - https://liebe97.tistory.com/37
+- https://chrisjune-13837.medium.com/redis-vs-memcached-10e796ddd717
+- https://luran.me/359
 - [유튜브 : 디디의 Redis 10분 테코톡](https://www.youtube.com/watch?v=Gimv7hroM8A)
