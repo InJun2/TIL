@@ -3,42 +3,61 @@
 ![Java Exception](./img/exception.png)
 
 ### Java Exception
-- 자바의 Exception(예외)는 크게 3가지로 나눌 수 있음
-- 체크 예외 (Checked Exception), 에러 (Error), 언체크 예외 (Unchecked Exception)
-- 자바의 예외는 Throwable 클래스로 나뉘어짐
+- 자바의 예외는 크게 3가지로 나눌 수 있음
+    - 에러 (Error), 체크 예외 (Checked Exception), 언체크 예외 (Unchecked Exception)
+- 자바의 에러, 예외는 Throwable 클래스에서 나누어짐
+- Unchecked Exception은 자바 실행 시(Runtime)
 
 <br>
 
 ### Error
+- Error는 합리적인 응용 프로그램이 잡아내려고 해서는 안 되는 심각한 문제를 나타내는 Throwable의 하위 클래스
 - 시스템에 비정상적인 상황이 발생하였을 경우에 발생
 - 메모리 부족(OutofMemoryError)이나 스택오버플로우(StackOverflowError)같이 복구할 수 없는 것을 의미
 - 이는 시스템 레벨에서 발생하기 때문에 개발자가 예측하기 쉽지 않고 처리할 수 있는 방법도 없음 -> 오류에 대한 처리를 신경쓰지 않아도 됨
 
 <br>
 
-### Exception?
-- Exception(예외)는 프로그램 실행 중에 개발자의 실수로 예기치 않은 상황이 발생했을 때
-- 배열의 범위를 벗어나거나(ArrayIndexOutOfBoundsException), 값이 null 참조변수를 참조(NullPointerException), 존재하지 않는 파일의 이름을 입력(FileNotFoundException) 등등이 있음.
+### Exception
+- Exception(예외)는 프로그램 실행 중에 개발자가 구현한 로직에서 예기치 않은 상황이 발생했을 때
+    - 예외는 개발자가 직접 처리할 수 있기 때문에 예외 상황을 미리 예측하여 핸들링 할 수 있음
+- 실행 중에 정상적인 프로그램의 흐름을 어긋나는 경우로 개발자가 처리할 수 있는 예외
 - 예외는 Checked Exception 과 Unchecked Exception으로 나눌 수 있음
-- Unchecked Exception은 RuntimeException 클래스의 하위 클래스이고 그 외의 클래스가 Checked Exception 임
+- Unchecked Exception은 RuntimeException 클래스와 해당 클래스의 하위 클래스이고 그 외의 클래스가 Checked Exception 임
 
 <br>
 
 ### Checked Exception
-- 체크 예외의 특징은 반드시 에러 처리를 해야하는 특징(try-chach or throw)을 가지고 있음. 
+- 체크 예외의 특징은 반드시 에러 처리를 해야하는 특징(try-chach or throw)을 가지고 있어 해주지 않는 다면 컴파일 단계에서 오류가 발생
+    - 명시적인 예외처리를 강제하기 때문에 Checked Exception 이라고 함
+    - try-catch로 예외를 잡거나, throw로 호출한 메소드에게 예외를 던져야 함
+    - 컴파일 단계에서 컴파일러가 예외처리를 확인하는 Exception 클래스
 - 체크 예외는 RuntimeException의 하위 클래스가 아니면서 Exception 클래스의 하위 클래스들
-- 컴파일 단계에서 컴파일러가 예외처리를 확인하는 Exception 클래스
-- 체크 예외의 예시는 존재하지 않는 파일의 이름을 입력(FileNotFoundException), 실수로 클래스의 이름을 잘못 적음(ClassNotFoundException) 등이 있음
+    - 체크 예외의 예시는 존재하지 않는 파일의 이름을 입력(FileNotFoundException)
+    - 타입이 맞지 않는 등의 잘못된 입력 (IOException)
+    - 실수로 클래스의 이름을 잘못 적음(ClassNotFoundException) 등이 있음
 - Rollback이 되지 않고 트랜잭션이 commit까지 완료됨
+    - Spring Framework에서 CheckedException은 Transaction 처리시에 Exception이 발생해도 Rollback을 하지 않는다
+    ```
+    Rollback이 되지 않는 이유
+    - 기본적으로 Checked Exception은 복구가 가능하다는 매커니즘을 가지고 있음
+    - 예를들어 이미지 파일을 찾아서 전송해주는 함수에서 이미지를 찾지 못했을 경우 기본 이미지를 전송한다는 복구 전략을 가질 수 있음
+    ```
 
 <br>
 
 ### Unchecked Exception
-- 체크 예외와는 달리 에러처리를 강제하지 않고 실행 중에(runtime) 발생할 수 있는 예외를 의미
-- RuntimeException의 하위 클래스들을 의미
+- 체크 예외와는 달리 에러처리를 강제하지 않고 실행 중에(runtime) 발생할 수 있는 예외를 의미 
+- RuntimeException와 해당 클래스의 하위 클래스들을 의미
+    - RuntimeException은 프로그램 실행 중에 발생하여 의도적으로 개발자가 설정한 조건을 위배했을 때 발생
+    - 명시적으로 예외 처리를 하지 않아도 되는 Exception
+    - 배열의 범위를 벗어나거나(ArrayIndexOutOfBoundsException)
+    - 값이 null 참조변수를 참조(NullPointerException)
+    - 존재하지 않는 파일의 이름을 입력(FileNotFoundException)..
 - 컴파일러가 예외처리를 확인하지 않는 RuntimeException 클래스
 - 배열의 범위를 벗어난(ArrayIndexOutOfBoundsException), 값이 null이 참조변수를 참조(NullPointerException) 등이 있음
 - Rollback이 가능
+    - Spring Framework에서 UncheckedException은 Transaction 처리시에 Exception이 발생한 경우 Rollback을 수행
 
 <br>
 
@@ -52,7 +71,7 @@
 
 ### 예외 처리 방법
 #### 1. 예외 복구
-- 재시도를 통해 예외를 복구
+- 재시도를 통해 예외를 복구. 예외 상황을 파악하고 문제를 해결하여 정상 상태로 돌려 놓음
 - 예외 복구의 핵심은 예외가 발생하더라도 애플리케이션은 정상적인 흐름으로 진행
 - 네트워크 환경이 좋지 않을경우 서버에 접속이 안되는 상황의 시스템에 적용하는 것이 효과적
 - 예외가 발생하면 예외를 잡아서 일정 시간만큼 대기하고 다시 재시도를 반복하고 최대 재시도 횟수를 넘기면 예외를 발생
@@ -69,9 +88,11 @@
 
 
 <div style="text-align: right">22-07-11</div>
+<div style="text-align: right">+ 내용추가 : 22-09-18</div>
 
 -------
 
 ## Reference
 - https://devlog-wjdrbs96.tistory.com/351
 - https://www.nextree.co.kr/p3239/
+- https://steady-coding.tistory.com/583
