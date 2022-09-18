@@ -102,7 +102,7 @@ public interface PlatformTransactionManager extends TransactionManager {
 - TransactionTemplate 클래스를 사용. 탬플릿 콜백 패턴을 사용하여 API를 이용가능. 람다 표현식 이용 가능
 ```java
     public class SimpleService implements Service {     // single TransactionTemplate shared amongst all methods in this instance
-    
+
         private final TransactionTemplate transactionTemplate;     // use constructor-injection to supply the PlatformTransactionManager
 
         public SimpleService(PlatformTransactionManager transactionManager) {        
@@ -165,3 +165,4 @@ public interface PlatformTransactionManager extends TransactionManager {
 - [10분 테코톡 - 후니의 스프링 트랜잭션](https://www.youtube.com/watch?v=cc4M-GS9DoY)
 - https://yeonyeon.tistory.com/223
 - https://gngsn.tistory.com/152
+- https://jiwondev.tistory.com/154
