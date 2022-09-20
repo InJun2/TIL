@@ -68,6 +68,11 @@
 - View 관련 정보를 갖고 실제 View를 찾아주는 역할
 7. View
 - Controller가 처리한 결과값을 보여줄 View를 생성
+```
+스프링 MVC는 웹 요청을 실제로 처리하는 객체를 핸들러(Handler)라고 표현하고 있음
+- @Controller 적용 객체나 Controller 인터페이스를 구현한 객체 모두 스프링 MVC입장에서는 핸들러가됨
+- 특정 요청 경로를 처리해주는 핸들러를 찾아주는 객체를 HandlerMapping이라 부름
+```
 
 <br>
 
