@@ -71,6 +71,7 @@ DispatcherServlet
 
 <br>
 
+![Servlet Process](./img/Servlet_Process.png)
 #### 서블릿 동작 과정
 1. 사용자가 URL을 클릭하면 HTTP Request를 Servlet Container에 보냄
 2. Servlet Container는 HttpServletRequest, HttpServletResponse 두 객체를 생성
