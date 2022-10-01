@@ -78,7 +78,7 @@
 ---
 ---
 
-<br><br>
+<br>
 
 # Stack
 
@@ -130,7 +130,12 @@
 - [JPA 엔티티 매니저](./Stack/Spring/JPA_Entity_Manager.md)
 - [JPA 더티체킹](./Stack/Spring/JPA_Dirty_Checking.md)
 
-<br><br>
+<br><br><br>
+
+---
+---
+
+<br>
 
 # ETC
 
@@ -142,4 +147,3 @@
 - [내가 개발자가 되고 싶은 이유](./ETC/%EA%B0%9C%EB%B0%9C%EC%9E%90%EA%B0%80%EB%90%98%EA%B3%A0%EC%8B%B6%EC%9D%80%EC%9D%B4%EC%9C%A0.md)
 - [좋은 개발자란?](./ETC/%EC%A2%8B%EC%9D%80%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%9E%80.md)
 - [정보처리기사 정리](./ETC/%EC%A0%95%EB%B3%B4%EC%B2%98%EB%A6%AC%EA%B8%B0%EC%82%AC.md)
-
