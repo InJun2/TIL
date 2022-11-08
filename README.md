@@ -29,6 +29,7 @@
 - [DNS](./CS-topic/network/DNS.md)
 - [IP vs TCP vs UDP vs HTTP](./CS-topic/network/IP-TCP-UDP-HTTP.md)
 - [HTTP vs HTTPS](./CS-topic/network/HTTP-HTTPS.md)
+- [HTTP Status Code](./CS-topic/network/Http_Status_Code.md)
 - [HTTP1 vs HTTP2 vs HTTP3](./CS-topic/network/HTTP_1-2-3.md)
 - [IPv4 vs IPv6](./CS-topic/network/IPv4-IPv6.md)
 - [로드밸런스](./CS-topic/network/Load_Balancing.md)
