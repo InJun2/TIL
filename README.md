@@ -11,11 +11,13 @@
 - [커널](./CS-topic/OS/Kernel.md)
 - [시스템콜](./CS-topic/OS/System_Call.md)
 - [동시성 vs 병렬처리](./CS-topic/OS/Concurrency-Parallelism.md)
+- [동기 vs 비동기](./CS-topic/OS/Synchronous-Asynchronous.md)
 - [임계구역](./CS-topic/OS/Critical_Section.md)
 - [교착상태](./CS-topic/OS/DeadLock.md)
 - [세마포어 vs 뮤텍스](./CS-topic/OS/Semaphore-Mutex.md)
 - [스케줄링](./CS-topic/OS/Scheduling.md)
 - [RAID](./CS-topic/OS/RAID.md)
+- [표준 스트림](./CS-topic/OS/Standard_Stream.md)
 
 <br><br>
 
@@ -36,6 +38,7 @@
 - [OSI L4](./CS-topic/network/OSI_L4.md)
 - [쿠키 vs 세션](./CS-topic/network/Cookie-Session.md)
 - [Cast](./CS-topic/network/Cast.md)
+- [HTTP Status code](./CS-topic/network/Http_Status_Code.md)
 
 <br><br>
 
@@ -92,6 +95,7 @@
 
 - [표기법](./Stack/Java/Notation.md)
 - [접근 제한자](./Stack/Java/Access_Modifier.md)
+- [final](./Stack/Java/final.md)
 - [생성자](./Stack/Java/Constructor.md)
 - [오버라이딩 vs 오버로딩](./Stack/Java/Overloading-Overriding.md)
 - [DTO](./Stack/Java/DTO.md)
