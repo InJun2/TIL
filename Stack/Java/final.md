@@ -35,7 +35,9 @@
 
 <br>
 
-
+### 주의할 점
+- final 변수는 초기화 이후 변경이 발생하지 않도록 만드는데 List에 final을 선언하면 List 변수의 변경은 불가능하나, List 내부에 있는 변수들은 변경이 가능하여 문자열을 계속 추가가 가능함
+- Effective final은 Java8에서 추가된 기능으로 final이 붙지 않은 변수의 값이 변경되지 않는다면 그 변수를 Effectively final이라고 함. 컴파일러가 final로 취급함
 
 <br>
 
