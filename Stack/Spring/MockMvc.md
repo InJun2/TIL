@@ -46,20 +46,17 @@ class ControllerTest{
 #### 2. MockMvcRequestBuilders
 - MvckMvcRequestBuilders의 메소드들은 GET, POST, PUT, DELETE 요청 방식과 매핑되는 get(), post(), put(), delete() 메소드를 제공
 - 이 메소드들은 MockHttpServletRequestBuilder 객체를 리턴하고, 이를 통해 HTTP 요청 관련 정보(파라미터, 헤더, 쿠키 등)를 설정할 수 있음
-
+- 요청 설정 메소드는 아래와 같음
+    - param/params : 쿼리 스트링 설정
+    - cookie : 쿠키 설정
+    - requestAttr : 요청 스코프 객체 설정
+    - sessionAttr : 세션 스코프 객체 설정
+    - content : 요청 본문 설정(body)
+    - contentType : 본문 타입 설정
+    - header/headers : 요청 헤더 설정
 <br>
 
-#### 3. contentType()
-- 요청 헤더의 content type 설정
-
-<br>
-
-#### 4. content()
-- 요청 바디의 content 설정
-
-<br>
-
-#### 5. andExpect()
+#### 3. andExpect()
 - perform() 메소드를 이용하여 요청을 전송하면, 그 결과로 ResultActions 객체를 리턴하는데 이 객체는 응답 결과를 검증할 수 있는 andExpect() 메소드를 제공
 - andExpect()가 요구하는 ResultMatcher는 MockMvcResultMatchers에 정의된 정적 메소드를 통해 생성할 수 있음
 - MockMvcResultMatcher 객체는 컨트롤러가 어떤 결과를 전송했는지, 서버의 응답 결과를 검증
@@ -79,6 +76,7 @@ class ControllerTest{
 #### 2. 뷰/리다이렉트 검증
 - 컨트롤러가 리턴하는 뷰를 검증할 때는 view() 메소드를 사용
 - andExpect(view().name("user"))는 컨트롤러가 리턴한 뷰 이름이 맞는지 검증
+- 이동대상의 경로 검증을 위해서 forwardedUrl() 메소드를 사용.
 - 만약 요청 처리 결과가 리다이렉트 응답이면 redirectedUrl() 메소드를 사용한다. andExpect(redirectedUrl("/user")) 코드는 '/user' 화면으로 리다이렉트했는지 검증
 
 <br>
@@ -93,6 +91,41 @@ class ControllerTest{
 #### 4. 요청/응답 전체 메시지 확인하기
 - 생성된 요청과 응답 메시지를 모두 확인해보고 싶다면 perform 메소드가 리턴하는 ResultAction의 andDo(ResultHandler handler) 메소드를 사용
 - MockMvcResultHandlers.print() 메소드는 ResultHandler를 구현한 ConsolerPrinting ResultHandler 객체를 리턴하여, ConsolePrintingResultHandler를 andDo() 메소드 인자로 넘겨주면 콘솔에 요청/응답과 관련된 정보를 모두 출력
+
+<br>
+
+### MockMvc 필터 추가
+```java
+@SpringBootTest
+@Transactional
+@AutoConfigureMockMvc
+class CategoryControllerTest {
+    private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext ctx;
+
+    private final String baseUrl = "/api/v1/category";
+
+    @BeforeEach
+    private void setup() {
+        // Response Content 에서 출력시 한글 깨짐 방지
+        // 이 방법은 WebApplicationContext를 주입 받아야하므로 @SpringBootTest에서만 사용가능합니다.
+        // 혹은 webAppContestSetup 대신에 standAloneSetup 으로 컨트롤러를 지정할수도있음
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
+                .alwaysDo(print())
+                .build();
+    }
+```
+- webAppContextSetup
+    - 실제 Spring Mvc Configuration을 로딩
+    - TestContext framework이 Spring configuration을 캐쉬하기 때문에, 많은 테스트가 있어도 빠르게 테스트를 수행할 수 있음
+    - 이때 주입받으려면 @SpringBootTest 또는 @WebAppConfiguration 가 필요
+    - 통합 테스트 위주
+- standaloneSetup
+    - Spring configuration을 로딩하지 않고 Controller instance를 수동으로 생성
+    - 유닛 테스트 위주
 
 <br>
 
