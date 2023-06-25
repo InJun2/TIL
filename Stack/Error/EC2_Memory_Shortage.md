@@ -16,18 +16,21 @@
 <br>
 
 ### Memory Swap 방법
-- 우선 swapon -s 또는 free -h 명령어를 통해 Swap 메모리를 확인
+- 우선 free -h 명령어를 통해 Swap 메모리를 확인
     - total에서 buff/cache와 free를 뺀 메모리(used)는 사용 중 메모리를 의미
     - 공유 메모리(Shard)는 약 0~1MB를 사용하고 있는데, 공유 메모리란 하나의 프로세스에서 다른 프로세스의 메모리를 사용하고 싶을 때 사용하는 메모리
     - 현재 할당된 Swap 메모리는 0
-- Swap Space 생성하기 위한 다음 명령어를 순서대로 입력
-    - sudo fallocate -l 2G /swapfile
+- dd 명령을 사용하여 루트 파일 시스템에 스왑 파일을 생성
+    - sudo dd if=/dev/zero of=/swapfile bs=128M count=32
+- Swap Space 생성하기 위한 권한부여와 스왑영역 설정 다음 명령어를 순서대로 입력
     - sudo chmod 600 /swapfile
     - sudo mkswap /swapfile
-- RAM Swap
+- 스왑 공간에 스왑 파일을 추가하여 즉시 사용가능하도록 RAM Swap
     - sudo swapon /swapfile
-- 이후 아래 명령어를 통해 스왑 생성에 대한 확인
-    - sudo swapon --show
+- 프로시저가 성공적인지 확인
+    - sudo swapon -s
+- 이후 다시 스왑 생성에 대한 확인
+    - free -h
 
 <br>
 
@@ -39,7 +42,12 @@
 
 <br>
 
+### 사용 결과
+
+![EC2 Memory Swap](img/ec2_memory_swap.png)
+
+<br>
+
 ### 참조링크
 - https://velog.io/@timointhebush/Java-Spring-프로젝트-배포-도전기1
-- https://ittrue.tistory.com/297
-- https://jw910911.tistory.com/122
+- https://transferhwang.tistory.com/506
