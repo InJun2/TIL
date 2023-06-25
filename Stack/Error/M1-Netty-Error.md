@@ -1,4 +1,4 @@
-## M1 Netty Error
+# M1 Netty Error
 
 ### 에러 메세지
 - SEVERE: Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS. java.lang.reflect.InvocationTargetException at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) at ...

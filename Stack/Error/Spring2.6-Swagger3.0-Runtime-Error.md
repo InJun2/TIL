@@ -1,4 +1,4 @@
-## Spring 2.6 Swagger 3.0 Runtime Error
+# Spring 2.6 Swagger 3.0 Runtime Error
 
 ### 에러 메세지
 - org.springframework.context.ApplicationContextException: Failed to start bean 'documentationPluginsBootstrapper'; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.getPatterns()" because "this.condition" is null ...

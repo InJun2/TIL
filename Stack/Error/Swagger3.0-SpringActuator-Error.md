@@ -1,4 +1,4 @@
-## Swagger 3.0 Spring actuator 호환성 문제
+# Swagger 3.0 Spring actuator 호환성 문제
 
 ### 에러 메세지
 - org.springframework.context.ApplicationContextException: Failed to start bean 'documentationPluginsBootstrapper'; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.getPatterns()" because "this.condition" is null ...
