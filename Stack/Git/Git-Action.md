@@ -32,11 +32,124 @@
 
 ### 사용 방법
 - 우선 github action을 사용하여 S3에 저장하고 해당 파일을 Code Deploy가 명령어를 통해 실행하여 배포를 진행하는 방식으로 S3와 CodeDeploy 를 사용하기 위한 과정들이 필요
-    - [AWS S3]()
-    - [AWS Code Deploy]()
+    - [AWS S3](https://github.com/InJun2/TIL/blob/main/Stack/AWS/S3.md)
+    - [AWS Code Deploy](https://github.com/InJun2/TIL/blob/main/Stack/AWS/CodeDeploy.md)
+- 아래는 glass-bottle 프로젝트를 진행하면서 사용했던 git action 예시
+
+<br>
+
+```yml
+# Repository의 Actions 탭에 나타날 Workflow 이름으로 필수 옵션은 아님
+name: glass-bottle CI/CD
+
+# S3 Upload를 위한 환경설정. 해당 job에서 사용할 환경 변수를 key/value의 형태로 설정
+env:
+  S3_BUCKET_NAME: glaas-bottle-s3-bucket
+  AWS_REGION: ap-northeast-2
+
+# 하단 코드에 따라 develop 브랜치에 Push 또는 Pull Request 이벤트가 발생한 경우에 Workflow가 실행. 위에서 설명한 event에 해당
+# 만약 브랜치 구분 없이 이벤트를 지정하고 싶을 경우에는 단순히 on: [push, pull_request] 같이 작성도 가능
+# 현재는 staging으로 취합하고 기능 구현이 완료된 이후 main브런치로 push, PR 시 git action 실행
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# 해당 옵션을 통해 사용자가 직접 Actions 탭에서 Workflow를 실행
+# push나 pr 같은 Event가 아닌 수동으로 Event 발생시켜 테스트 용도
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'
+
+# 해당 Workflow의 하나 이상의 Job 목록
+jobs:
+    # 해당 workflow가 포함한 하나의 잡은 cd라는 이름으로 임의지정
+   cd:
+    name: CD with Gradle
+    # Runner가 실행되는 환경을 정의
+    runs-on: ubuntu-latest
+
+    # build Job 내의 step 목록
+    steps:
+        # uses 키워드를 통해 Action을 불러옴
+        # 여기에서는 해당 레포지토리로 check-out하여 레포지토리에 접근할 수 있는 Action을 불러오기
+      - name: Checkout
+        uses: actions/checkout@v3
+        # 서브모듈을 연결하기 위해 깃허브 유저 토큰정보를 git repository secret에서 받아오고 서브모듈 설정 지정
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+          submodules: true
+
+        # gradle을 위한 권한부여
+      - name: Grant execute permission for gradle
+        # run을 통해 명령어 실행
+        run: git update-index --add --chmod=+x gradlew
+        # 리눅스에서 명령어와 프로그램을 실행하기 위한 인터페이스인 셸을 bash로 지정
+        shell: bash
+
+        # 프로젝트 환경구성을 위한 jdk 설치
+      - name: Setup jdk 17
+        # 해당 step에서 사용할 액션. github 마켓플레이스에 올라온 action들을 사용할 수도 있음
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          # 사용가능한 옵션에 대한 지원 배포
+          distribution: 'temurin'
+
+        # gradle 빌드
+      - name: Build with Gradle
+        run: ./gradlew clean build
+        shell: bash
+
+        # 실행하고 해당 job 출력
+      - name: Run a one-line script
+        run: echo ${{ github.job }}
+
+        # S3에 저장하기위해 zip으로 저장
+      - name: Make zip file
+        run: zip -r ./$GITHUB_SHA.zip .
+        shell: bash
+
+        # AWS 연결을 위해 액션 사용 및 필요한 정보 입력
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+        # AWS에 연결한 이후 저장한 zip파일 S3에 저장 명령
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+
+        # S3에 저장한 zip파일을 aws에서 지정해둔 배포그룹, 배포설정, 애플리케이션이름을 통해 codedeploy 실행
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name glass-bottle-app --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name glass-bottle-group --s3-location bucket=glaas-bottle-s3-bucket,bundleType=zip,key=$GITHUB_SHA.zip
+
+```
+
+<br>
+
+### 적용 모습
+- 이전에 staging에 취합한 코드도 서버에 올려서 정상작동 확인 진행
+- 설정해둔대로 PR 요청시 그리고 PR merge를 통한 push시 git action 실행
+
+<br>
+
+![Git Action 1](img/git-action1.png)
+![Git Action 2](img/git-action2.png)
 
 <br>
 
 ### 참조링크
 - https://brownbears.tistory.com/597
 - https://tech.kakaoenterprise.com/180
+- https://velog.io/@ggong/Github-Action에-대한-소개와-사용법
