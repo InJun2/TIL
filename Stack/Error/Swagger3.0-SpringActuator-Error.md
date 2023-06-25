@@ -14,6 +14,8 @@
 - springfox 패키지가 아닌 springdoc을 이용하면 더 많은 업데이트로 이후 지원되는 경우가 많고 swagger를 사용할 수 있다고 하지만 해당 문제를 밑의 참조링크에서 확인하여 해당 문제를 해결하기 위해 해당 링크의 Bean을 추가해주었음
 - springfox 업데이트도 안되고 버전 문제도 많은데 다음번에는 springdoc을 이용해봐야 겠음..
 
+![Swagger 3.0 - Spring Actuator](img/actuactor_swagger.png)
+
 <br>
 
 ### 참조링크
