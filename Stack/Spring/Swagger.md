@@ -150,6 +150,10 @@ public class SwaggerConfig {
 
 <br>
 
+![Swgger UI](img/swagger-ui.png)
+
+<br>
+
 ### 후기
 - swagger 3.0을 사용하였는데 spring-fox에 대해 문제가 많이 발생한다. 업데이트가 이후 거의 진행되지 않아 actuator 사용시에 endpoint 접근 방식에서 문제, 스프링 버전과도 문제 등등..
 - 지인의 자동화 설정을 보고 신기하고 이해가 잘 되지 않았음.. 이후 따로 다시 확인해서 내용을 추가해보고자 함
