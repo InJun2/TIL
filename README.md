@@ -136,6 +136,15 @@
 - [JPA 엔티티 매니저](./Stack/Spring/JPA_Entity_Manager.md)
 - [JPA 더티체킹](./Stack/Spring/JPA_Dirty_Checking.md)
 
+<br><br>
+
+## Git
+<br>
+
+- [Git](Stack/Git/GIT.md)
+- [Git Submodule & Repository Secrets](Stack/Git/SubModule-RepositorySecrets.md)
+- [Git Actions](Stack/Git/Git-Action.md)
+
 <br><br><br>
 
 ---
@@ -146,8 +155,6 @@
 # ETC
 
 <br>
-
-- [Git](./ETC/GIT.md)
 
 - [Java 와 C의 차이](./ETC/Java-C%EC%B0%A8%EC%9D%B4.md)
 - [내가 개발자가 되고 싶은 이유](./ETC/%EA%B0%9C%EB%B0%9C%EC%9E%90%EA%B0%80%EB%90%98%EA%B3%A0%EC%8B%B6%EC%9D%80%EC%9D%B4%EC%9C%A0.md)
