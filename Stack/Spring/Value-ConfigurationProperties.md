@@ -18,15 +18,19 @@
 - @ConfigurationProperties는 값의 바인딩을 위해 Setter를 필요로 하며 생성자로 바인딩하기 위해서는 @ConstructorBinding을 붙여주어야 한다
 - @ConfigurationProperties를 사용하기 위해서는 @EnableConfigurationProperties에 해당 클래스를 지정해주거나 @ConfigurationPropertiesScan를 통해 스캐닝의 대상이 되도록 해주어야 한다
 - RelaxedBinding이 적용되는 규칙들로는 다음과 같은 것들이 있다. 이러한 4가지 표기법들은 @ConfigurationProperties로 값이 바인딩될 때 RelaxedBinding에 의해 올바르게 바인딩이 된다
-    - 
+    - logging.slack.uri.slack-error : properties 와 .yml에 권장되는 표기법
+    - logging.slack.uri.slackError : 표준 카멜 케이스 문법
+    - logging.slack.uri.slack_error : .properties와 .yml 에서 사용가능한 표기법 ( - 표기법이 더 표준임)
+    - LOGGING_SLACK_URI_SLACK_ERROR : 시스템 환경 변수를 사용할 때 권장되는 표기법
 - glass-bottle 프로젝트에서는 해당 방식을 사용하였음
 
 <br>
 
 ### 사용
-- 사용방법은 다음과 같음
-
 ![Slack WebHook Uri yml](img/webhook-uri-yml.png)
+- yml에 저장한 값 logging.slack.uri~~
+
+<br>
 
 #### @Value
 
