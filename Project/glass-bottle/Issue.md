@@ -369,11 +369,66 @@ public String convertQRString(String data) {
 <br>
 
 ### GitAction을 사용하여 AWS S3에 저장하고 AWS CodeDeploy를 통한 CI/CD 자동화
-
+- 프로젝트를 진행하면서 EC2 인스턴스에 CI/CD 자동화를 구현하기 위해 Git Action, AWS S3, AWS CodeDeploy를 사용하기로 하였음
+- Git Action을 통해 staging 브랜치와 main 브랜치에 PR 혹은 push 진행 시 자동으로 S3에 저장하고 CodeDeploy를 실행하도록 하였음
+- Git Action을 사용하면서 우리 프로젝트는 Submodule을 사용했기 떄문에 checkout시 submodule을 같이 checkout 하도록 설정
+- 또한 Git Action 실행에서 민감한 데이터인 AWS ACESS KEY가 존재하기 때문에 Repository Secret을 사용하여 이러한 데이터를 안전하게 사용하였음
+- [Git Action](https://github.com/InJun2/TIL/blob/main/Stack/Git/Git-Action.md)의 사용방법은 해당 링크에 정리해두었음
+- 해당 Git Action에서 배포전 사전작업을 모두 진행한 후 해당 과정을 통해 gradle build 하고 압축된 jar 파일을 S3 버킷에 저장
+- [AWS S3](https://github.com/InJun2/TIL/blob/main/Stack/AWS/S3.md)는 AWS에서 지원하는 인터넷용 스토리지로 사용방법은 해당 링크에 정리해두었음
+- 이후 마찬가지로 Git Action을 통해 S3에 저장하였다면 AWS CodeDeploy를 통해 코드를 대신 실행시켜주도록 진행하였음
+- 해당 CodeDeploy를 사용하기 위해 미리 EC2, S3, CodeDeploy 접근 권한을 가진 사용자를 만들고 ec2 내에 CodeDeploy Agent를 설치하고 AWS CodeDeploy에서 애플리케이션과 배포 그룹/배포 등을 만들었음
+- 이후 CodeDeploy를 실행하기 위해 설정파일인 glass-bottle 바로 하위에 appspec.yml을 만들고, 실행하기 위한 파일인 deploy.sh 파일을 생성하였음
+- 또한 서버 배포 과정 중 관리의 효율성을 위해 ec2-user 하위 디렉토리인 action을 만들고 해당 디렉토리에 S3에서 가져온 jar 파일과 실행되는 로그를 저장할 deploy.log 파일과 에러 로그를 저장할 deploy_err.log 파일을 통해 로그를 기록하였음
 
 <br>
 
-### 프로젝트 중 에러 Issue
+## 프로젝트 중 에러 Issue
+
+### M1 Netty Error
+- Netty를 쓰는 환경에서는 M1 Apple chip 부터 발생한다고 함
+- 프로젝트 실행에는 문제가 없지만 실행시 에러 메시지가 출력되어 알아보니 native library를 로드하지 못해 발생한 오류로 netty-resolver-dns-native-macos라이브러리 문제 라고함
+- [해결 방법](https://github.com/InJun2/TIL/blob/main/Stack/Error/M1-Netty-Error.md)
+
+<br>
+
+### Swagger 3.0 버전 문제 발생
+- Swagger 3.0 은 프로젝트를 진행하면서 두번 문제가 발생하였음
+- 첫번째 문제는 Spring 2.6.X 버전 이상에서 swagger 3.0을 사용할 경우 문제가 발생
+- 해당 문제는 mvc 설정을 하던 중에 this.condition 부분에 NullPointerException을 발생했고, 해당 문제는 스프링 부트 2.6.0 버전부터 적용된 변경 사항이 springfox 의 기존 작동에 문제를 일으키고 있다고 함
+- [해결 방법](https://github.com/InJun2/TIL/blob/main/Stack/Error/Spring2.6-Swagger3.0-Runtime-Error.md)
+- 두번째 문제는 Spring Actuator을 추가하면서 발생하였음
+- mvc 설정을 하던 중에 this.condition 부분에 NullPointerException을 발생했고, 해당 문제는 이전 Spring 버전과 Swagger 3.0 에서도 발생했던 문제와 동일하였음
+- 이번 문제의 경우 Swagger는 모든 endpoint에 대해서 documentation을 해주는 역할인데 Actuator 또한 마찬가지로 몇몇 endpoint(refresh, beans, health)등을 직접 생성하는 역할이다 보니 의존성이 충돌나는 것이라고 함
+- [해결 방법](https://github.com/InJun2/TIL/blob/main/Stack/Error/Swagger3.0-SpringActuator-Error.md)
+
+<br>
+
+### EC2 내 프로젝트 gradle build 시 무한로딩
+- 자동 CI/CD 구축 이전으로 직접 EC2에서 git clone으로 서버 파일을 clone하고 gradle build 진행하였으나 Compile Java 에서 한번에 시간만 계속 늘어나고 동작하지 않았음
+- 해당 문제의 원인은 EC2에 있었는데 현재 프로젝트는 프리티어로 진행하고 있는데 1GB의 메모리, 30GB의 스토리지가 최대인데 램 부족 현상으로 인해 서버가 자주 다운되는 현상이 일어 날수도 있다고함
+- [해결 방법](https://github.com/InJun2/TIL/blob/main/Stack/Error/EC2_Memory_Shortage.md)
+
+<br>
+
+### 프로젝트 Hikari Pool Thread Starvation 발생
+- 자동 CI/CD 를 통한 프로그램이 실행되다가 어느 정도 시간이 지난 이후 ec2 서버에서 지속적으로 종료되는 현상 발생
+- Spring actuator health 정보도 down되어 있었으며 EC2 Instance의 상태검사도 1/2로 상태검사 실패로 적혀있었음
+- 해당 에러는 주로 커넥션풀이나 쓰레드가 부족해서 혹은 메모리가 부족해서 발생한다고 함
+- [해결 방법](https://github.com/InJun2/TIL/blob/main/Stack/Error/HikariPool-ThreadStarvation.md)
+
+<br>
+
+### CodeDeploy 실행시 Git SubModule Update 안됨
+- 민감한 데이터를 관리하기 위해 resource/application.yml 파일을 git submoule을 통해 관리하고 있는데 해당 submodule 최신화가 진행되지 않음
+- submodule도 간단한 PR을 통해 main으로 통합하는데 ec2 에서 서브모듈을 받아올 때 main 브랜치를 받아오지 못했음
+- CodeDeploy 실행을 위한 shell 파일에서 원격 submodule 브랜치를 모두 업데이트 하고 main 브랜치를 pull 하도록 명령어 추가
+```shell
+git submodule update --remote --recursive
+git add .
+git commit -m "update submodules"
+git pull origin main
+```
 
 <br>
 
