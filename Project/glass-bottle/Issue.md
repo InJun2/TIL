@@ -64,27 +64,307 @@ logging:
 <br>
 
 ### 매일 8시 마다 전일 회원가입 유저, 작성한 편지 Slack 메시지 전송
-- 
+- [Spring Scheduler](https://github.com/InJun2/TIL/blob/main/Stack/Spring/Spring-Scheduler.md)를 사용하여 다른 의존성을 추가하지 않고 @EnableScheduling 어노테이션을 추가하여 설정
+    - 해당 프로젝트에서는 설정을 위해 Scheduler class를 생성하여 @Configuration과 @EnableScheduling 어노테이션만을 추가하여 사용하였음
+- Spring Scheduler의 cron 표현식을 이용하여 특정 시간에 메소드 실행
+```java
+@Scheduled(cron = "0 0 8 * * *")    // 매일 8시간 마다 실행
+    private void schedulerYesterdayLetter() {
+        var response = restTemplateService.postRequestToSlack(slackProperties.slackGlassBottle(), "Write Letters", letterService.getYesterdayLetters());
+        log.info(String.valueOf(response));
+    }
+
+@Scheduled(cron = "0 0 8 * * *")    // 매일 8시간 마다 실행
+    private void schedulerYesterdayJoinMember() {
+        var response = restTemplateService.postRequestToSlack(slackProperties.slackJoinMember(), "Join Users", memberService.getYesterdayJoinUsers());
+        log.info(String.valueOf(response));
+    }
+```
+- slackProperties 통하여 application.yml의 Slack WebHook URI를 가져왔으며, [RestTemplate](https://github.com/InJun2/TIL/blob/main/Stack/Spring/Spring-RestTemplate.md)를 사용하는 메서드들을 묶어 Service를 생성하였음
+```java
+@Service
+@RequiredArgsConstructor
+public class RestTemplateService {
+
+    public String postRequestToSlack(String uri, String sender, Object data) {
+        SlackPostRequest request = new SlackPostRequest(sender, data, ":love_letter:");
+
+        return sendPost(uri, request);
+    }
+
+    private String sendPost(String uri, SlackPostRequest request) {
+        return String.valueOf(
+                // RestTemplate 요청을 생성하고 해당 요청 값을 String으로 리턴
+                new RestTemplate().exchange(uri, HttpMethod.POST, request.toEntity(), String.class).toString()
+        );
+    }
+```
+- SlackPostRequest 객체는 Slack으로 Post 요청을 보내기 위한 데이터를 담아 전송하기 위해 생성하였음
+    - 현재 Slack으로 Post 전송 요청을 하는 메서드가 3개이다 보니 중복 코드를 줄이기 위해 객체로 생성하여 실행하였음
+- 해당 객체의 정보는 다음과 같음
+    - Slack Post Request를 JSON 타입으로 request를 생성하기 위해 Map을 통해 key, value로 값을 넣어주었고 이를 전송하기 위함
+    - HttpHeaders를 통해 JSON Type임을 명시
+```java
+public class SlackPostRequest {
+    private final HttpHeaders headers;
+    private final Map<String, Object> requestVo;
+
+    public SlackPostRequest(String sender, Object data, String icon) {
+        this.headers = createHeader();
+        this.requestVo = createRequestVo(sender, data, icon);
+    }
+
+    private HttpHeaders createHeader() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        return httpHeaders;
+    }
+
+    private Map<String, Object> createRequestVo(String sender, Object data, String icon) {
+        Map<String, Object> request = new HashMap<>();
+        request.put("username", sender);
+        request.put("text", data);
+        request.put("icon_emoji", icon);
+
+        return request;
+    }
+
+    public HttpEntity<Map<String, Object>> toEntity(){
+        return new HttpEntity<>(requestVo, headers);
+    }
+}
+```
+- 마지막으로 Slack으로 보낼 데이터의 letterService.getYesterdayLetters()와 memberService.getYesterdayJoinUsers()는 구현 방식이 유사하여 getYesterdayLetter의 경우만 표시하였음
+    - 마찬가지로 두 메서드에서 사용하는 LocalDateTime이 전일 8시1초부터 금일 8시까지로 같으므로 중복코드를 없애기 위해 해당 시간의 LocalDateTime을 LocalDateTimeUtil 클래스를 생성하여 사용하였음
+```java
+@Transactional(readOnly = true)
+public String getYesterdayLetters() {
+    var letters = letterRepository
+            .findAllByCreatedAtBetween(
+                    LocalDateTimeUtil
+                            .getYesterdayEightClock()
+                    , LocalDateTimeUtil
+                            .getTodayEightClock());
+    return lettersToString(letters);
+}
+
+private String lettersToString(List<Letter> letters) {
+    if (letters == null || letters.isEmpty()) {
+        return "전날 작성된 편지는 존재하지 않습니다.";
+    }
+
+    StringBuilder message = new StringBuilder();
+    for (Letter letter : letters) {
+        message.append("[ CreateTime : ").append(letter.getCreatedAt()).append(", letterId : ").append(letter.getId()).append(", letterState : ").append(letter.getState()).append(" ] \n");
+    }
+
+    return message.toString();
+}
+```
+```java
+    // LocalDateTimeUtil Class는 다음과 같음
+    public class LocalDateTimeUtil {
+    public static LocalDateTime getNow(){
+        return LocalDateTime.now();
+    }
+
+    public static LocalDateTime getYesterdayEightClock(){
+        return LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(8,0,1));
+    }
+
+    public static LocalDateTime getTodayEightClock(){
+        return LocalDateTime.of(LocalDate.now(), LocalTime.of(8,0,0));
+    }
+}
+```
 
 <br>
 
 ### 1시간 마다 서버 상태를 Slack으로 메시지 전송
+- [Spring Actuator](https://github.com/InJun2/TIL/blob/main/Stack/Spring/Actuator.md)을 사용하여 서버 상태를 Spring Scheduler을 사용하여 1시간마다 서버의 상태를 Slack으로 모니터링
+- 사용방법은 위와 동일하게 SpringScheduler를 사용한 메서드에서 RestTemplate를 통하여 get 요청을 통해 actucator health 정보를 받아와 Slack으로 Post 요청 전송
+```java
+@Scheduled(cron = "0 0 */1 * * *")
+private void schedulerServerStateCheck() {
+    var health = restTemplateService.getToUri("http://localhost:8080/actuator/health");
+    var response =restTemplateService.postRequestToSlack(slackProperties.slackServerHealth(), "Server Health", health);
+    log.info(String.valueOf(response));
+}
+
+// RestTemplateService에서의 actuator data 문자열으로 받아오기위한 getToUri
+public String getToUri(String uri) {
+        return new RestTemplate().getForObject(uri, String.class);
+    }
+```
 
 <br>
 
-
-
-<br>
 
 ### 5분마다 편지 엔티티의 생성시간에 따른 상태 변경
+- 해당 작업은 5분마다 편지들을 모두 조회하고 만약 하루가 지났다면 '만료' 상태로 변경
+- 현재 모든 JPA Entity는 BaseEntity를 상속받아 생성시간과 변경시간이 같이 저장되기 때문에 생성시간의 LocalDateTime을 비교하여 실행
+- 사용한 코드는 다음과 같음
+```java
+// BaseEntity Class
+@Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity {
+    @CreatedDate
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime modifiedAt;
+}
+```
+```java
+// LetterSchedulerService Class
+@Scheduled(cron = "0 */5 * * * *")
+private void schedulerYesterdayLetter() {
+    validateExpirationLetterState();
+}
+
+public void validateExpirationLetterState(){
+    letterService.findLetterState(LetterState.ACTIVE)
+            .stream()
+            .filter(letter -> LocalDateTimeUtil.getNow().isAfter(letter.getCreatedAt().plusDays(1)))
+            .forEach(letter -> {
+                letter.updateLetterState(LetterState.EXPIRATION);
+                letterService.saveLetter(letter);
+                log.info("해당 편지 만료 : " + letter.getId());
+            });
+}
+
+// LetterService Class
+@Transactional(readOnly = true)
+public List<Letter> findLetterState(LetterState state) {
+    return letterRepository.findAllByState(state);
+}
+```
 
 <br>
 
 ### 편지 답변시 편지의 유효시간을 30분으로 지정
+- 만약 편지 답변시 작성 시작시에는 발송편지의 상태가 '활성화'였으나 작성 이후 '만료'가 되었을 경우. 즉, 답변을 시작했으나 받은 편지가 작성 중 상태가 '만료'로 변했을 경우 문제 발생
+- 이를 해결하기 위해 답변 작성을 시작시 요청을 통해 '답변대기중' 상태로 변경하고 해당상태에서 작성 유효시간을 30분으로 지정하기 위한 구현
+- 유효시간 30분을 지정하기 위해 java Timer Class를 사용 
+- [처리 방법](https://github.com/InJun2/TIL/blob/main/Project/glass-bottle/Glass-Bottle-Reply-Letter-Check.md)은 해당 방법을 통해 정리하였음
 
 <br>
 
 ### 편지 공유 기능 구현
+- 편지 발송자가 발송한 편지의 정보와 답변받은 편지 하나의 정보를 담은 QR Code를 받아 공유하기 위한 기능 구현
+- Controller에서 로그인한 유저정보(인증 토큰), 발송편지 id, 답변 편지 id 요청을 받아 실행
+```java
+@GetMapping("/sharing/{id}/{receiveId}")
+public ResponseEntity<String> sharingLetter(@AuthMember UserInfo userInfo, @PathVariable Map<String, String> pathId) {
+    Long id = Long.valueOf(pathId.get("id"));
+    Long receiveId = Long.valueOf(pathId.get("receiveId"));
+    var dataQR = letterService.sharingLetter(userInfo, id, receiveId);
+    return ResponseDto.ok(dataQR);
+}
+```
+- 로그인한 유저 정보가 발송 편지 id의 유저인지 확인 및 해당 편지의 발송편지인지 확인
+```java
+// LetterService Class
+public String sharingLetter(UserInfo userInfo, Long id, Long receiveId){
+        var senderLetter = findLetterById(id);
+        validateLetterSharingRequest(userInfo, id);
+
+        SharingResponse response = new SharingResponse(senderLetter, findLetterById(receiveId));
+        String data = MapperUtil.writeValueAsString(response);
+
+        return convertQRString(data);
+    }
+
+// 발송 유저 id, 답변 유저 id, 편지 id를 가지고 있는 LetterInvoce Entity에서 로그인한 유저 id와 해당 발송 편지id가 있는 LetterInvoce 가 있는지 조회하여 유효성검사 진행
+@Transactional(readOnly = true)
+    public void validateLetterSharingRequest(UserInfo userInfo, Long letterId) {
+        letterInvoiceRepository.findBySenderUserIdAndLetterId(userInfo.getId(), letterId)
+                .orElseThrow(InvalidSharingLetterRequestException::new);
+    }
+```
+- 해당 편지들의 데이터를 담은 SharingResponse 객체 생성
+```java
+public class SharingResponse {
+    String senderMbti;
+    String senderTitle;
+    String senderContent;
+    String receiverMbti;
+    String receiverTitle;
+    String receiverContent;
+
+    public SharingResponse(WriteLetterResponse senderLetter, WriteLetterResponse receiverLetter) {
+        this.senderMbti = String.valueOf(senderLetter.getSenderMbtiId());
+        this.senderTitle = senderLetter.getTitle();
+        this.senderContent = senderLetter.getContent();
+        this.receiverMbti = String.valueOf(receiverLetter.getReceiverMbtiId());
+        this.receiverTitle = receiverLetter.getTitle();
+        this.receiverContent = receiverLetter.getContent();
+    }
+}
+```
+- 해당 객체를 ObjectMapper를 사용하는 메서드를 모아둔 Util Class의 writeValueAsString()를 호출하여 해당 객체를 String 값으로 변경
+    - 해당 코드는 피드백을 진행해주는 지인이 구현해둔 코드임
+```java
+// MapperUtil Class
+private static ObjectMapper mapper = new ObjectMapper();
+
+public static ObjectMapper mapper() {
+        var deserializationFeature = DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+        var serializationFeature = SerializationFeature.FAIL_ON_EMPTY_BEANS;
+
+        mapper
+                .setSerializationInclusion(NON_NULL);
+
+        mapper
+                .configure(deserializationFeature, false)
+                .configure(serializationFeature, false);
+
+        mapper
+                .registerModule(new JavaTimeModule())
+                .disable(WRITE_DATES_AS_TIMESTAMPS);
+
+        return mapper;
+    }
+
+public static String writeValueAsString(Object object) {
+        try {
+            return mapper().writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            log.error("[ERROR] Exception -> {}", e.getMessage());
+            throw new RuntimeException();
+        }
+    }
+
+...
+```
+- zxing 라이브러리를 통하여 해당 String Data QRcode로 변경하여 응답
+```java
+public String convertQRString(String data) {
+        try{
+            BitMatrix matrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, 200, 200);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(matrix, "PNG", out);
+            return out.toString();
+        } catch (WriterException e) {
+            throw new QRConversionFailedException();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+```
+- 현재 API는 FrontEnd가 없기 때문에 편의상 해당 ByteArrayOutputStream를 String으로 변환해서 반환하고 있으나 QR 코드로 반환하는 경우 toString() 메서드를 제거하고 해당 방식을 통해 반환해야함
+    ```java
+    return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(out.toByteArray());
+    ```
 
 <br>
 
@@ -99,5 +379,8 @@ logging:
 
 ### 개선 가능 사항
 - LogBack 라이브러리 xml 파일이 아닌 java 설정으로 변경
-- 웹 요청 방법을 현재 사용중인 RestTemplate 비동기 처리가 되도록 변경 혹은 WebClient를 사용하여 구현으로 변경
-- AWS S3에 저장하고 CodeDeploy를 통해 CI/CD 자동화 방법이 아닌 DockerHub에 저장하고 Docker를 통해 배포
+- 웹 요청을 현재 사용중인 RestTemplate를 사용하고 있는데 많은 요청이 필요할 경우 비동기 처리가 되도록 AsyncRestTemplate로 변경 혹은 WebClient를 사용하여 구현으로 변경 (그러나 해당 프로젝트의 경우 24시간마다 한번 혹은 1시간마다 스케줄링을 통한 RestTemplate를 사용하기 때문에 현재는 변경할 필요가 없음)
+- 현재 RestTemplate의 경우 메소드마다 새로운 RestTemplate 객체를 생성하고 있는데 성능 개선을 위해 static으로 싱글톤 패턴을 사용하여 생성으로 변경
+- 5분마다 스케줄링을 통해 '활성화'상태인 편지들을 모두 조회하여 하루가 지났는지 조회하는데 해당 기능에서 성능 개선 방법이 있는지
+- Timer Class의 경우 많이 사용될 경우 이게 쓰레드를 많이 잡아먹거나 부하가 걸리지는 않을지..? / 확인 필요
+- AWS S3에 저장하고 CodeDeploy를 통해 CI/CD 자동화 방법이 아닌 DockerHub에 저장하고 Docker를 통해 배포 변경
