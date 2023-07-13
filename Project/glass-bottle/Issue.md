@@ -13,7 +13,6 @@
     - spring-boot-starter-test
     - spring-boot-configuration-processor
     - lombok
-    - webflux
     - redis
     - mysql
     - swagger 3.0
@@ -81,10 +80,34 @@ logging:
     }
 ```
 - slackProperties 통하여 application.yml의 Slack WebHook URI를 가져왔으며, [RestTemplate](https://github.com/InJun2/TIL/blob/main/Stack/Spring/Spring-RestTemplate.md)를 사용하는 메서드들을 묶어 Service를 생성하였음
+- RestTemplate는 buildRestTemplate를 @Bean으로 등록하여 설정하고 싱글톤으로 사용하였음
+```java
+@RequiredArgsConstructor
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    ...
+
+    // 기존 WebMvcConfigurer를 사용하는 WebConfig에 메서드 추가하였음
+    @Bean
+    public RestTemplate buildRestTemplate(){
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 연결시간초과, ms
+        factory.setReadTimeout(5000); // 읽기시간초과, ms
+        HttpClient httpClient = HttpClientBuilder.create()
+                .setMaxConnTotal(100) // 최대 오픈되는 커넥션 수
+                .setMaxConnPerRoute(5) // IP,포트 1쌍에 대해 수행 할 연결 수
+                .build();
+        factory.setHttpClient(httpClient);
+
+        return new RestTemplate(factory);
+    }
+}
+```
 ```java
 @Service
 @RequiredArgsConstructor
 public class RestTemplateService {
+    private final RestTemplate restTemplate;
 
     public String postRequestToSlack(String uri, String sender, Object data) {
         SlackPostRequest request = new SlackPostRequest(sender, data, ":love_letter:");
@@ -92,12 +115,16 @@ public class RestTemplateService {
         return sendPost(uri, request);
     }
 
+    public String getToUri(String uri) {
+        return restTemplate.getForObject(uri, String.class);
+    }
+
     private String sendPost(String uri, SlackPostRequest request) {
         return String.valueOf(
-                // RestTemplate 요청을 생성하고 해당 요청 값을 String으로 리턴
-                new RestTemplate().exchange(uri, HttpMethod.POST, request.toEntity(), String.class).toString()
+                restTemplate.exchange(uri, HttpMethod.POST, request.toEntity(), String.class)
         );
     }
+}
 ```
 - SlackPostRequest 객체는 Slack으로 Post 요청을 보내기 위한 데이터를 담아 전송하기 위해 생성하였음
     - 현재 Slack으로 Post 전송 요청을 하는 메서드가 3개이다 보니 중복 코드를 줄이기 위해 객체로 생성하여 실행하였음
@@ -435,7 +462,8 @@ git pull origin main
 ### 개선 가능 사항
 - LogBack 라이브러리 xml 파일이 아닌 java 설정으로 변경
 - 웹 요청을 현재 사용중인 RestTemplate를 사용하고 있는데 많은 요청이 필요할 경우 비동기 처리가 되도록 AsyncRestTemplate로 변경 혹은 WebClient를 사용하여 구현으로 변경 (그러나 해당 프로젝트의 경우 24시간마다 한번 혹은 1시간마다 스케줄링을 통한 RestTemplate를 사용하기 때문에 현재는 변경할 필요가 없음)
-- 현재 RestTemplate의 경우 메소드마다 새로운 RestTemplate 객체를 생성하고 있는데 성능 개선을 위해 static으로 싱글톤 패턴을 사용하여 생성으로 변경
+- 현재 RestTemplate의 경우 메소드마다 새로운 RestTemplate 객체를 생성하고 있는데 성능 개선을 위해 싱글톤 패턴을 사용하여 생성으로 변경 (@Bean을 이용한 RestTemplate 설정 추가 및 싱글톤으로 적용 완료)
 - 5분마다 스케줄링을 통해 '활성화'상태인 편지들을 모두 조회하여 하루가 지났는지 조회하는데 해당 기능에서 성능 개선 방법이 있는지
-- Timer Class의 경우 많이 사용될 경우 이게 쓰레드를 많이 잡아먹거나 부하가 걸리지는 않을지..? / 확인 필요
+- Timer Class의 경우 많이 사용될 경우 이게 쓰레드를 많이 잡아먹거나 부하가 걸리지는 않을지? ()
+    - 
 - AWS S3에 저장하고 CodeDeploy를 통해 CI/CD 자동화 방법이 아닌 DockerHub에 저장하고 Docker를 통해 배포 변경
