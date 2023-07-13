@@ -20,7 +20,7 @@
 ![RestTemplate Flow](img/rest_template_flow.png)
 
 ### RestTemplate 동작원리
-1. 애플리케이션 내부에서 REST API에 요청하기 위해 RestTemplate의 메셔드릴 호출
+1. 애플리케이션 내부에서 REST API에 요청하기 위해 RestTemplate의 메서드를 호출
 2. RestTemplate은 MessageConverter를 이용해 java object를 request body에 담을 message(JSON etc.)로 변환. 메시지 형태는 상황에 따라 다름
 3. ClientHttpRequestFactory에서 ClientHttpRequest을 받아와 요청을 전달
 4. 실질적으로 ClientHttpRequest가 HTTP 통신으로 요청을 수행
