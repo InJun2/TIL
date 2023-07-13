@@ -464,6 +464,5 @@ git pull origin main
 - 웹 요청을 현재 사용중인 RestTemplate를 사용하고 있는데 많은 요청이 필요할 경우 비동기 처리가 되도록 AsyncRestTemplate로 변경 혹은 WebClient를 사용하여 구현으로 변경 (그러나 해당 프로젝트의 경우 24시간마다 한번 혹은 1시간마다 스케줄링을 통한 RestTemplate를 사용하기 때문에 현재는 변경할 필요가 없음)
 - 현재 RestTemplate의 경우 메소드마다 새로운 RestTemplate 객체를 생성하고 있는데 성능 개선을 위해 싱글톤 패턴을 사용하여 생성으로 변경 (@Bean을 이용한 RestTemplate 설정 추가 및 싱글톤으로 적용 완료)
 - 5분마다 스케줄링을 통해 '활성화'상태인 편지들을 모두 조회하여 하루가 지났는지 조회하는데 해당 기능에서 성능 개선 방법이 있는지
-- Timer Class의 경우 많이 사용될 경우 이게 쓰레드를 많이 잡아먹거나 부하가 걸리지는 않을지? ()
-    - 
+- Timer Class의 경우 많이 사용될 경우 이게 쓰레드를 많이 잡아먹거나 부하가 걸리지는 않을지? -> 해당 사항은 싱글스레드로 동작하기 때문에 thread-safe 함. 이후 해당 CS정리 예정
 - AWS S3에 저장하고 CodeDeploy를 통해 CI/CD 자동화 방법이 아닌 DockerHub에 저장하고 Docker를 통해 배포 변경
