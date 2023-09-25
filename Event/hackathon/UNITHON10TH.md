@@ -1,5 +1,7 @@
 # UNITHON 10 TH 참여 후기
 
+![U10 Form](../img/U10-Form.png)
+
 ## 참여하기 전에 UNTHION
 - 취업 준비 중 지인을 통해 UNIT 에서 10기 해커톤 unithon 지원자를 받는다는 것을 알게 되었고 이후 지원 후 합격하여 참가하게 되었습니다.
 >    - 지인과 함께 신청하고 제안해준 극락코딩(https://github.com/DongGeon0908)님과 참여하게 되었고 다른 한분은 아쉽게도 불합격이 되어 각자 1팀, 10팀에서 진행하였습니다.
@@ -61,12 +63,17 @@
 
 <br>
 
+![덕지덕지 발표](../img/deokjideokji-presentation.jpeg)
+- 덕지덕지 발표
+
+<br>
+
 ![덕지덕지 시연부스](../img/deokjideokji-booth.jpeg)
 - 덕지덕지 시연부스
 
 <br>
 
-![UNITHON10 우수상 수상](../img/unithon10-reward.jpeg)
+![UNITHON10 우수상 수상](../img/deokjideokji-reward.jpeg)
 - 10팀 덕지덕지 우수상 수상! 
 
 <br>
@@ -75,7 +82,7 @@
 - ouath2, 카카오 로그인 api, Jwt를 통한 환경설정 및 로직 구현
     - cors 문제로 로그인은 nestJS로 정찬영BE 님이 진행해주심
 - AWS EC2, AWS RDS, AWS S3 등 환경 구성 및 설정
-- 서브모듈 사용하였으나 이후 정찬영BE님 문제 발생으로 제거
+- 깃 서브모듈 사용하였으나 이후 정찬영BE님 깃 브랜치 문제 발생으로 제거
 - 보관함 도메인 구현 및 식당 도메인 구현 중 문제 발생으로 보류 후 중단
 - Spring에서 Jwt 헤더를 담은 요청에서 유저 id 파싱
     - nestJS에서 int 범위 초과로 카카오 userID를 String으로 사용하여 코드 모두 변경
