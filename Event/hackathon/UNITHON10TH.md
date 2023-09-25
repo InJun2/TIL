@@ -9,7 +9,7 @@
 >   - 가져간 물품은 간단하게 노트북과 윗옷/반바지 한벌, 노트북과 충전기, 칫솔/치약/폼클렌징, 인공눈물 정도만 들고가서 진행했습니다. 
 >   - 셔츠는 처음에 웰컴키트와 함께 주셔서 날씨가 추울까봐 가져간 옷은 따로 입지않았고 불편했던점은 없었습니다.
 
-![웰컴키트](../img/hacathon/unithon-wellcome-kit.jpeg)
+![웰컴키트](../img/unithon-wellcome-kit.jpeg)
 - 웰컴키트는 스티커와 인프런할인권 등 셔츠와 핫팩, 물티슈 등으로 구성
 
 <br>
@@ -61,12 +61,12 @@
 
 <br>
 
-![덕지덕지 시연부스](../img/hacathon/deokjideokji-booth.jpeg)
+![덕지덕지 시연부스](../img/deokjideokji-booth.jpeg)
 - 덕지덕지 시연부스
 
 <br>
 
-![UNITHON10 우수상 수상](../img/hacathon/unithon10-reward.jpeg)
+![UNITHON10 우수상 수상](../img/unithon10-reward.jpeg)
 - 10팀 덕지덕지 우수상 수상! 
 
 <br>
@@ -83,7 +83,7 @@
 - ORM DB 충돌로 영속성 컨테이너에 접근 불가.. Spring 사용 철회
 - AWS EC2 nestJS 실행환경 조성, ERD클라우드 변경, 백엔드 문서화 작성, 요청/응답/기능을 적는 API 문서 작성, 기타 아이디어 제공 등으로 프로젝트 진행
 
-![cors 문제](../img/hacathon/deokjideokji-PR.png)
+![cors 문제](../img/deokjideokji-PR.png)
 
 <br>
 
@@ -96,7 +96,7 @@
 
 <br>
 
-![덕지덕지 인스타그램](../img/hacathon/deokjideokji-instagram.jpeg)
+![덕지덕지 인스타그램](../img/deokjideokji-instagram.jpeg)
 - 몰골이 말이 아닌데 마지막날은 사진을 진짜 많이 찍고 성공적인 마무리.. 다들 고생하셨고 감사했습니다.
 
 <br>
