@@ -1,9 +1,10 @@
 # 우아한 테크코스 프리코스 Week3
 
 ### 우아한 테크코스 프리코스 3주차 진행
-- 이번 2주차 프리코스 과제는 로또 이다. 자세한 설명은 다음과 같음
+- 이번 2주차 프리코스 과제는 로또이다. 자세한 설명은 다음과 같음
     - [Fork Git](https://github.com/InJun2/java-lotto-6)
 - 이번에도 테스트를 단위테스트로 진행하고 이전 코드리뷰를 통해 제안 받은 어노테이션을 사용하여 테스트 코드를 구현할 예정
+    - 기존 처럼 Mock 객체를 통해 다른 클래스에 영향을 받지 않게 테스트 코드 작성 목표
 
 <br>
 
@@ -31,3 +32,235 @@ public class View {
     }
 }
 ``` 
+
+- 출력 문자열에서 int값이나 float 값을 반환하기 위한 방법에 대해 고민하다 메서드 오버로딩을 통해 파라미터를 받아서 문자열로 반환받았음
+```java
+public enum ViewMessage {
+    ...
+    WINNING_STATISTICS_FIFTH("3개 일치 (5,000원) - %d개\n"),
+    WINNING_STATISTICS_FOURTH("4개 일치 (50,000원) - %d개\n"),
+    WINNING_STATISTICS_THIRD("5개 일치 (1,500,000원) - %d개\n"),
+    WINNING_STATISTICS_SECOND("5개 일치, 보너스 볼 일치 (30,000,000원) - %d개\n"),
+    WINNING_STATISTICS_FIRST("6개 일치 (2,000,000,000원) - %d개"),
+    TOTAL_PROFIT_PERCENTAGE("총 수익률은 %.1f%%입니다."),
+    ;
+
+    private final String message;
+
+    ViewMessage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getMessage(int number) {
+        return String.format(message, number);
+    }
+
+    public String getMessage(Float percent) {
+        return String.format(message, percent);
+    }
+}
+```
+
+- 예외를 입력과 객체 생성, 비즈니스 로직 구현 중 어디에서 발생 시킬까 고민하였는데 입력이 없을 경우 입력 문자열 조작 서비스, 잘못된 입력일 경우 객체 생성 등을 통해 예외를 발생 시켰음
+
+- 이번에 기능이 비슷한 중복로직 제거를 위해 고민을하다가 상속을 위주로 변경하였음
+    - 기존 Lotto와 WinningLotto를 record로 사용하려고 변경했다가 상속을 통해 클래스로 다시 변경하고 추상 클래스 상속
+    - 기존 record는 다른 예외 발생을 위해 중복 로직을 포함하여 메서드를 사용했었음
+```java
+public class Lotto extends ValidateLottoNumbers{
+    private final List<Integer> numbers;
+
+    public Lotto(List<Integer> numbers) {
+        validateLottoNumbers(numbers);
+        this.numbers = sortLottoNumbers(numbers);
+    }
+    // ... 
+}
+
+public class WinningLotto extends ValidateLottoNumbers {
+    private final List<Integer> numbers;
+    private final int bonusNumber;
+
+    public WinningLotto(List<Integer> numbers, int bonusNumber) {
+        validateWinningLottoNumbers(numbers, bonusNumber);
+        this.numbers = numbers;
+        this.bonusNumber = bonusNumber;
+    }
+    // ...
+}
+
+// 추상 클래스
+public abstract class ValidateLottoNumbers {
+    private final static int NUMBERS_SIZE = 6;
+    private final static int WINNING_NUMBERS_SIZE = 7;
+    private final static int MIN_NUMBER = 1;
+    private final static int MAX_NUMBER = 45;
+
+    // Lotto 유효성 검사 메서드
+    protected void validateLottoNumbers(List<Integer> numbers) {
+        validateSize(numbers, ExceptionMessage.INVALID_LOTTO_SIZE);
+        validateRange(numbers, ExceptionMessage.INVALID_NUMBER_RANGE);
+        validateDuplicationNumbers(numbers);
+    }
+
+    // WinningLotto 유효성 검사 메서드
+    // validateDuplicationNumbers, validateBonusNumberRange 로직은 다르며 예외 메시지가 달라 해당 방식으로 해결하였음 :D
+    protected void validateWinningLottoNumbers(List<Integer> numbers, int bonusNumber) {
+        validateSize(numbers, ExceptionMessage.INVALID_WINNING_NUMBERS_SIZE);
+        validateRange(numbers, ExceptionMessage.INVALID_WINNING_NUMBERS_RANGE);
+        validateDuplicationNumbers(numbers, bonusNumber);
+        validateBonusNumberRange(bonusNumber);
+    }
+
+    private void validateDuplicationNumbers(List<Integer> numbers) {
+        Set<Integer> notDuplicationNumbers = new HashSet<>(numbers);
+
+        if (notDuplicationNumbers.size() != NUMBERS_SIZE) {
+            throw new CustomIllegalArgumentException(ExceptionMessage.DUPLICATE_LOTTO_NUMBER);
+        }
+    }
+
+    private void validateDuplicationNumbers(List<Integer> numbers, int bonusNumber) {
+        Set<Integer> notDuplicationNumbers = new HashSet<>(numbers);
+        notDuplicationNumbers.add(bonusNumber);
+
+        if (notDuplicationNumbers.size() != WINNING_NUMBERS_SIZE) {
+            throw new CustomIllegalArgumentException(ExceptionMessage.DUPLICATE_WINNING_NUMBER);
+        }
+    }
+```
+
+- 예외 메시지 전역처리를 위해 예외를 상속받아 예외 메시지를 파라미터로 받아 예외 메시지의 값을 메시지로 넣어주었음
+    - 계속 파라미터로 ExceptionMessage.EMPTY_PURCHASE_AMOUNT.getErrorMessage()로 가져오는 건 너무 열받음;
+```java
+public class CustomIllegalArgumentException extends IllegalArgumentException {
+    public CustomIllegalArgumentException(ExceptionMessage exceptionMessage) {
+        super(exceptionMessage.getErrorMessage());
+    }
+}
+```
+
+- 상수 관리를 정적 필드 vs Enum에 대해 고민하다 하나의 계층에서만 사용한다면 정적필드를 사용하였음
+```java
+// 필드 정적 인스턴스
+public class LottoService {
+    private final static int LOTTO_PRICE = 1000;
+    private final static int MIN_AMOUNT = 1;
+    private final static int BONUS_MATCHING_COUNT = 5;
+    private final static int MIN_PRIZE_COUNT = 3;
+    private final static int NO_PRIZE_COUNT = 0;
+
+    ...
+}
+
+// enum 인스턴스
+public enum LottoWinningRank {
+    FIRST(6, 2000000000),
+    SECOND(5, 30000000),
+    THIRD(5, 1500000),
+    FOURTH(4, 50000),
+    FIFTH(3, 5000),
+    NO_WINNER(0, 0),
+    ;
+    
+    private final int matchingNumbers;
+    private final int prize;
+
+    ...
+}
+```
+
+- 하고나서 테스트가 에러 발생해서 요구사항을 다시 살펴보니 예외를 던지기만 하는게 아니라 예외 메시지를 출력하고 다시 입력받아야 했음
+    - try-catch로 내가 발생시킨 예외를 잡아 예외 메시지를 출력하고 입력부터 로직을 진행하는 메서드를 재귀를 통해 다시 실행
+```java
+    // 예외 발생시 메시지를 출력하고 다시 실행
+    private LottoTickets createLottoTickets() {
+        try {
+            int amount = inputPurchaseLotto();
+
+            return lottoService.createLottoTickets(amount);
+        } catch (CustomIllegalArgumentException e) {
+            lottoView.outputException(e);
+
+            return createLottoTickets();
+        }
+    }
+```
+
+- 로또 당첨 개수를 알아내어 로또 당첨 순위 순회하는 방법에 대해 고민
+    - 해당 방법은 ChapGPT 방법을 참조하였음
+```java
+private LottoWinningRank determinePrizeRank(int prizeCount) {
+        if (prizeCount < MIN_PRIZE_COUNT && prizeCount >= NO_PRIZE_COUNT) {
+            return LottoWinningRank.NO_WINNER;
+        }
+
+        return Arrays.stream(LottoWinningRank.values()) // ArrayStream 으로 enum을 모두 순회할 수 있음!
+                .filter(rank ->
+                        rank.getMatchingNumbers() == prizeCount)
+                .findFirst()
+                .orElseThrow(() ->
+                        new CustomIllegalArgumentException(ExceptionMessage.INVALID_PRIZE_COUNT));
+    }
+```
+
+- 당첨 내역을 계속 저장할 객체를 어떻게 저장하고 가져올까 고민하였는데 어차피 matchingNumbers 어디에 저장할지 정해야 하므로 Map이 제격이라고 생각헀음. 이제 Map에 어떻게 넣을까 생각했다가 Enum을 순회해서 값이 같다면 넣는 방식으로 하기로 결정
+```java
+// 위의 LottoWinningRank Enum 참조
+
+// 당첨 내역 저장 객체
+public class LottoTotalPrize {
+    private final static int INIT_VALUE = 0;
+    private final static int PLUS_COUNT = 1;
+    // Key를 LottoWinningRank로 사용한 이유는 2등과 3등의 matchingNumbers가 같기 때문
+    private final Map<LottoWinningRank, Integer> prizeCounts = new HashMap<>();
+
+    public LottoTotalPrize() {
+        init();
+    }
+
+    // 처음 생성시 나올 수있는 키에 0으로 초기화
+    private void init() {
+        Arrays.asList(LottoWinningRank.values())
+                .forEach(winningRank ->
+                        prizeCounts.put(winningRank, INIT_VALUE));
+    }
+
+    // Enum 인스턴스를 파라미터로 받아 해당 인스턴스를 Key로 사용하고 해당 Key의 밸류 값을 가져와 count에 +1 저장
+    public void prizeCountPlus(LottoWinningRank winningRank) {
+        prizeCounts.put(winningRank, prizeCounts.get(winningRank) + PLUS_COUNT);
+    }
+
+    // getter
+```
+
+- 당첨 내역에 대해 총 당첨 금액을 계산하기 위해 Map을 순회하는 방법은 ChapGPT를 참조
+```java
+private int calculateTotalPrize(LottoTotalPrize lottoResult) {
+    return lottoResult.getPrizeCounts()
+            .entrySet()         // entrySet으로 Map을 모두 순회
+            .stream()
+            .map(entry ->
+                    entry.getKey().getPrize() * entry.getValue())
+            .mapToInt(Integer::intValue)
+            .sum();
+}
+```
+
+<br>
+
+### 코드 피드백
+- 제출 이후 스터디 및 우아한테크코스 프리코스 디스코드를 통해 코드피드백을 받아 해당 내용을 이어 정리할 예정
+
+<br>
+
+### 느낀점
+- 생각보다 ChatGPT와 인텔리제이 replace 기능이 매우 좋다고 느껴졌음
+- 기존에는 거의 명명규칙에만 ChatGPT를 사용했는데 중복 로직 코드를 제거하는데 많은 도움이 되었음
+- 인텔리제이 IDE에서 애매한 for문이나 if문을 stream으로 바꿔주거나 Class를 Record로 바꿔주는 등 기능에 만족..
+- 또 Commit 시 주의 밑줄이 여러개 뜨는게 있다면 해당 부분을 전부 수정해주니 더 좋은 코드가 되었다고 생각
+- 이번에 생각보다 시간이 오래걸렸는데 코드가 조금 맘에 안드는 부분도 있지만 많이 배우는 시간이 되었다고 생각함.. 이제 과제 한번 남았는데 걱정반 기대반 인것 같음
