@@ -70,6 +70,8 @@ public enum ViewMessage {
 - 이번에 기능이 비슷한 중복로직 제거를 위해 고민을하다가 상속을 위주로 변경하였음
     - 기존 Lotto와 WinningLotto를 record로 사용하려고 변경했다가 상속을 통해 클래스로 다시 변경하고 추상 클래스 상속
     - 기존 record는 다른 예외 발생을 위해 중복 로직을 포함하여 메서드를 사용했었음
+    - 이후 생각해보니 추상 메서드가 없는데 왜 굳이 추상 클래스를 썼는지 모르곘음 ㅋㅋ.. 이후 기본 클래스로 변경시키겠음
+        - 기존에는 중복로직을 추상 메서드로 하여금 다른부분만 역할을 강제하려했으나 Lotto와 WinningLotto의 파라미터가 달라 그렇게 사용하지 못하였음..
 ```java
 public class Lotto extends ValidateLottoNumbers{
     private final List<Integer> numbers;
@@ -93,7 +95,7 @@ public class WinningLotto extends ValidateLottoNumbers {
     // ...
 }
 
-// 추상 클래스
+// 추상 클래스 -> 그런데 추상 메서드가 하나도 없어 괜히 추상 클래스로 구현했다고 생각됨..
 public abstract class ValidateLottoNumbers {
     private final static int NUMBERS_SIZE = 6;
     private final static int WINNING_NUMBERS_SIZE = 7;
@@ -116,6 +118,7 @@ public abstract class ValidateLottoNumbers {
         validateBonusNumberRange(bonusNumber);
     }
 
+    // 해당 메서드를 통해 추상 메서드로 구현을 강제하려했으나 파라미터가 다름..
     private void validateDuplicationNumbers(List<Integer> numbers) {
         Set<Integer> notDuplicationNumbers = new HashSet<>(numbers);
 
@@ -265,5 +268,7 @@ private int calculateTotalPrize(LottoTotalPrize lottoResult) {
 - 또 Commit 시 주의 밑줄이 여러개 뜨는게 있다면 해당 부분을 전부 수정해주니 더 좋은 코드가 되었다고 생각
 - 이번에 아쉬웠던 부분은 지난번 피드백인 Random 클래스의 테스트 진행을 못했던 부분.. 이번에는 사용하는 메서드가 private다 보니 테스트가 되지 않았음. 다음번에 테스트 코드를 위해 어떻게 사용해야하는지 다시 숙지해야할 것 같음
     - 이전 피드백인 @ParameterizedTest를 사용하였는데 신기하고 코드가 간단해져서 좋음
+    - 로또 Mockito 객체를 사용해 가짜 객체를 생성해 사용하였으나 한 객체는 그렇게 사용하지 못했음.. 어떻게 해야할까
+    - 테스트 코드 작성도 시간이 꾀나 걸렸는데 이후 연습만이 살일
 - 또 아쉬웠던 부분은 리드미를 먼저 작성하고 점진적으로 체크리스트를 통해 작업하고 작업 단위를 작게 나누어서 커밋하지 못하였음.. 작게 나눠서 점진적으로 커밋하는 방식은 습관을 들이도록 노력해보겠음
 - 이번에 생각보다 리팩토링 시간이 오래걸렸는데 가독성 부분은 더 나아지기도 했고 많이 배우는 시간이 되었다고 생각함.. 이제 과제 한번 남았는데 걱정반 기대반 인것 같음
