@@ -183,7 +183,7 @@ public abstract class ValidateLottoNumbers {
     - 인터페이스의 추상메서드는 접근제한자를 모두 public으로 사용해야하므로 상속받아 사용할 경우 무조건 public으로 사용하여야 함
 - java 8이후에는 default 키워드를 사용하여 오버라이드하지 않고 상속받아 사용할 수 있음 ( 재정의도 가능하지만 재정의 하지 않으면 해당 메서드가 사용됨 )
 ```java
-public interface ValidateLottoNumbers2 {
+public interface ValidateLottoNumbers {
     public void validateSize(List<Integer> numbers);
     public void validateRange(List<Integer> numbers);
     public void validateDuplication(List<Integer> numbers);
