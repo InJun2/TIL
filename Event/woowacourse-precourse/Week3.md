@@ -1,7 +1,7 @@
 # 우아한 테크코스 프리코스 Week3
 
 ### 우아한 테크코스 프리코스 3주차 진행
-- 이번 2주차 프리코스 과제는 로또이다. 자세한 설명은 다음과 같음
+- 이번 3주차 프리코스 과제는 로또이다. 자세한 설명은 다음과 같음
     - [Fork Git](https://github.com/InJun2/java-lotto-6)
 - 이번에도 테스트를 단위테스트로 진행하고 이전 코드리뷰를 통해 제안 받은 어노테이션을 사용하여 테스트 코드를 구현할 예정
     - 기존 처럼 Mock 객체를 통해 다른 클래스에 영향을 받지 않게 테스트 코드 작성 목표
@@ -257,7 +257,13 @@ private int calculateTotalPrize(LottoTotalPrize lottoResult) {
 <br>
 
 ### 코드 피드백
-- 제출 이후 스터디 및 우아한테크코스 프리코스 디스코드를 통해 코드피드백을 받아 해당 내용을 이어 정리할 예정
+- [코드 피드백](https://github.com/woowacourse-precourse/java-lotto-6/pull/1617/files)은 해당 피드백과 코드 리뷰를 진행했던 [서재님](https://github.com/woowacourse-precourse/java-lotto-6/pull/1153/files)의 코드 구현을 바탕으로 이후 다음 프리코스 과제를 진행할 예정
+    - jdk17 이후 .collect(Collectors.toList()); 대신 .toList 사용
+    - getter 객체 외부에 값을 전달 시 Collections.unmodifiableList 등을 통해 값을 변경하지 못하도록 제한하거나 DTO 객체를 파라미터로 전달
+    - 자리수가 많은 정수형 상수를 사용할 때 "2_000_000_000" 처럼 자리수를 구분 가능
+    - try-catch 문 중복을 동작 파라미터화를 통해 제거가 가능
+    - enum 접근제한자를 default로 사용하여 사용 패키지 제한
+    - 스트림에서 찾는 값이 없을 경우 지정된 값을 반환해주는 getOrDefault 사용
 
 <br>
 
