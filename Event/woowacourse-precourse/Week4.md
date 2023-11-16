@@ -78,8 +78,8 @@ public class TextProcessor {
 
 - 이벤트 적용 시 이벤트 내역과 주문 내역을 사용해 값을 저장하는 방법을 Service 에서 진행할지 객체 내부에서 진행할지 고민
 ```java
-// 기존 입력을 통해 생성한 도메인의 DTO 값을 받아와 이벤트 적용. 해당 Service는 객체를 생성하고 DTO로 반환해주는 역할만을 수행
-public EventResultDTO applyEvents(ReservationDateEventDTO dateEventDTO, OrderMenusDTO orderMenusDto) {
+    // 기존 입력을 통해 생성한 도메인의 DTO 값을 받아와 이벤트 적용. 해당 Service는 객체를 생성하고 DTO로 반환해주는 역할만을 수행
+    public EventResultDTO applyEvents(ReservationDateEventDTO dateEventDTO, OrderMenusDTO orderMenusDto) {
         EventResult eventResult = new EventResult(dateEventDTO
                 , converter.convertToMenuItem(orderMenusDto));
 
@@ -91,16 +91,16 @@ public EventResultDTO applyEvents(ReservationDateEventDTO dateEventDTO, OrderMen
   - DTO 룰 출력하고 해당 DTO 통해 다시 이벤트 내역 확인하는데 있어 DTO 값을 사용하는 방법
   - DTO 에서 출력 문자열을 생성하는 메서드를 넣었으나 비즈니스 로직으로 판단하여 EventResultTextFactory에 로직 위임. DTO 객체 생성은 Builder 사용
 ```java
-// Service
-public EventResultDTO applyEvents(ReservationDateEventDTO dateEventDTO, OrderMenusDTO orderMenusDto) {
+    // Service
+    public EventResultDTO applyEvents(ReservationDateEventDTO dateEventDTO, OrderMenusDTO orderMenusDto) {
         EventResult eventResult = new EventResult(dateEventDTO
                 , converter.convertToMenuItem(orderMenusDto));
 
         return converter.toDto(new EventResultTextFactory(eventResult));
     }
 
-// Converter
-public EventResultDTO toDto(EventResultTextFactory resultTextProcessor) {
+    // Converter
+    public EventResultDTO toDto(EventResultTextFactory resultTextProcessor) {
         return EventResultDTO.builder()
                 .orderMenus(resultTextProcessor.initOrderMenus())
                 .totalPriceBeforeDiscount(resultTextProcessor.initTotalPriceBeforeDiscount())
@@ -133,22 +133,24 @@ public class EventResultTextFactory {
 
         return builder.toString();
     }
+
     ...
 ```
 
 - 잘못된 입력에 대한 메서드 재실행 로직은 지난주 [장혁수님](https://github.com/zangsu) 코드리뷰로 배운 Supplier 반복 사용
 ```java
-private ReservationDateEventDTO inputCorrectReservationDate() {
+// Controller 내부 메서드
+    private ReservationDateEventDTO inputCorrectReservationDate() {
         outputView.displayStartPromotion();
 
         return getCorrectResult(this::generateDateEvent);
     }
 
-private OrderMenusDTO inputCorrectOrderMenus() {
+    private OrderMenusDTO inputCorrectOrderMenus() {
         return getCorrectResult(this::receiveMenus);
     }
 
-private <T> T getCorrectResult(Supplier<T> supplier) {
+    private <T> T getCorrectResult(Supplier<T> supplier) {
         while (true) {
             try {
                 return supplier.get();
@@ -170,7 +172,7 @@ private <T> T getCorrectResult(Supplier<T> supplier) {
         ...
     }
 
-private static Stream<Arguments> createNormalOrderMenusData() {
+    private static Stream<Arguments> createNormalOrderMenusData() {
         return Stream.of(
                 Arguments.of(
                         Map.of(MenuItem.APPETIZER_MUSHROOM_SOUP, 4, MenuItem.MAIN_SEAFOOD_PASTA, 4,
