@@ -2,7 +2,7 @@
 
 ### 우아한 테크코스 프리코스 4주차 진행
 - 이번 4주차 프리코스 과제는 크리스마스 프로모션이다. 기존 과제와 다르게 private 저장소로 제출해야 하기에 이후 링크를 달아둘 예정
-- 이번에도 3주차 코드리뷰를 통해 [장혁수님](https://github.com/woowacourse-precourse/java-lotto-6/pull/111)과 [최윤혁님](https://github.com/woowacourse-precourse/java-lotto-6/pull/733), 그리고 [서재님](https://github.com/woowacourse-precourse/java-lotto-6/pull/1153)의 코드를 통해 코드 구현에 영향을 받았음
+- 이번에도 3주차 코드리뷰를 통해 [zangsu님](https://github.com/woowacourse-precourse/java-lotto-6/pull/111)과 [최윤혁님](https://github.com/woowacourse-precourse/java-lotto-6/pull/733), 그리고 [서재님](https://github.com/woowacourse-precourse/java-lotto-6/pull/1153)의 코드를 통해 코드 구현에 영향을 받았음
     - 기존 처럼 Mock 객체를 통해 다른 클래스에 영향을 받지 않게 테스트 코드 작성 목표
 - 기존 과제와 다르게 많은 요구사항이 존재했고 해당 요구사항을 날짜와 주문 메뉴를 입력 받아 이벤트를 적용하는 방향으로 진행
 - 진행 전 리드미를 작성하여 설계를 진행하였으나 이후 변경사항이나 추가사항을 통해 기존 설계보다 많은 클래스들을 생성하여 진행
@@ -137,7 +137,7 @@ public class EventResultTextFactory {
     ...
 ```
 
-- 잘못된 입력에 대한 메서드 재실행 로직은 지난주 [장혁수님](https://github.com/zangsu) 코드리뷰로 배운 Supplier 반복 사용
+- 잘못된 입력에 대한 메서드 재실행 로직은 지난주 [zangsu님](https://github.com/zangsu) 코드리뷰로 배운 Supplier 반복 사용
 ```java
 // Controller 내부 메서드
     private ReservationDateEventDTO inputCorrectReservationDate() {
