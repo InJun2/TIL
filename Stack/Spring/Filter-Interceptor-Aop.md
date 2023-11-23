@@ -259,6 +259,10 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 <br>
 
 ```java
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Timer {}
+
 @Aspect
 @Component
 public class TimerAop { // 주로 사용되는 메서드 수행시간 출력을 위한 AOP 클래스
