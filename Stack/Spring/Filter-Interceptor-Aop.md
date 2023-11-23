@@ -216,21 +216,78 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 
 <br>
 
-### AOP
-- 객체 지향 프로그래밍 시 중복을 줄일 수 없는 부분을 줄이기 위해 관점에서 보고 처리
+### AOP (Aspect Oriented Programming, 관점 지향 프로그래밍)
+- 객체 지향 프로그래밍 시 중복을 줄일 수 없는 부분을 줄이기 위해 관점에서 보고 처리. OOP를 보완하기 위한 개념
 - 주로 로깅, 트랜잭션, 에러처리 등의 비즈니스단의 메서드에서 조금 더 세밀하게 조정하고 싶을 때 사용
 - Filter와 Interceptor와는 달리 메소드 전후의 지점에 자유롭게 설정 가능 -> Interceptor나 Filter는 주소로 대상을 구분하지만 AOP는 주소, 파라미터, 어노테이션 등 다양한 방법으로 대상 지정 가능
 - 프로그래머가 직면하는 가장 일반적인 문제를 해결하기 위한 Spring AOP 와 완전한 AOP 솔루션을 제공하는 AspectJ 라이브러리 존재. 
 - AOP의 Advice와 HandlerInterceptor의 가장 큰 차이는 파라미터의 차이 -> advice는 JoinPoint나 ProceedingJoinPoint 등을 활용해서 호출
+- AOP 적용 방식은 여러가지가 있음. 그러나 Spring AOP는 런타임 시점에 적용하는 방식을 사용하는데 컴파일 시점과 클래스 로딩 시점에 적용하려면 별도의 컴파일러와 클래스로더 조작기를 써야 하는데, 이것을 정하고 사용 및 유지하는 과정이 매우 어렵고 복잡하기 때문
+    - 컴파일 시점 적용
+    - 클래스 로딩 시점 적용
+    - 런타임 시점 적용
 
 <br>
 
-#### AOP annotation
+### AOP 주요 용어
+- Aspect
+    - 위에서 설명한 흩어진 관심사를 모듈화 한 것. 어드바이스 + 포인트컷을 모듈화한 애플리케이션의 횡단 기능
+- JointPoint 
+    - Advice가 적용될 위치, 끼어들 수 있는 지점. 메서드 진입 지점, 생성자 호출 시점, 필드에서 값을 꺼내올 때 등 다양한 시점에 적용가능
+    - 한 마디로 AOP를 적용할 수 있는 모든 지점 (스프링에서는 메서드 실행 지점으로 제한)
+- Advice 
+    - 실질적으로 어떤 일을 해야할 지에 대한 것, 실질적인 부가기능을 담은 구현체로 조인포인트에서 실행되는 코드 즉 부가기능 그 자체
+    - 에스팩트를 언제 핵심 코드에 적용할지 정의
+- PointCut
+    - JointPoint의 상세한 스펙을 정의한 것으로 조인포인트 중 어드바이스가 적용될 지점을 선별하는 기능.
+    - 'A란 메서드의 진입 시점에 호출할 것'과 같이 더욱 구체적으로 Advice가 실행될 지점을 정할 수 있음
+- Target
+    - Aspect를 적용하는 곳 (클래스, 메서드 .. )으로 핵심 기능을 담은 모듈
+    - 어드바이스를 받는 객체이고, 포인트컷으로 결정된다
+- Advisor
+    - 스프링 AOP에서만 쓰는 용어로, 하나의 어드바이스와 하나의 포인트컷으로 구성된 에스팩트를 특별하게 지칭
+
+<br>
+
+#### AOP annotation (Advice에 해당)
 - @Before : 대상 메소드 수행 전
 - @After : 대상 메소드 수행 후
 - @After-returning : 대상 메소드의 정상적인 수행 후
 - @After-throwing : 예외발생 후
 - @Around : 대상 메소드의 수행 전, 후
+
+<br>
+
+```java
+@Aspect
+@Component
+public class TimerAop { // 주로 사용되는 메서드 수행시간 출력을 위한 AOP 클래스
+
+    @Pointcut("execution(* com.example.aop.controller..*.*(..))")
+    private void cut() {}
+	
+    //사용자 지정 어노테이션이 붙은 메서드에도 적용!
+    @Pointcut("@annotation(com.example.aop.annotation.Timer)")
+    private void enableTimer() {}
+
+    //메서드 전 후로 시간 측정 시작하고 멈추려면 Before, AfterReturning으로는 시간을 공유 할 수가 없음 Around 사용!
+    @Around("cut() && enableTimer()")
+    public void around(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        //메서드 시작 전
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        //메서드가 실행되는 지점
+        Object result = joinPoint.proceed();
+
+        //메서드 종료 후
+        stopWatch.stop();
+
+        System.out.println("총 걸린 시간: " + stopWatch.getTotalTimeSeconds());
+    }
+}
+```
 
 <br>
 
