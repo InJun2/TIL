@@ -14,7 +14,7 @@
 
 ### Filter
 - Filter는 <code>J2EE</code> 표준 스펙으로 디스패처 서블릿에 요청이 전달되기 전/후에 URL 패턴에 맞는 모든 요청에 대해 부가작업을 처리할 수 있는 기능을 제공
-- 스프링 컨테이너가 아닌 톰캣과 같은 웹 컨테이너에서 관리가 되는 것이고 디스패처 서블릿 전/후에 처리하는 것임
+- 스프링 컨테이너가 아닌 톰캣과 같은 웹 어플리케이션 서버(WAS)에서 관리가 되는 것이고 디스패처 서블릿 전/후에 처리하는 것임
 - 지정된 자원 앞단에서 요청내용을 변경하거나 여러가지 체크 수행, 자원의 처리가 끝난 후 응답내용에 대해 인코딩 등 변경 처리
 - Spring에서 빈등록이 가능
 - javax.servlet의 Filter 인터페이스를 구현해야함
@@ -39,6 +39,28 @@ J2EE
 - destroy 메소드
     - 필터 객체를 서비스에서 제거하고 사용하는 자원을 반환하기 위한 메소드
     - 웹 컨테이너에 의해 1번 호출되며 이후에는 이제 doFilter에 의해 처리되지 않음
+
+```
+자바 기반의 웹 애플리케이션 프로그래밍 기술에서는 서블릿을 이용하여 웹 요청과 응답의 흐름을 메서드 호출으로 다룰 수 있게 해줌
+
+서블릿 생명주기 메서드
+초기화 : init()
+- 서블릿 요청 시 맨 처음 한 번만 호출된다.
+- 서블릿 생성 시 초기화 작업을 주로 수행한다.
+
+작업 수행 : doGet(), doPost()
+- 서블릿 요청 시 매번 호출된다.
+- 실제로 클라이언트가 요청하는 작업을 수행한다.
+
+종료 : destroy()
+- 서블릿이 기능을 수행하고 메모리에서 소멸될 때 호출된다.
+- 서블릿의 마무리 작업을 주로 수행한다.
+
+서블릿 컨테이너
+- 구현되어 있는 servlet 클래스의 규칙에 맞게 서블릿을 담고 관리해주는 컨테이너
+- 클라이언트에서 요청을 하면 컨테이너는 HttpServletRequest, HttpServletResponse 두 객체를 생성하여 post, get여부에 따라 동적인 페이지를 생성하여 응답을 보냄
+```
+
 ```java
 public interface Filter {
 
@@ -259,3 +281,4 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 - https://mangkyu.tistory.com/173
 - https://baek-kim-dev.site/61
 - https://livenow14.tistory.com/60
+- https://velog.io/@falling_star3/Tomcat-서블릿Servlet이란
