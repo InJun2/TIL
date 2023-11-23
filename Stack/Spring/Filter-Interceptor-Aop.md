@@ -3,7 +3,10 @@
 ### 공통처리
 - 웹 애플리케이션을 개발하는 도중 공통적으로 처리해야하는 업무들이 많이 존재
 - 공통로직을 모든 페이지에 작성해야하면 중복코드가 많아지고 프로적트 단위가 커질수록 서버에 부하를 줌 -> 공통 부분은 따로 관리하는 것이 좋음
-- 공통처리를 위한 Filter, Interceptor, AOPF
+- 공통처리를 위한 Filter, Interceptor, AOP
+    - Filter(필터) : 핸들러 동작의 전 후 과정에 부가로직 처리, 웹 컨테이너에서 관리
+    - Interceptor(인터셉터) : 필터와 비슷, 스프링 컨테이너에서 관리
+    - AOP(관점 지향 프로그래밍) : 메서드 동작의 전 후 과정에 부가로직 처리
 
 <br>
 
@@ -248,7 +251,7 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 
 <br>
 
-<div style="text-align: right">22-07-29</div>
+<div style="text-align: right">내용 추가 : 23-11-23</div>
 
 -------
 
@@ -256,4 +259,3 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 - https://mangkyu.tistory.com/173
 - https://baek-kim-dev.site/61
 - https://livenow14.tistory.com/60
-- 
