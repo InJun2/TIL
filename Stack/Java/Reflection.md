@@ -12,9 +12,9 @@
 - 변수의 값을 조건에 다르게 사용해야하는 경우라던가 어플리케이션이 실행되고 나서 생성되는 클래스의 경우 리플렉션을 사용
 - 프레임워크나 IDE에서 이런 동적인 바인딩을 이용한 기능을 제공함. 아래가 리플렉션을 이용한 대표적인 예.
     - intellij의 자동완성 기능
-    - 스프링의 어노테이션. 스프링에서는 런타임 시에 개발자가 등록한 빈을 애플리케이션을 가져와 사용할 수 있게함.
+    - 스프링의 어노테이션 (컴포넌트 스캔, DI, AOP). 스프링에서는 런타임 시에 개발자가 등록한 빈을 애플리케이션을 가져와 사용할 수 있게함.
     - ORM인 하이버네이트
-    - jackson 라이브러리
+    - jackson 라이브러리 Serialization/Deserialization
 
 <br>
 
@@ -89,7 +89,8 @@ System.out.println(c6);     //class [[I
 <br>
 
 - Class.forNmae() 문법을 사용
-- 변수 doubleArray는 double형 배열의 클래스를 로드한 것과 같고, 변수 stringArray는 2차원 문자열 배열의 클래스를 로드한 것과 같음
+- getClass()와 다른 점은 Object의 메서드로써 해당클래스가 객체를 생성했을 때만 사용가능하지만 forName()은 객체를 생성하기 전에 직접 클래스를 얻을 수 있음
+- 클래스가 없다면 예외가 발생하기 때문에 사용하기 위해 ClassNotFoundException 예외를 추가해주어야 함
 
 ```java
 //아래와 같이 패키지 명으로 클래스를 로드할 수 있습니다.
@@ -116,9 +117,30 @@ Class c9 = Void.TYPE;       //void
     - class.getDeclaringClass() : 클래스에 구성된 클래스(명시적으로 선언된)를 반환
     - class.getEnclosingClass() : 클래스의 즉시 동봉된 클래스를 반환
 
+
+- 스프링 리플렉션 사용 예시
+```java
+public static Field findField(Class<?> clazz, String name, Class<?> type) {
+	// Assert.notNull(clazz, "Class must not be null");
+	// Assert.isTrue(name != null || type != null, "Either name or type of the field must be specified");
+	
+    Class<?> searchType = clazz;
+	while (!Object.class.equals(searchType) && searchType != null) {
+		Field[] fields = searchType.getDeclaredFields();
+		for (Field field : fields) {
+			if ((name == null || name.equals(field.getName())) && (type == null || type.equals(field.getType()))) {
+				return field;
+			}
+		}
+		searchType = searchType.getSuperclass();
+	}
+	return null;
+}
+```
+
 <br>
 
-<div style="text-align: right">22-12-12</div>
+<div style="text-align: right">추가 정리 : 23-11-30</div>
 
 -------
 
