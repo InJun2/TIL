@@ -2,8 +2,10 @@
 
 ### 리플렉션(Reflection)
 - 구체적인 클래스 타입을 알지 못해도 그 클래스의 메소드, 타입, 변수들에 접근할 수 있도록 해주는 자바 API
+- JVM은 클래스 정보를 클래스 로더를 통해 읽어와서 해당 정보를 JVM 메모리에 저장한다. 그렇게 저장된 클래스에 대한 정보가 마치 거울에 투영된 모습과 닮아있어, 리플렉션이라는 이름을 가지게 되었음
 - 동적으로 객체를 생성하고 그 메서드를 호출하는 방법
 - 자바의 리플렉션은 클래스, 인터페이스, 메소드들을 찾을 수 있고, 객체를 생성하거나 변수를 변경하거나 메소드를 호출할 수 있음
+    - 리플렉션 덕분에 우리가 스프링에서 @Component , @Bean 과 같은 어노테이션을 프레임워크의 기능을 사용하기 위해 사용할 수 있음
 
 <br>
 
@@ -156,3 +158,4 @@ public static Field findField(Class<?> clazz, String name, Class<?> type) {
 - https://velog.io/@yeon/Reflection이란
 - https://medium.com/msolo021015/자바-reflection이란-ee71caf7eec5
 - https://docs.oracle.com/javase/tutorial/reflect/
+- https://hudi.blog/java-reflection/
