@@ -259,6 +259,12 @@ public class WinningLotto implements ValidateLottoNumbers {
 
 <br>
 
+### 이후 스터디를 통한 사용하는 상황 비교 블로그
+- [블로그 링크](https://ifhead.tistory.com/entry/OOP-언제-왜-추상클래스와-인터페이스를-써야-할까)
+- [블로그 링크2](https://jjingho.tistory.com/158)
+
+<br>
+
 <div style="text-align: right">23-11-09</div>
 
 -------
