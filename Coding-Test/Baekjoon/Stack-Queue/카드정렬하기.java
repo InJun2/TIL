@@ -12,7 +12,7 @@ public class Main {
         PriorityQueue<Integer> queue = new PriorityQueue<>();
 
         for (int i = 0; i < N; i++) {
-            queue.add(Integer.parseInt(read()));
+            queue.offer(Integer.parseInt(read()));
         }
 
         int result = 0;
@@ -20,7 +20,7 @@ public class Main {
         while(queue.size() > 1) {
             int counts = queue.poll() + queue.poll();
             result += counts;
-            queue.add(counts);
+            queue.offer(counts);
         }
 
         write(String.valueOf(result));

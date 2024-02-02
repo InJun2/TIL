@@ -21,6 +21,7 @@ class Solution {
         
         return minLen;
     }
+    
     public void dfs(int arr[], int L, int[] picks){
         if(L == arr.length){
             minLen = Math.min(minLen , getLen(arr));
