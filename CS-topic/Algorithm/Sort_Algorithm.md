@@ -92,9 +92,10 @@ int []arr = {7, 5, 9, 0, 3, 1, 6, 2, 4, 8};
 >>6. 인접한 부분리스트끼리 합친다. (Conqure : 정복)
 ```java
 public class QuickSort {
-		public static void sort(int[] a) {
+	public static void sort(int[] a) {
 		m_pivot_sort(a, 0, a.length - 1);
 	}
+
 	private static void m_pivot_sort(int[] a, int lo, int hi) {
 		if(lo >= hi) {
 			return;
@@ -107,26 +108,25 @@ public class QuickSort {
 	}
 
 	private static int partition(int[] a, int left, int right) {
-		int lo = left - 1;
-		int hi = right + 1;
-		int pivot = a[(left + right) / 2];		
-		
- 		while(true) {
-			do { 
-				lo++; 
-			} while(a[lo] < pivot);
- 			
-			do {
-				hi--;
-			} while(a[hi] > pivot && lo <= hi);
-			if(lo >= hi) {
-				return hi;
+		int pivot = a[(left + right) / 2];
+
+		while (left <= right) {
+			while (a[left] < pivot) {
+				left++;
 			}
-			
-			swap(a, lo, hi);
+			while (a[right] > pivot) {
+				right--;
+			}
+			if (left <= right) {
+				swap(a, left, right);
+				left++;
+				right--;
+			}
 		}
+		return left;
 	}
-				private static void swap(int[] a, int i, int j) {
+
+	private static void swap(int[] a, int i, int j) {
 		int temp = a[i];
 		a[i] = a[j];
 		a[j] = temp;
@@ -157,7 +157,7 @@ public class MergeSort{
 	}
  	private static void mergeSort(int[] arr, int start, int end) {
 		if(start < end) {
-			int mid = (start + end) 
+			int mid = (start + end) / 2;
 			mergeSort(arr, start, mid);
 			mergeSort(arr, mid+1, end);
 			merge(arr, start, mid, end);
