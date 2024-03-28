@@ -92,45 +92,53 @@ int []arr = {7, 5, 9, 0, 3, 1, 6, 2, 4, 8};
 >>6. 인접한 부분리스트끼리 합친다. (Conqure : 정복)
 ```java
 public class QuickSort {
-	public static void sort(int[] a) {
-		m_pivot_sort(a, 0, a.length - 1);
-	}
+    public static void quickSort(int[] arr) {
+        quickSort(arr, 0, arr.length - 1);
+    }
 
-	private static void m_pivot_sort(int[] a, int lo, int hi) {
-		if(lo >= hi) {
-			return;
-		}
-		
-		int pivot = partition(a, lo, hi);	
-		
-		m_pivot_sort(a, lo, pivot);
-		m_pivot_sort(a, pivot + 1, hi);
-	}
+    private static void quickSort(int[] a, int left, int right) {
+        if(left >= right) {
+            return;
+        }
 
-	private static int partition(int[] a, int left, int right) {
-		int pivot = a[(left + right) / 2];
+        int index = partition(a, left, right);
 
-		while (left <= right) {
-			while (a[left] < pivot) {
-				left++;
-			}
-			while (a[right] > pivot) {
-				right--;
-			}
-			if (left <= right) {
-				swap(a, left, right);
-				left++;
-				right--;
-			}
-		}
-		return left;
-	}
+        if(left < index - 1) {
+            quickSort(a, left, index - 1);
+        }
 
-	private static void swap(int[] a, int i, int j) {
-		int temp = a[i];
-		a[i] = a[j];
-		a[j] = temp;
-	}
+        if(index < right) {
+            quickSort(a, index, right);
+        }
+    }
+
+    private static int partition(int[] arr, int left, int right) {
+        int pivot = arr[(left + right) / 2];
+
+        while (left <= right) {
+            while (arr[left] < pivot) {
+                left++;
+            }
+
+            while (arr[right] > pivot) {
+                right--;
+            }
+
+            if (left <= right) {
+                swap(arr, left, right);
+                left++;
+                right--;
+            }
+        }
+
+        return left;
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
 }
 ```
 <br>
@@ -145,43 +153,46 @@ public class QuickSort {
 >- 시간 복잡도는 O(NlogN)으로 최악, 평균, 최선의 시간 복잡도가 동일하다.
 
 ```java
-public class MergeSort{
-	public static int[] tmp; // 배열의 값을 잠시 복사해둘 공간
-	public static void main(String[] args) throws IOException {
-		int[] arr = { 3, 1, 7, 4, 5, 6, 8, 2 };
-		mergeSort(arr);
-	}
- 	public static void mergeSort(int[] arr) {
-		tmp = new int[arr.length];
-		mergeSort(arr, 0, arr.length - 1);
-	}
- 	private static void mergeSort(int[] arr, int start, int end) {
-		if(start < end) {
-			int mid = (start + end) / 2;
-			mergeSort(arr, start, mid);
-			mergeSort(arr, mid+1, end);
-			merge(arr, start, mid, end);
-		}
-	}
- 	private static void merge(int[] arr, int start, int mid, int end) {
-		tmp = arr.clone();
-		
-		int part1 = start;
-		int part2 = mid + 1;
-		int index = start;
-		
-		while(part1 <= mid && part2 <= end) {
-			if(tmp[part1] <= tmp[part2]) {
-				arr[index++] = tmp[part1++];
-			} else {
-				arr[index++] = tmp[part2++];
-			}
-		}
-		
-		for(int i=0; i<=mid-part1; i++) {
-			arr[index+i] = tmp[part1+i];
-		}
-	}
+public class MergeSort {
+    private static int[] helper; // 배열의 값을 잠시 복사해둘 공간
+
+    public static void mergeSort(int[] arr) {
+        helper = new int[arr.length];
+        mergeSort(arr, 0, arr.length - 1);
+    }
+
+    private static void mergeSort(int[] arr, int start, int end) {  // 분할 및 정복
+        if (start < end) {
+            int mid = (start + end) / 2;
+            mergeSort(arr, start, mid);
+            mergeSort(arr, mid + 1, end);
+            merge(arr, start, mid, end);
+        }
+    }
+
+    private static void merge(int[] arr, int start, int mid, int end) {     // 병합
+        helper = arr.clone();   // 복사를 해두고 복사한 배열을 가지고 값을 비교해서 기존 배열 인덱스에 요소를 넣음
+
+        int helperLeft = start;
+        int helperRight = mid + 1;
+        int current = start;
+
+        while (helperLeft <= mid && helperRight <= end) {   // helperLeft가 mid를 넘어가거나, helperRight가 end를 넘어가기 전까지 반복
+            if (helper[helperLeft] <= helper[helperRight]) {    // 왼쪽 배열과 오른쪽 배열 중 낮은 수를 배열에 넣음
+                arr[current++] = helper[helperLeft++];
+            } else {
+                arr[current++] = helper[helperRight++];
+            }
+        }
+
+        for (int i = 0; i <= mid - helperLeft; i++) {
+            arr[current + i] = helper[helperLeft + i];
+        /*
+            왼쪽 배열이 비워진 경우 : 오른쪽 배열에 요소가 남아있고 helperLeft가 mid를 넘었음. 어차피 오른쪽 배열이 남아있다면 기존 배열 위치와 동일하기 때문에 별도의 처리가 필요하지 않음
+            오른쪽 배열이 비워진 경우 : 왼쪽 배열에 요소가 남아있고 helperLeft가 mid를 넘지 못함. 현재 배열에 helperLeft를 더한 인덱스 값을 넣어주면 됨
+        */
+        }
+    }
 }
 ```
 
