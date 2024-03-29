@@ -41,7 +41,7 @@ CRLF
 
 <br>
 
-### 2. 해당 예시들은 각 헤더 2종류씩이며 어떤 헤더들인지 맞추고 왜 특정 헤더라고 생각했는지 이야기하기
+### 2. 해당 예시들은 각각 헤더 2종류씩이며 어떤 헤더들인지 맞추고 왜 특정 헤더라고 생각했는지 이야기하기 ( 일반 헤더 제외 )
 
 ```
 a. Accept: application/json, text/html
@@ -51,7 +51,7 @@ d. Cookie: session_id=abc123; user_pref=dark_mode
 e. ETag: "abc123"
 f. Set-Cookie: session_id=def456; Max-Age=3600; Path=/; Secure; HttpOnly
 ```
-- 일반 헤더는 HTTP1.1부터 공식적으로는 사용되지 않음. 구체적으로 분리하지 않고 요청 헤더와 응답 헤더 모두가 사용하므로 제거
+- 일반 헤더는 HTTP1.1부터 공식적으로는 사용되지 않음. 일반헤더라는 용어 대신 요청 헤더와 응답 헤더로 분류
 
 <details>
 <summary>각 기능 힌트</summary>
@@ -67,11 +67,6 @@ f. 서버가 클라이언트를 인증할 수 있도록 클라이언트 측에 �
 ```
 
 </details>
-
-- 정답
-    - 요청 헤더 : 
-    - 응답 헤더 : 
-    - 엔티티 헤더 : 
 
 <br>
 
