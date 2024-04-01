@@ -53,8 +53,32 @@ public void testMethod() {
 - 또한 대기 집합의 조작은 스레드의 인터럽트 상태(interruption status) 및 인터럽트와 관련된 Thread 클래스의 메서드에 의해 영향을 받을 수 있다고 함
     - sleep() 메서드는 스레드를 일시정지시키고 다른 스레드의 알림이나 신호를 기다리지 않고 실행되므로 대기 집합에 추가되지 않아 영향을 끼치지 않음. 즉 해당 잠든 스레드는 여전히 모니터를 가지고 있음
     - join() 메서드는 다른 스레드가 종료될 때까지 대기하고, 그 스레드가 종료되면 실행을 재개하므로 대기 집합(wait set)에 스레드가 추가됨
+    - sleep(), join()는 Thread 객체의 메서드이고 이후 설명하는 wait(), notify() 등의 메서드는 Object의 메서드
 - 즉, 요약하자면 객체의 스레드는 모니터를 얻지 못했다면 대기 집합에 추가 되어 모니터를 해제하는 알림(Notification)을 기다기다가 해당 알림을 통해 대기되어 있던 스레드가 모니터를 획득할 수 있으며 해당 방식으로 동기화가 이루어진다.
 - 대기 집합에 들어가는 스레드는 스레드 생명주기의 대기 상태가 되는 것
+
+<br>
+
+```java
+public class MyClass {
+    public synchronized void synchronizedMethod() {
+        // synchronizedMethod 내용
+    }
+}
+// 인스턴스 메서드에서 사용하면 MyClass 객체의 대기 집합에 들어감
+
+public class MyClass {
+    private final Object lock = new Object();
+
+    public void someMethod() {
+        synchronized (lock) {
+            // 동기화가 필요한 코드
+        }
+    }
+}
+
+// someMethod() 안의 블록이 있으며 lock 객체의 대기 집합에 들어감
+```
 
 <br>
 
