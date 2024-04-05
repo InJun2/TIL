@@ -1,5 +1,4 @@
 # CHAPTER 10 입출력 시스템과 저장장치
-
 ## 1. 입출력 시스템
 
 ### 입출력장치와 채널
@@ -209,7 +208,7 @@
 
 <br>
 
-![RAID 정리](https://github.com/InJun2/TIL/blob/main/CS-topic/OS/RAID.md)
+[RAID 정리](https://github.com/InJun2/TIL/blob/main/CS-topic/OS/RAID.md)
 
 <br>
 
@@ -252,10 +251,7 @@
 - raid 0이나 raid1 같은 경우는 각각 데이터 안전성, 저장공간 확장 되지 않아 혼용해서 사용하기도 하며 디스크의 가격을 저렴하여 여러개의 디스크를 사용하기는 쉽지만 raid 2, 3, 4는  계산량이 많아져 효율적이지 못함
 - 디스크의 데이터를 보호하기 위한 백업 방법이 될 수도 있고 여러개의 디스크를 분산 저장하는데에도 사용할 수 있어 저장공간을 효율적으로 활용할 수 있음
 
-
 <br>
-
-- 
 
 </details>
 

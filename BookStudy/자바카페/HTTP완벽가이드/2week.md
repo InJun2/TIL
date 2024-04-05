@@ -51,7 +51,8 @@ d. Cookie: session_id=abc123; user_pref=dark_mode
 e. ETag: "abc123"
 f. Set-Cookie: session_id=def456; Max-Age=3600; Path=/; Secure; HttpOnly
 ```
-- 일반 헤더는 HTTP1.1부터 공식적으로는 사용되지 않음. 일반헤더라는 용어 대신 요청 헤더와 응답 헤더로 분류
+- 일반적으로 요청 헤더와 응답 헤더로 분류하는 것이 일반 헤더를 대신하여 사용되는 경향이 있음
+- 일반헤더라는 용어 대신 요청 헤더와 응답 헤더로 분류된다 하여 해당 문제에서 일반 헤더는 제외하였음
 
 <details>
 <summary>각 기능 힌트</summary>
