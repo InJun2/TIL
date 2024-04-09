@@ -59,12 +59,10 @@
 - 반환 타입이 없이 run() 메서드를 사용하여 스레드를 실행하기 위해 사용하는 인터페이스
     - [참조](https://docs.oracle.com/javase/8/docs/api/java/lang/Runnable.html)
 - 자바 8이후로 함수형 인터페이스 사용가능
-- 알려진 하위 인터페이스
+- 하위 인터페이스
     - RunnableFuture
     - RunnableScheduledFuture
-- 알려진 구현 클래스
-    - AsyncBoxView.ChildState
-    - ForkJoinWorkerThread 
+- 구현 클래스
     - FutureTask 
     - Thread
     - TimerTask
@@ -314,3 +312,4 @@ public class Memoizer<A, V> implements Computable<A, V>{
     - DelayQueue는 큐 내부에 여러 개의 Delayed 객체로 작업을 관리하며 각각의 Delayed 객체는 저마다의 시각을 가지고 있음
     - Delayed 내부의 시각이 만료된 객체만 take() 메서드로 가져갈 수 있음
     - DelayQueue에서 뽑아내는 객체는 객체마다 지정되어 있던 시각 순서로 정렬되어 뽑아짐
+    - chatGPT는 병렬 처리에서 쓴다면 DelayQueue는 동기화를 따로 해주어야한다고 함
