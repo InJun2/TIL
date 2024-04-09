@@ -258,7 +258,6 @@ public class Memoizer<A, V> implements Computable<A, V>{
 ### Executor
 - 자바 클래스 라이브러리에서 작업을 실행하고자 할때 Thread보다 Executor가 추상화가 잘 되어 있으며 사용하기 좋음
 - 아주 다양한 여러 가지 종류의 작업 실행 정책을 지원하는 유연하고 강력한 비동기적 작업 실행 프레임워크의 근간인 인터페이스
-    - [참조](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Executor.html)
 - 프로듀서-컨슈머 패턴에 기반하며 해당 패턴을 가장 쉽게 구현할 수 있는 방법이 Exector 프레임워크를 사용하는 것
 - 실행 정책은 다음과 같음
     - 작업을 어느 스레드에서 실행할 것인지?
@@ -267,6 +266,53 @@ public class Memoizer<A, V> implements Computable<A, V>{
     - 큐에 최대 몇 개까지 대기할 수 있게할 것 인지?
     - 시스템에 부하가 많이 걸려 작업을 거절해야 하는경우 어떤 작업을 희생하고 작업을 요청한 프로그램에 어떻게 알릴 것인지?
     - 작업 실행 직전, 직후에 어떤 동작이 있어야하는지?
+
+<br>
+
+### Executor 인터페이스
+- 제출된 작업을 실행하는 인터페이스
+    - [참조](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Executor.html)
+- Executor 클래스는 execute() 메서드 하나를 가짐
+
+```java
+// new Thread(new RunnableTask()).start() 대신 해당 방법으로 사용
+Executor executor = anExecutor();
+executor.execute(new RunnableTask1());
+
+// Executor 메서드, 미래의 특정 시점에 주어진 명령을 실행
+void execute(Runnable command);
+```
+
+<br>
+
+![Executor Interface](./img/Excutor.png)
+
+<br>
+
+### Executors 클래스
+- 스레드 풀, 스레드 팩토리 등을 생성하고 반환하는 정적 팩토리 메서드를 제공
+    - [참조](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Executors.html)
+- Executor , ExecutorService , ScheduledExecutorService , ThreadFactory 및 Callable 클래스에 대한 팩토리 및 유틸리티 메서드
+
+<br>
+
+```
+newFixedThreadPool(int nThreads): 지정된 수의 스레드를 가진 고정 크기의 스레드 풀을 생성합니다.
+newCachedThreadPool(): 필요에 따라 스레드를 동적으로 생성하는 캐시형 스레드 풀을 생성합니다.
+newSingleThreadExecutor(): 단일 스레드로 구성된 스레드 풀을 생성합니다.
+newScheduledThreadPool(int corePoolSize): 지정된 수의 스레드를 가진 스케줄링 기능이 있는 스레드 풀을 생성합니다.
+newSingleThreadScheduledExecutor(): 단일 스레드로 구성된 스케줄링 기능이 있는 스레드 풀을 생성합니다.
+defaultThreadFactory(): 기본 ThreadFactory를 반환합니다.
+callable(Runnable task, T result): Runnable을 Callable로 변환하는 래퍼를 생성합니다.
+callable(Callable<T> task): 주어진 Callable 객체를 반환합니다.
+```
+
+<br>
+
+### ExecutorService
+- 스레드풀을 관리하거나 작업을 처리하는 인터페이스
+- 애플리케이션에서 스레드 생성 및 관리, 작업 스케줄링, 처리 등을 할 수 있음
+    - [참조](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutorService.html)
 
 <br>
 
@@ -279,9 +325,9 @@ public class Memoizer<A, V> implements Computable<A, V>{
     - 크기가 적절하다면 하드웨어 프로세서가 쉬지 않고 동작 가능
     - 하드웨어는 쉬지 않고 동작하는 동시에, 메모리 전부 소모의 경우나 스레드 자원 경쟁 가능성이 줄어듬
 - Executors가 기본 제공하는 스레드 풀은 다음과 같음
-    - newFixedThreadPool : 스레드 최대 개수 제한
+    - newFixedThreadPool : 처리될 작업이 등록되면 그에 따라 실제 작업할 스레드를 하나씩 생성. 스레드 최대 개수 제한
     - newCachedThreadPool : 스레드 개수를 제한하지 않고 쉬는 스레드를 종료
-    - newSingleThreadExecutor : 작업이 반드시 큐에 지정된 순서 순차적 처리 보장
+    - newSingleThreadExecutor : 단일 스레드로 동작하는 Executor. 작업이 반드시 큐에 지정된 순서 순차적 처리 보장
     - newScheduledThreadPool : 일정 시간 이후 실행, 주기적 작업 실행
 
 <br>
@@ -308,8 +354,55 @@ public class Memoizer<A, V> implements Computable<A, V>{
 - Timer 대신 ScheduledThreadPoolExecutor를 사용하라고 함
     - 지연 작업과 주기적 작업마다 여러 개의 스레드를 할당하여 실행 예정 시간을 벗어나지 않음
     - 오류에 대해 훨씬 안정적으로 처리가 가능
-- 특별한 스케줄링 방법을 지원하는 스케줄링 서비스를 구현해야 한다면 BlockingQueue를 구현하면서 ScheduledThreadPoolExecutor와 비슷한 기능을 제공하는 DelayQueue를 사용하는 것을 추천하였음
+- 특별한 스케줄링 방법을 지원하는 스케줄링 서비스를 구현해야 한다면 BlockingQueue를 구현하면서 ScheduledThreadPoolExecutor와 비슷한 기능을 제공하는 DelayQueue를 사용하는 것을 추천
     - DelayQueue는 큐 내부에 여러 개의 Delayed 객체로 작업을 관리하며 각각의 Delayed 객체는 저마다의 시각을 가지고 있음
     - Delayed 내부의 시각이 만료된 객체만 take() 메서드로 가져갈 수 있음
     - DelayQueue에서 뽑아내는 객체는 객체마다 지정되어 있던 시각 순서로 정렬되어 뽑아짐
-    - chatGPT는 병렬 처리에서 쓴다면 DelayQueue는 동기화를 따로 해주어야한다고 함
+
+<br>
+
+### Timer -> ScheduledThreadPoolExecutor
+```java
+private void replyLetterTimeTask(Long letterId) {
+    Timer timer = new Timer();
+    TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            Letter letter = letterRepository.findById(letterId).get();
+            if (LetterState.RECEIVE_WAITING.equals(letter.getState())) {
+                letter.updateLetterState(LetterState.EXPIRATION);
+                saveLetter(letter);
+                log.info("letter Id : " + letter.getId() + " , 해당 답변은 만료되었습니다");
+            }
+        }
+    };
+    timer.schedule(timerTask, 1000 * 60 * 30);
+}
+```
+
+<br>
+
+```java
+public class ReplyLetterScheduler {
+    private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(10);
+
+    public void replyLetterTimeTask(Long letterId) {
+        long delayMillis = TimeUnit.MINUTES.toMillis(30);
+        executor.schedule(() -> executeTask(letterId), delayMillis, TimeUnit.MILLISECONDS);
+    }
+
+    private void executeTask(Long letterId) {
+        Letter letter = letterRepository.findById(letterId).get();
+        if (LetterState.RECEIVE_WAITING.equals(letter.getState())) {
+            letter.updateLetterState(LetterState.EXPIRATION);
+            saveLetter(letter);
+            log.info("Letter Id : " + letter.getId() + " , 해당 답변은 만료되었습니다");
+        }
+    }
+}
+```
+
+<br>
+
+- 근데 생각해보니 유사하게 내부적으로 큐를 사용하고 요청이 들어오면 해당 서비스에서 편지의 상태를 변경하고 편지의 Entity와 현재 시간을 저장
+- 이후 스케줄링을 통해 1분마다 해당 큐에서 30분 이후인 Entity가 나오기 전까지 편지를 만료로 바꿔도 될 것 같음
