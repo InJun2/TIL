@@ -347,6 +347,9 @@ public void run() {
 - Thread API는 UncaughtExceptionHandler라는 기능을 제공
 - UncaughtExceptionHandler 기능을 사용하면 처리하지 못한 예외 상황으로 인해 특정 스레드가 종료되는 시점을 정확히 알 수 있음
 - 처리하지 못한 예외 상황 때문에 스레드가 종료되는 경우, JVM이 애플리케이션에서 정의한 UncaughtExceptionHandler를 호출하도록 할 수 있음
+- 예외 상황이 발생했을 때 UncaughtExceptionHandler가 호출되도록 하려면 반드시 execute를 통해서 작업을 실행해야 함
+- submit 메소드로 작업을 등록했다면, 그 작업에서 발생하는 모든 예외 상황은 모두 해당 작업의 리턴 상태로 처리해야 함
+    - Future.get 메소드에서 해당 예외가 ExecutionException에 감싸진 상태로 넘어옴
 
 ```java
 public interface UncaughtExceptionHandler {
@@ -360,3 +363,82 @@ public class UEHLogger implements Thread.UncaughtExceptionHandler {
     }
 }
 ```
+
+<br>
+
+### JVM 종료
+- JVM 이 종료되는 경우는 예정된 절차대로 종료되는 경우와 예기치 못하게 임의로 종료되는 경우
+
+<br>
+
+### 종료 훅(shutdown hook)
+- 예정된 절차대로 종료되는 경우에 JVM 은 가장 먼저 등록되어 있는 모든 종료 훅(shutdown hook)을 실행시킴
+- 종료 훅은 Runtime.addShutdownHook 메소드를 사용해 등록된 아직 시작되지 않은 스레드를 의미
+- 하나의 JVM 에 여러개의 종료 훅을 등록할 수도 있으며, 두 개 이상의 종료 훅이 등록되어 있는 경우에 어떤 순서로 훅을 실행하는지에 대해서는 아무런 규칙이 없음
+- 종료 훅이 모두 작업을 마치고 나면 JVM 은 runFinalizersOnExit 값을 확인해 true 라고 설정되어 있으면 클래스의 finalize 메소드를 모두 호출하고 종료
+- JVM 은 종료 과정에서 계속해서 실행되고 있는 앱 내부의 스레드에 대해 중단 절차를 진행하거나 인터럽트를 걸지 않아 만약 종료 훅이나 finalize 메소드가 작업을 마치지 못하고 계속해서 실행된다면 종료 절차가 멈추는 셈이고 JVM 은 계속해서 대기 상태로 머무르기 때문에 결국 JVM 을 강제로 종료하는 수 밖에 없음
+- JVM 을 강제로 종료시킬 때는 JVM 이 스스로 종료되는 것 이외에 종료 훅을 실행하는 등의 어떤 작업도 하지 않음
+- 종료 훅은 스레드 안전하게 만들어야 하고 공유된 자료를 사용해야 하는 경우에는 반드시 적절한 동기화 기법을 적용해야 함
+- 종료 훅은 어떤 서비스나 앱 자체의 여러 부분을 정리하는 목적으로 사용하기 좋음
+    - 임시로 만들어 사용했던 파일을 삭제하거나, 운영체제에서 알아서 정리해주지 않는 모든 자원을 종료 훅에서 정리해야 함
+    - 종료 훅에서는 애플리케이션이 종료되거나 다른 종료 훅이 종료시킬 수 있는 서비스는 사용하지 말아야 함
+    - 종료 훅이 여러개 존재하는데 여러 종료 훅을 사용하기보단 모든 서비스 종료를 하나의 종료 훅을 사용해 각 서비스를 의존성에 맞춰 순서대로 정리하는 것이 좋음
+
+<br>
+
+### 데몬 스레드(demon thread)
+- 스레드는 일반 스레드와 데몬 스레드가 존재
+- JVM 이 처음 시작할 때 main 스레드를 제외하고 JVM 내부적으로 사용하기 위해 실행하는 스레드(가비지 컬렉터 스레드나 기타 여러 부수적인 스레드)는 모두 데몬 스레드
+- 새로운 스레드가 생성되면 자신을 생성해 준 부모 스레드의 데몬 설정 상태를 확인해 그 값을 그대로 사용하며, 따라서 main 스레드에서 생성한 모든 스레드는 기본적으로 데몬 스레드가 아닌 일반 스레드임
+    - 스레드 내부적으로 데몬 상태 존재
+- 스레드 하나가 종료되면 JVM 은 남아있는 모든 스레드 가운데 일반 스레드가 있는지를 확인하고, 일반 스레드는 모두 종료되고 남아있는 스레드가 모두 데몬 스레드라면 즉시 JVM 종료 절차를 진행
+    - finally 블록의 코드도 실행되지 않으며, 호출 스택도 원상 복구되지 않음
+    - 데몬 스레드에 사용했던 자원을 꼭 정리해야 하는 일을 시킨다면, JVM이 종료될 때 자원을 정리하지 못할 수 있기 때문에 적절하지 않음
+    - 데몬 스레드는 예고 없이 종료될 수 있기 때문에 앱 내부에서 시작시키고 종료하기에는 그다지 좋은 방법이 아님
+
+<br>
+
+### finalize() 메서드
+- finalize 메소드는 과연 실행이 될 것인지 그리고 언제 실행될지에 대해서 아무런 보장이 없고, finalize 메소드를 정의한 클래스를 처리하는 데 상당한 성능상의 문제점이 생길 수 있음
+    - finalize 메소드를 올바른 방법으로 구현하기 쉽지 않음
+- 대부분의 경우에는 finalize 메소드를 사용하는 대신 try-finally 구문에서 각종 close 메소드를 적절하게 호출하는 것만으로도 finalize 메소드에서 해야 할 일을 훨씬 잘 처리할 수 있음
+- finalize 메소드가 더 나을 수 있는 유일한 예는 바로 네이티브 메소드에서 확보했던 자원을 사용하는 객체 정도밖에 없음
+    - finalize 메소드는 사용하지 마라
+
+<br>
+
+## 추가적으로 궁금했던 내용
+
+### UncaughtExceptionHandler 사용하는 방법
+- UncaughtExceptionHandler을 상속받아 구현
+- Thread.setDefaultUncaughtExceptionHandler() 메서드를 통해 기본 예외 핸들러를 설정. null 이라면 기본 동작인 'ThreadGroup' 이 사용됨
+    - getDefaultUncaughtExceptionHandler() ThreadGroup에서 구현되어 있음
+- 그런데 해당 설정은 어디에서 설정해주어야 하는지, 지정된 스레드 그룹이 해당 핸들러를 사용하는데 스레드 그룹은 어떻게 구성되고 스레드 그룹에서 어떻게 설정을 지정해주어야 하는지?
+
+<br>
+
+![UncaughtExceptionHandler](./img/UncaughtExceptionHandler.png)
+
+<br>
+
+### ExecutorService
+- Executor는 Runnable 작업을 실행하는 인터페이스일 뿐
+    - 작업 제출을 분리하고 실행
+- ExecutorService는 이런 Executor를 확장한 인터페이스로 작업 실행과 관리를 위한 메서드 명시
+    - Future 타입을 반환하며 이를 위한 메서드들이 명시되어 있음
+- 작업의 상태 조회, 작업 완료 대기, 작업 취소 등의 기능
+- 스레드 풀을 관리하고 작업을 스케줄링하는 등의 작업 관리 기능
+
+![Executor](./img/Executor2.png)
+
+<br>
+
+![Executor2](./img/Excutor.png)
+
+<br>
+
+![Executor Service](./img/ExecutorService1.png)
+
+<br>
+
+![Executor2](./img/ExecutorService2.png)
