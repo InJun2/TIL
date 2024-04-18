@@ -125,9 +125,13 @@
 
 ### 클라우드 컴퓨팅 환경의 이해
 - SaaS (Software as a Service) : 소프트웨어형 서비스. 소프트웨어는 중앙에 호스팅, 사용자는 웹,앱 등 클라이언트로 접속하여 소프트웨어를 서비스 형태로 이용하는 서비스
-- IaaS (Infrastructure as a Service) : 인프라형 서비스. 서버, 스토리지 같은 시스템 자원을 클라우드로 제공하는 서비스
 - PaaS (Platform as a Service) : 플랫폼형 서비스. 필요한 개발 요소를 빌려쓸 수 있고 애플리케이션 개발 , 실행 플랫폼
     - PaaS-TA : 국내 IT 서비스 경쟁력 강화를 목표로 개발되었으며 인프라 제어 및 관리환경, 실행환경, 개발환경, 서비스환경, 운영환경으로 구성되어있는 개방형 클라우드 컴퓨팅 플랫폼
+- IaaS (Infrastructure as a Service) : 인프라형 서비스. 서버, 스토리지 같은 시스템 자원을 클라우드로 제공하는 서비스
+
+<br>
+
+![IaaS vs PaaS vs SaaS](./img/iaas-paas-saas.jpeg)
 
 <br>
 
