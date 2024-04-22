@@ -1,12 +1,21 @@
-# Computer Science
+# 공부 내용 정리
+
+## Project
+- [경매 프로젝트](https://github.com/selab-hs/auction_project)
+- [유리병 편지 프로젝트](https://github.com/selab-hs/glass-bottle)
+    - [이슈 내용](./Project/glass-bottle)
+- [SE 커뮤니티 프로젝트](https://github.com/selab-hs/SE-Community-Service)
+    - [이슈 내용](./Project/se-community)
 
 <br>
 
 ## OS
 <br>
 
-- [프로세스 vs 스레드](./CS-topic/OS/Process-Thread.md)
+- [쉽게 배우는 운영체제 독서 정리](./BookStudy/SE/쉽게배우는운영체제)
 
+- [프로세스 vs 스레드](./CS-topic/OS/Process-Thread.md)
+- [버퍼](./CS-topic/OS/Buffer.md)
 - [캐시](./CS-topic/OS/Cache.md)
 - [커널](./CS-topic/OS/Kernel.md)
 - [시스템콜](./CS-topic/OS/System_Call.md)
@@ -18,14 +27,17 @@
 - [스케줄링](./CS-topic/OS/Scheduling.md)
 - [RAID](./CS-topic/OS/RAID.md)
 - [표준 스트림](./CS-topic/OS/Standard_Stream.md)
+- [메시지큐](./CS-topic/OS/Message_Queue.md)
+- [데몬](./CS-topic/OS/Daemon.md)
 
 <br><br>
 
 ## Network
 <br>
 
-- [OSI 7 계층](./CS-topic/network/OSI_7Layer.md)
+- [HTTP 완벽 가이드 독서 정리](./BookStudy/자바카페/HTTP완벽가이드)
 
+- [OSI 7 계층](./CS-topic/network/OSI_7Layer.md)
 - [Packet](./CS-topic/network/Packet.md)
 - [라우터](./CS-topic/network/Router.md)
 - [DNS](./CS-topic/network/DNS.md)
@@ -45,9 +57,11 @@
 ## Algorithm
 <br>
 
-- [정렬 알고리즘](./CS-topic/Algorithm/Sort_Algorithm.md)
+- [코딩인터뷰 완전 분석 독서 정리](./BookStudy/자바카페/코딩인터뷰완전분석)
 
+- [정렬 알고리즘](./CS-topic/Algorithm/Sort_Algorithm.md)
 - [트리](./CS-topic/Algorithm/Tree.md)
+- [DFS, BFS](.//CS-topic/Algorithm/DFS-BFS.md)
 - [동적 계획법 DP](./CS-topic/Algorithm/Dynamic_Programming.md)
 
 <br><br>
@@ -57,9 +71,11 @@
 
 - [REST API](./CS-topic/Design%20Pattern/RESTAPI.md)
 
+- [SOLID](./CS-topic/Design%20Pattern/SOLID.md)
 - [싱글톤 패턴](./CS-topic/Design%20Pattern/Singleton.md)
 - [상태 패턴](./CS-topic/Design%20Pattern/State.md)
-- [SOLID](./CS-topic/Design%20Pattern/SOLID.md)
+- [퍼사드 패턴](./CS-topic/Design%20Pattern/Facade.md)
+- [프록시 패턴](./CS-topic/Design%20Pattern/Proxy.md)
 
 <br><br>
 
@@ -91,8 +107,9 @@
 ## JAVA
 <br>
 
-- [Object](./Stack/Java/Object.md)
+- [자바 병렬프로그래밍 독서 정리](./BookStudy/자바카페/병렬프로그래밍)
 
+- [Object](./Stack/Java/Object.md)
 - [표기법](./Stack/Java/Notation.md)
 - [접근 제한자](./Stack/Java/Access_Modifier.md)
 - [final](./Stack/Java/final.md)
@@ -112,6 +129,9 @@
 - [SDK vs API](./Stack/Java/SDK%20-API.md)
 - [Test 코드](./Stack/Java/Test.md)
 - [Reflection](./Stack/Java/Reflection.md)
+- [Synchronized](./Stack/Java/Synchronized.md)
+- [Runnable, Callable, Future](./Stack/Java/runnable-callable-future.md)
+- [Timer Class](./Stack/Java/Timer_Class.md)
 
 <br><br>
 
@@ -135,6 +155,13 @@
 - [스프링 트랜잭션](./Stack/Spring/Spring_Transaction.md)
 - [JPA 엔티티 매니저](./Stack/Spring/JPA_Entity_Manager.md)
 - [JPA 더티체킹](./Stack/Spring/JPA_Dirty_Checking.md)
+- [스프링 스케줄러](./Stack/Spring/Spring-Scheduler.md)
+- [Swagger](./Stack/Spring/Swagger.md)
+- [RestDocs](./Stack/Spring/RestDocs.md)
+- [@Value vs @ConfigurationProperties](./Stack/Spring/Value-ConfigurationProperties.md)
+- [Spring RestTemplate](./Stack/Spring/Spring-RestTemplate.md)
+- [Spring Actuator](./Stack/Spring/Actuator.md)
+- [MockMVC](./Stack/Spring/MockMvc.md)
 
 <br><br>
 
@@ -160,3 +187,5 @@
 - [내가 개발자가 되고 싶은 이유](./ETC/%EA%B0%9C%EB%B0%9C%EC%9E%90%EA%B0%80%EB%90%98%EA%B3%A0%EC%8B%B6%EC%9D%80%EC%9D%B4%EC%9C%A0.md)
 - [좋은 개발자란?](./ETC/%EC%A2%8B%EC%9D%80%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%9E%80.md)
 - [정보처리기사 정리](./ETC/%EC%A0%95%EB%B3%B4%EC%B2%98%EB%A6%AC%EA%B8%B0%EC%82%AC.md)
+- [면접 대비 정리](./ETC/면접대비정리.md)
+- [NCS 정리](./ETC/NCS-직업기초능력)
