@@ -122,6 +122,10 @@ System.out.println(s);
 
 <br>
 
+[runnable, callable, future 정리](./runnable-callable-future.md)
+
+<br>
+
 #### 매개변수가 두 개인 함수형 인터페이스
 - 사용법은 위와 동일하고 Bi 라는 접두사가 붙었음
 - 매개변수로 데이터 타입을 두 개 사용
