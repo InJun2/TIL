@@ -56,7 +56,6 @@ public class Executors {
                                       new SynchronousQueue<Runnable>());
     }
 
-
     public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
