@@ -5,18 +5,33 @@
 ### 궁금한 부분
 - Executor 프레임워크는 정의 부분과 실행 부분을 서로 분리 시켜줌
 - 단일 스레드로 동작하는 Executor ?
-- 스레드풀의 크기를 결과에 따라 동적으로 지정해주는 Runtime.availableProcessors -> CPU의 개수
-- 스레드풀의 코어크기와 최대 크기는 뭐가 다른 건지?
 - ThreadPoolExecutor는 beforeExecute, afterExecute, terminated와 같은 훅을 제공한다는데 여기서 훅이란?
     - ThreadPoolExecutor 라이브러리 확인하기
+- 쓰레드풀에 지정된 설정의 스레드 저장하기
+    - 해당 기능으로 책에서 스레드 이름을 지정한 것으로 이해하였음
+- SynchronousQueue는 따지고 보면 큐가 아니며 단지 스레드 간에 작업을 넘겨주는 기능이라고 하는데 어떻게 동작하는지
+- 최근도 스레드풀을 생성할 때 Executor를 쓰는지 혹은 다른 라이브러리가 있는지?
 
+<br>
 
-- SynchronousQueue는 따지고 보면 큐가 아니며 단지 스레드 간에 작업을 넘겨주는 기능
+### Executor 정의와 실행 분리
+- Executor 프레임워크는 Java에서 스레드 기반 비동기 실행을 추상화하고 간소화하기 위해 사용되는 프레임워크
+- 정의 부분 : 작업을 정의하고 스레드 풀을 구성하는 단계
+    - ExecutorService의 구현체를 생성하고, 적절한 스레드 풀 구성 및 옵션을 설정
+- 실행 부분 : 작업을 제출하고 실행하는 단계
+    - 정의된 ExecutorService를 사용하여 작업을 제출하고, ExecutorService가 제공하는 메서드를 사용하여 작업을 실행하고 대기
+
+<br>
+
+### 단일 스레드로 동작하는 Executor
+- Executors.newSingleThreadExecutor()로 생성
+- 한 번에 하나의 작업을 처리하므로 순차적으로 실행
+- 단일 스레드 이므로 별도의 스레드 관리가 필요하지 않음
+- 작업을 그저 큐에 넣는다기보다 스레드의 생성, 관리, 실행을 Executor에 의해 관리됨
 
 <br>
 
 ### ThreadPoolExecutor
-
 - ThreadPoolExecutor는 Executors 클래스의 newCachedThreadPool, newFixedThreadPool, newScheduledThreadPool 과 같은 팩토리 메소드에서 생성해주는 Executor의 기본적인 내용이 구현되어 있는 클래스
     - 팩토리 메소드를 사용해 만들어진 스레드 풀의 기본 실행 정책이 요구 사항에 맞지 않으면 ThreadPoolExecutor 클래스의 생성 메서드를 직접 호출해 스레드풀 생성
 
@@ -110,8 +125,6 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 
     ...
 }
-
-
 ```
 
 <br>
