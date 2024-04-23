@@ -154,13 +154,32 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 
 ###  쓰레드풀에 지정된 설정의 스레드 사용하기?
 - 책에서 ThreadPool에 ThreadFactory를 사용하여 스레드를 생성하고 사용하였음
-- 이전 스레드에 이름을 붙이는 방법과 다른 것이 있는지?
+- 지난 발표에서 해당 스레드 설정은 AsyncConfigurerSupport 상속을 통해 사용하였음
 
 ```java
 ThreadFactory threadFactory = new ThreadFactoryBuilder()
     .setNameFormat("MyThread-%d")
     .build();
 ExecutorService executor = Executors.newFixedThreadPool(10, threadFactory);
+```
+
+```java
+// 기본 상속은 AsyncConfigurer, 커스텀하고 싶다면 AsyncConfigurerSupport
+// AsyncConfigurer는 비동기 작업을 위한 Executor 설정을 제공하는 메서드를 정의
+// AsyncConfigurerSupport 클래스는 AsyncConfigurer를 구현한 클래스로, 비동기 처리를 위한 설정을 지원하는 커스텀 도우미 클래스
+@Configuration
+public class AsyncConfig extends AsyncConfigurerSupport {    
+    @Override
+    public ThreadPoolTaskExecutor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(25);
+        executor.setThreadNamePrefix("MyAsyncThread-");
+        executor.initialize();
+        return executor;
+    }
+}
 ```
 
 <br>
@@ -910,6 +929,17 @@ public class PuzzleSolver<P, M> extends ConcurrentPuzzleSolver<P, M> {
 - GUI에서 다룬 기법들이 다른 단일 스레드 서브시스템 활용할 때도 유용함
     - 해당 라이브러리를 독점 사용하는 전용 스레드나 단일 스레드 Executor 준비
     - 라이브러리에 접근하는 이벤트를 전용 스레드에 등록하는 프록시 활용
+
+<br>
+
+## 금주 나온 이야기
+- VirtualThread 사용하기 위한 VirtualThreadTaskExecutor
+    - jdk 21버전 부터 사용가능 하다고 함
+    - 자바에서가 아닌 다른 곳에서 가상스레드를 그린 스레드라고도 부른다고함
+- @Configuration에서 AsyncConfigure는 비동기 작업을 위한 Executor 설정을 제공
+    - AsyncConfigurerSupport 클래스는 AsyncConfigurer를 구현한 클래스로, 비동기 처리를 위한 설정을 지원하는 커스텀 도우미 클래스
+- Async(value=) 설정에 pool을 쓰지 않았다면?
+    - TaskExecutor 관련 빈이 있는지 확인하고 없다면 SimpleAsyncTaskExecutor를 사용함
 
 <br>
 
