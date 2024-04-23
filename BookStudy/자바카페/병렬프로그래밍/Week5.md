@@ -31,6 +31,13 @@
 
 <br>
 
+### ThreadPoolExecutor는 beforeExecute, afterExecute, terminated와 같은 훅을 제공한다는데 여기서 훅이란?
+- 훅(hook) 이란 소프트웨어에서 어떤 이벤트가 발생했을때 실행되는 사용자 정의 코드
+    - 리액트에서 훅을 사용하는 이유라고 생각됨
+- 해당 코드는 아래 ThreadPoolExecutor 예시에 작성되어 있음
+
+<br>
+
 ### ThreadPoolExecutor
 - ThreadPoolExecutor는 Executors 클래스의 newCachedThreadPool, newFixedThreadPool, newScheduledThreadPool 과 같은 팩토리 메소드에서 생성해주는 Executor의 기본적인 내용이 구현되어 있는 클래스
     - 팩토리 메소드를 사용해 만들어진 스레드 풀의 기본 실행 정책이 요구 사항에 맞지 않으면 ThreadPoolExecutor 클래스의 생성 메서드를 직접 호출해 스레드풀 생성
@@ -123,8 +130,37 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         ...
     }
 
+    /*
+        지정된 스레드에서 지정된 Runnable을 실행하기 전에 호출되는 메서드
+        이 메서드는 작업 r 실행할 스레드 t 에 의해 호출되며 ThreadLocal을 다시 초기화하거나 로깅을 수행하는 데 사용될 수 있음
+    */
+    protected void beforeExecute(Thread t, Runnable r) {}
+
+    /*
+        지정된 Runnable의 실행이 완료되면 호출되는 메서드
+        이 메서드는 작업을 실행한 스레드에 의해 호출. null이 아닌 경우 Throwable은 실행이 갑자기 종료되도록 하는 포착되지 않은 RuntimeException 또는 Error
+    */
+    protected void afterExecute(Runnable r, Throwable t) { }
+
+
+    // Executor가 종료되었을 때 호출되는 메서드
+    protected void terminated() { }
+
     ...
 }
+```
+
+<br>
+
+###  쓰레드풀에 지정된 설정의 스레드 사용하기?
+- 책에서 ThreadPool에 ThreadFactory를 사용하여 스레드를 생성하고 사용하였음
+- 이전 스레드에 이름을 붙이는 방법과 다른 것이 있는지?
+
+```java
+ThreadFactory threadFactory = new ThreadFactoryBuilder()
+    .setNameFormat("MyThread-%d")
+    .build();
+ExecutorService executor = Executors.newFixedThreadPool(10, threadFactory);
 ```
 
 <br>
@@ -258,7 +294,7 @@ Nthreads = Ncpu * Ucput * ( 1 + W/C )
 - 코어 크기와 스레드 유지 시간을 적절하게 조절하면 작업없이 쉬고 있는 스레드가 차지하고 있는 자원을 프로그램의 다른 부분에서 활용하게 반납하도록 할 수 있음
 - newFixedThreadPool
     - 메소드 결과로 생성할 스레드 풀의 코어 크기와 최대 크기를 메소드에 지정한 값으로 동일하게 지정됨
-    - 시간 제한은 무제한으로 설종되는 것과 같음
+    - 시간 제한은 무제한으로 설정되는 것과 같음
 - newCachedThreadPool
     - 스레드 풀의 최대 크기를 Inter.MAX_VALUE 값으로 지정하고 코어 크기를 0으로, 스레드 유지 시간을 1분으로 지정함
     - 스레드 풀은 끝없이 크기가 늘어날 수 있으며, 사용량이 줄어들면 스레드 개수가 적당히 줄어드는 효과가 있음
@@ -273,7 +309,7 @@ Nthreads = Ncpu * Ucput * ( 1 + W/C )
 - 스레드 풀에서 작업을 쌓아둘 큐에 적용할 수 있는 전략에는 세가지가 존재
     - 큐에 크기 제한을 두지 않는 방법
     - 큐의 크기를 제한하는 방법
-    - 업을 스레드에게 직접 넘겨주는 방법
+    - 작업을 스레드에게 직접 넘겨주는 방법
 - newFixedThreadPool 메소드와 newSingleThreadExecutor 메소드에서 생성하는 풀은 기본 설정으로 크기가 제한되지 않은 LinkedBlokingQueue를 사용함
     - 모든 스레드가 busy한 상태이고, 계속 작업이 추가되면 큐에 작업이 쌓임
 - 자원 관리 측면에서 ArrayBlockingQueue 또는 크기가 제한된 LinkedBlockingQueue나 PriorityBlockingQueue와 같이 큐의 크기를 제한시켜 사용하는 방법이 안정적임
