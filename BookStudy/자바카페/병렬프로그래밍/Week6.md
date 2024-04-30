@@ -23,7 +23,9 @@
 <br>
 
 ### 데드락이 발견되고 애플리케이션 레벨에서 해결한 방법이 있는지?
-- 또한 주로 스레드 부족 데드락인지 자원 데드락 중 어떤 경우가 빈번한지?
+- 다들 해결해보신 경험은 없다고함. DB에서 강제적으로 쿼리를 종료한 적은 있으나 애플리케이션 레벨에서 해결한 경험은 없다고 하심
+- 애플리케이션에서 데드락 발생 시 스레드 덤프로 확인
+- DB에서 데드락 발생 시 우선 풀을 늘려보는 것을 추천
 
 <br>
 
@@ -173,14 +175,33 @@ public static void main(String[] args) {
 - fastThread
 - Intellij IDEA 힙 분석
     - https://blog.jetbrains.com/idea/2020/03/profiling-tools-and-intellij-idea-ultimate/
+- jmeter
 
 <br>
 
-### 코틀린과 자바의 성능차이는 얼마나 차이가 나는지
+### 코틀린과 자바 멀티스레드의 성능차이는 얼마나 차이가 나는지
  - 차이가 어느 부분에서 발생하는지
+    - 컨텍스트 스위칭 감소
+    - 스레드를 만드는 비용 감소
 
 <br>
 
 ### ConcurrentHashMap 해시 버킷에 동시에 같은 키의 데이터가 삽입될 경우에 문제가 없는 이유?
 - 해시값을 특정 버킷으로 나누고 값을 조회하는 것은 나머지 연산이 다른 데이터를 조회하기에는 락을 좋게 분리할 수 있다고 생각
 - 하지만 동시에 같은 키의 데이터가 삽입된다면 해시 충돌이 발생한다고 생각하는데 어떻게 진행되는지
+
+<br>
+
+## 금일 스터디에서 나온 내용
+- spring mvc, m-thread 와 spring webflux, coroutines의 차이
+    - spring mvc, m-thread : pods 5, pod당 1024mb ( 평균 사용 920 mb), jvm heap : 270, cpu usage 55%
+    - webflux, coroutines : pods 3, pod당 1024mb ( 평균 사용 700 mb), jvm heap : 230, cpu usage 33%
+- 이후 따로 spring mvc, spring webflux 차이를 정리해봐도 좋을 것 같음
+- CompletableFuture 가 뭔지 찾아보면 좋을 것 같음
+- Redis executePipelined Connection Pool Error
+    - executePipelined을 사용하려면 셋업이 필요. 기본으로 사용하면 커넥션 풀을 자동으로 계속 늘려서 지나치게 올라감
+    - 해당 문제는 executePipelined -> foreach-set 으로 변경
+- DataSource 가 무엇인지 제대로 아는 것도 좋을 것 같음
+- DB를 하나씩 받아오던 부분을 한번에 받아오도록 변경해서 성능 향상
+- 강창구님 식사하는 철학자 문제 정리하신 내용 링크
+    - https://miller-nine.notion.site/10-b898095b1c1d49a1a63988ade6e90653
