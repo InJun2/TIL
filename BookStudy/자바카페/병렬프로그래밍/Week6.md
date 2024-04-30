@@ -170,6 +170,9 @@ public static void main(String[] args) {
 <br>
 
 ### 주로 사용하는 성능 측정 도구에는 무엇이 있는지?
+- fastThread
+- Intellij IDEA 힙 분석
+    - https://blog.jetbrains.com/idea/2020/03/profiling-tools-and-intellij-idea-ultimate/
 
 <br>
 
