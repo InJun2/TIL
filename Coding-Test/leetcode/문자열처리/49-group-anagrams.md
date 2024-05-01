@@ -49,3 +49,9 @@ class Solution {
 
 - runtime : 6ms
 - memory : 47.55mb
+
+<br>
+
+### 스터디 중 나온 이야기
+- 자바 HashMap에서는 같은 해시값 충돌 발생시 4개까지는 LinkedList로 저장이 되고 이후에는 트리로 저장이 된다고 함
+    - [윤희님 해시 충돌 공유 내용](https://jennyuni.notion.site/Hash-95db59ea6d9049a585798f96b8d27889?pvs=4)
