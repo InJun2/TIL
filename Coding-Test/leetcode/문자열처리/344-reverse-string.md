@@ -1,4 +1,4 @@
-# 325. Reverse String
+# 344. Reverse String
 - 문자열 뒤집기로 해당 char[] 배열을 뒤집는 함수 구현
     - https://leetcode.com/problems/reverse-string/description/
 - 그러나 이후 확인하였을때 in-place O(1) 이므로 해당 배열안에서 구현하여야함
