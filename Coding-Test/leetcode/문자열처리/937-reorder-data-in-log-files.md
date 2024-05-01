@@ -10,6 +10,10 @@
 
 ### 해결방안
 - 해당 로그가 정렬되는 순서가 이해가 안되서 책을 참조
+- 로그의 문자로그와 숫자로그를 처음 공백으로 2개로 분리 후 각각 리스트로 저장
+- Collections.sort()에 Comparator을 이용하여 정렬 조건을 설정하여 정렬
+    - 람다로 간단히 대체
+- 
 
 <br>
 
@@ -33,14 +37,19 @@ class Solution {
         }
 
         letterList.sort((s1, s2) -> {
+            // 식별자와 식별자 외 나머지 부분을 이렇게 두 부분으로 나눔
             String[] s1x = s1.split(" ", 2);
             String[] s2x = s2.split(" ", 2);
 
+            // 문자 로그 사전순 비교
+            // -1이라면 s1x[1]이 우선, 0이라면 같은 문자열, 1이라면 s2x[1]이 우선
             int compared = s1x[1].compareTo(s2x[1]);
 
+            // 문자가 동일한 경우 식별자 비교
             if (compared == 0) {
                 return s1x[0].compareTo(s2x[0]);
             } else {
+                // 비교 대상의 순서가 동일한 경우 0, 순서가 앞인 경우 1, 순서가 뒤인 경우 -1
                 return compared;
             }
         });
