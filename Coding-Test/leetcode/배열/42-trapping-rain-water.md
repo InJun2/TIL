@@ -1,5 +1,5 @@
 # 42. Trapping Rain Water
-- 고도 높이 배열이 주어지면 비가 높이 1만큼 왔다고 했을때 얼마나 많은 물이 쌓일 수 있는지 계산하기
+- 고도 높이 배열이 주어지면 비가 왔다고 했을때 얼마나 많은 물이 쌓일 수 있는지 계산하기
     - https://leetcode.com/problems/trapping-rain-water/description/
 
 <br>
@@ -93,7 +93,7 @@ class Solution {
 <br>
 
 ### 두 번째 해설코드
-- 투 포인트 방식이 가장 빠름
+- 투 포인터 방식이 가장 빠름
 
 ```java
 class Solution {
