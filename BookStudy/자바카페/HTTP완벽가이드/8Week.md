@@ -77,6 +77,7 @@ HTTP 요청 헤더에서 사용하는 경우
 
 ### 웹 토큰 보관장소 LocalStorage vs Cookie
 - LocalStorage 보다 Cookie에 토큰을 저장하여 Js를 통해 사용하지 못하도록 하는 것이 좋음
+    - LocalSTorage는 HTML5에서 제공하는 웹 스토리지 매커니즘
 - 백엔드 위주 시점에서 보면 엑세스 토큰과 리프레시 토큰을 처리하기 위해 선택적으로 상황에 맞춰 사용할 수 있다고 함
 
 <br>
@@ -170,3 +171,10 @@ HTTP 요청 헤더에서 사용하는 경우
 <br>
 
 </details>
+
+<br>
+
+### 스터디를 진행하면서
+- 현재는 기본 인증, 다이제스트 인증은 안쓰고 OAuth2.0 나 웹 토큰 같은 인증 방식을 사용함
+- 개발자 도구를 사용하여 볼 수 있는 요소가 많은데 해당 구글 링크를 참조하면 다양한 정보를 얻을 수 있을 것 같음
+    - [구글 문서 링크](https://developer.chrome.com/docs/devtools/overview?hl=ko)
