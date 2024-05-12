@@ -12,9 +12,8 @@
     - 처음 최적화는 Map을 사용한 방법으로 인덱스를 기록해야하기에 사용하지 못할 줄 알았으나 index 값을 key로 두고 index를 value로 Map 구현
     - target이 구해야하는 결과이므로 target-key의 값이 있는지 확인하면 됨. 하지만 같은 수를 더했을 때의 경우를 제외해야함
     - 이후 Map에서 찾는 i와 numsMap.get(target - nums[i])가 target이 되는 인덱스 두개가 됨
-- 이후 책을 보고 투 포인터 최적화 진행
-    - 
-
+- 이후 책을 보고 투 포인터 방법 기재
+    - 투 포인터 방법으로는 해당 문제를 풀 수 없지만 인덱스를 구하는 것이 아니라면 해당 방법으로 풀이 가능
 
 <br>
 
@@ -22,7 +21,6 @@
 
 ```java
 class Solution {
-
     public int[] twoSum(int[] nums, int target) {
         for (int index = 0; index < nums.length - 1; index++) {
             for (int y = index + 1; y < nums.length; y++) {
@@ -49,7 +47,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 class Solution {
-
     public int[] twoSum(int[] nums, int target) {
         Map<Integer, Integer> numsMap = new HashMap<>();
 
