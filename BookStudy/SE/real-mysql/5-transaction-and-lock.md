@@ -32,8 +32,8 @@
 - InnoDB의 레코드락은 실질적으로 레코드를 잠그는 것이 아니라 인덱스를 잠그는 방식으로 처리됨
     - 인덱스가 존재하지 않아도 자동 생성된 클러스터 인덱스를 생성하여 잠금
 - 트랜잭션 격리수준
-    - READ UNCOMMITTED : 미확정 읽기, 가장 낮은 격리수준으로, 다른 트랜잭션이 커밋되지 않은 데이터를 읽을 수 있음 (DIRTY READ 발생)
-    - READ COMMITTED : 확정 읽기, 한 트랜잭션이 커밋된 데이터만 읽을 수 있어 DIRTY READ를 방지하나 같은 쿼리를 실행할 때 결과가 달라질 수 있음
+    - READ UNCOMMITTED : 미확정 읽기, 가장 낮은 격리수준으로, 다른 트랜잭션이 커밋되지 않은 데이터를 읽을 수 있음 (DIRTY, NON-REPEATABLE READ 발생)
+    - READ COMMITTED : 확정 읽기, 한 트랜잭션이 커밋된 데이터만 읽을 수 있어 DIRTY READ를 방지하나 같은 쿼리를 실행할 때 결과가 달라질 수 있음 (NON-REPEATABLE READ 발생)
     - REPEATABLE READ : 반복 가능 읽기, 한 트랜잭션이 읽은 데이터는 다른 트랜잭션이 수정할 수 없음. 한 번 읽은 데이터는 여러 번 읽어도 같은 결과지만 PHANTOM READ 발생
     - SERIALIZABLE : 직렬화 가능, 가장 높은 격리 수준으로 한 트랜잭션이 실행 중에 다른 트랜잭션의 작업에 영향을 받지 않음. DIRTY, NON-REPEATABLE, PHANTOM READ 발생하지 않으나 높은 격리수준으로 동시성이 낮아짐
 <br>
