@@ -38,16 +38,16 @@ ex) 1 -> 2 -> 3 -> 4 -> 5
 
 초기상태
 - prev = null
-- current = 1\
+- current = 1
 
-첫번째 반복
+첫 번째 반복
 - next = 2
 - current.next = null
 - prev = 1
 - current = 2
 - 리스트 상태: 1 -> null, 2 -> 3 -> 4 -> 5
 
-두번째반복
+두 번째 반복
 - next = 3
 - current.next = 1
 - prev = 2
