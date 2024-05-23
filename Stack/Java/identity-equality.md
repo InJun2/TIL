@@ -25,15 +25,32 @@ Set<Integer> set2 = new HashSet<>(Arrays.asList(3, 2, 1));
 
 System.out.println(set1 == set2); // false
 
-
 // 동등성
 Set<Integer> set1 = new HashSet<>(Arrays.asList(1, 2, 3));
 Set<Integer> set2 = new HashSet<>(Arrays.asList(3, 2, 1));
 
 System.out.println(set1.equals(set2)); // true
-// 대부분의 자료구조(String, arraylist, queue, stack ..)에서는 equals는 내부적으로 containsAll로 확인하므로 동등성이 true가 된다
+// 대부분의 자료구조(String, arraylist, queue, stack ..)에서는 equals는 내부적으로 containsAll로 확인하므로 동등성 판별
 
+// 대부분의 Set의 구현체 부모클래스
+public abstract class AbstractSet<E> extends AbstractCollection<E> implements Set<E> {
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
 
+        if (!(o instanceof Set))
+            return false;
+        Collection<?> c = (Collection<?>) o;
+        if (c.size() != size())
+            return false;
+        try {
+            return containsAll(c);
+        } catch (ClassCastException | NullPointerException unused) {
+            return false;
+        }
+    }
+}
 
 // String equals
 public boolean equals(Object anObject) {
