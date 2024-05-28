@@ -36,6 +36,7 @@
     - READ COMMITTED : 확정 읽기, 한 트랜잭션이 커밋된 데이터만 읽을 수 있어 DIRTY READ를 방지하나 같은 쿼리를 실행할 때 결과가 달라질 수 있음 (NON-REPEATABLE READ 발생)
     - REPEATABLE READ : 반복 가능 읽기, 한 트랜잭션이 읽은 데이터는 다른 트랜잭션이 수정할 수 없음. 한 번 읽은 데이터는 여러 번 읽어도 같은 결과지만 PHANTOM READ 발생
     - SERIALIZABLE : 직렬화 가능, 가장 높은 격리 수준으로 한 트랜잭션이 실행 중에 다른 트랜잭션의 작업에 영향을 받지 않음. DIRTY, NON-REPEATABLE, PHANTOM READ 발생하지 않으나 높은 격리수준으로 동시성이 낮아짐
+
 <br>
 
 ## 연습문제
@@ -91,5 +92,8 @@
 </details>
 
 <br>
+
+### 스터디를 진행하면서
+- [Spring Transactional 황하림님 정리](https://magnetic-crow-9f1.notion.site/DB-cf3899644db848b4b466f8de7159ad06?pvs=4)
 
 <br>
