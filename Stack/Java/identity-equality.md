@@ -76,6 +76,7 @@ public boolean equals(Object anObject) {
 }
 
 // Integer
+// Integer 은 내부적으로 '=='의 경우에 내부적으로 같은 객체임을 비교하지 않고 내부적으로 같은 값임을 비교함
 public boolean equals(Object obj) {
     if (obj instanceof Integer) {
         return value == ((Integer)obj).intValue();
