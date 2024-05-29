@@ -15,5 +15,80 @@
 
 ### 첫 번째 코드
 ```java
+import java.util.Queue;
+import java.util.LinkedList;
 
+class MyStack {
+    Queue<Integer> queue;
+
+    public MyStack() {
+        queue = new LinkedList<>();
+    }
+    
+    public void push(int x) {
+        queue.offer(x);
+    }
+    
+    public int pop() {
+        for(int i = 0; i < queue.size() - 1; i++) {
+            queue.offer(queue.poll());
+        }
+
+        return queue.poll();
+    }
+    
+    public int top() {
+        for(int i = 0; i < queue.size() - 1; i++) {
+            queue.offer(queue.poll());
+        }
+
+        int top = queue.poll();
+        queue.offer(top);
+
+        return top;
+    }
+    
+    public boolean empty() {
+        return queue.isEmpty();
+    }
+}
+```
+
+<br>
+
+### 풀이 코드
+- 매번 맨 뒤의 값을 n번 조회하기보다는 push 할 때 맨 뒤의 값을 두는 방법을 선택
+
+```java
+import java.util.Queue;
+import java.util.LinkedList;
+
+class MyStack {
+    Queue<Integer> queue;
+
+    public MyStack() {
+        queue = new LinkedList<>();
+    }
+    
+    public void push(int x) {
+        queue.add(x);
+
+        // 맨 앞에 두는 상태로 전체 재정렬
+        for(int i = 1; i < queue.size(); i++) {
+            queue.add(queue.poll());
+        }
+    }
+    
+    public int pop() {
+        return queue.poll();
+    }
+    
+    public int top() {
+        return queue.peek();
+    }
+    
+    public boolean empty() {
+        return queue.isEmpty();
+    }
+}
 ```
