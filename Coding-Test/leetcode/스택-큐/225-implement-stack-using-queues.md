@@ -4,7 +4,7 @@
     - int pop() : 대기열의 위에 있는 요소를 제거하고 반환
     - int top() : 대기열의 맨 위에 있는 요소를 반환
     - boolean empty() : 대기열이 비어 있으면 ture 반환, 그렇지 않으면 false 반환
-    - https://leetcode.com/problems/implement-queue-using-stacks/description/
+    - https://leetcode.com/problems/implement-stack-using-queues/
 
 <br>
 
@@ -71,11 +71,11 @@ class MyStack {
     }
     
     public void push(int x) {
-        queue.add(x);
+        queue.offer(x);
 
         // 맨 앞에 두는 상태로 전체 재정렬
         for(int i = 1; i < queue.size(); i++) {
-            queue.add(queue.poll());
+            queue.offer(queue.poll());
         }
     }
     
