@@ -3,7 +3,26 @@
 ### 동일성 (Identity)
 - 두 객체의 메모리 주소가 같음을 의미
     - 즉 같은 객체를 가리키고 있음
-- 자바에서 '==' 연산자로 경우 동일성을 판별
+- 자바에서 참조형의 '==' 연산자는 같은 객체를 가리키고 있는지를 판별하므로 동일성을 판별함
+    - 기본 자료형의 경우 메모리에 바로 할당되므로 '=='는 값을 비교함
+
+```java
+String str1 = "hello";
+String str2 = str1;
+
+System.out.println(str1 == str2);  // true, str1과 str2는 같은 객체를 가리킴
+
+String str1 = new String("hello");
+String str2 = new String("hello");
+
+System.out.println(str1 == str2);  // false, str1과 str2는 각각 다른 객체를 가리킴
+
+// 기본 자료형의 '=='은 동일성이 아닌 메모리의 값을 비교하여 true 반환 
+int num1 = 5;
+int num2 = 5;
+
+System.out.println(num1 == num2);  // true
+```
 
 <br>
 

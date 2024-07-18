@@ -12,6 +12,7 @@
 #### Object?
 - 객체는 실제로 존재하는 것(소프트웨어 세계에 구현할 대상).
 - 자바에서 객체는 생성자로 하여금 생성되어 메모리에 올라가는 실체(=인스턴스)를 의미
+    - 기본 자료형의 값은 바로 메모리에 올라가므로 Object를 상속받지 않음
 - 인스턴스란 자세히 말하면 설계도를 바탕으로 소프트웨어 세계의 구현된 구체적인 실체로 객체는 모든 인스턴스를 대표하는 포괄적인 의미임
 - 자세히말하면 객체는 소프트웨어 세계에 구현할 대상이고, Class에 따라 소프트웨어 세계에 구현된 실체가 인스턴스임. 그렇기 떄문에 객체안의 인스턴스가 포함된다고 볼 수 있음
 ```
@@ -27,6 +28,53 @@ book1은 생성자로 생성된 인스턴스.
 - Object 클래스는 모든 자바 클래스의 최고 조상 클래스가 됨. 따라서 자바의 모든 클래스는 Object 클래스의 모든 메소드를 바로 사용 가능
     - 별도의 extends 선언이 없는 클래스들은 extends Object가 생략됨
 - 따라서 자바의 모든 클래스는 Object 클래스의 모든 메소드를 바로 사용할 수 있고 Object 클래스는 필드를 가지지 않으며 11개의 메소드로 구성
+
+<br>
+
+### 객체가 출력되는 과정
+- 객체 toString으로 출력하면 객체의 해시코드를 16진수로 표현한 값이 나온다
+
+<br>
+
+```java
+Object obj = new Object("test");
+System.out.print(obj);
+
+// PrintStream의 print 메서드
+public void print(Object obj) {
+    write(String.valueOf(obj))
+}
+
+// String의 valueOf
+public static String valueOf(Object obj) {
+    return (obj == null) ? "null" : obj.toString();
+}
+
+// Object의 toString
+public String toString() {
+    return getClass.getName() + "@" + Integer.toHexString(hashCode());
+}
+
+// 출력 : 
+```
+
+<br>
+
+### Object에 기본 자료형 캐스팅
+- java 기본형은 Object를 상속받지 않음
+- 그런데 기본형을 Object에 담는게 가능한 이유는 AutoBoxing이 일어나기 때문
+
+```java
+Object obj = 1;
+int number = 0;
+		
+obj = number;
+// 기본 자료형 값을 그에 대응하는 wrapper 클래스 객체로 자동 변환
+// int -> Integer 로 변환되어 Object 에 할당됨
+
+System.out.println(obj.getClass() + " : " + obj);
+// 출력 : class java.lang.Integer : 1
+```
 
 <br>
 
