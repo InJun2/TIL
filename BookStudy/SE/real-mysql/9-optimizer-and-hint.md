@@ -59,12 +59,20 @@ WHERE e.emp_no IN
 ### 테이블 풀-아웃 (Table Pull-out)
 - 세미 조인의 서브쿼리에 사용된 테이블을 아우터 쿼리로 끄집어낸 후에 쿼리 를 조인 쿼리로 재작성하는 형태
 - 사용 가능하면 항상 세미 조인보다 좋은 성능을 내어 별도 제어하는 옵티 마이저 옵션을 제공하지 않음
+- 실행 계획에서 가장 중요한 부분은 id 칼럼의 값이 1이라는 것
+- 해당 최적화가 되었는지 확인하는 가장 간단한 방법은 EXPLAIN 명령을 실행한 직후 SHOW WARNINGS 명령으로 업티마이저가 재작성한 쿼리를 살펴보는 것
+  - IN(subquery) 형태가 사라지고 JOIN으로 쿼리가 재작성 되어 있음
+- 테이블 풀-아웃 최적화의 몇 가지 제한 사항과 특성은 다음과 같음
+  - Table pullout 최적화는 세미 조인 서브쿼리에서만 사용 가능
+  - Table pullout 최적화는 서브쿼리 부분이 UNIQUE 인덱스나 프라이머리 키 룩업으로 결과가 1건인 경우에만 사용 가능
+  - Table pullout 이 적용된다고 하더라도 기존 쿼리에서 가능했던 최적화 방법이 사용 불가능한 것은 아니므로 MySQL에서는 가능하다면 Table pullout 최적화를 최대한 적용함
+  - Table pullout 최적화는 서브쿼리의 테이블을 아우터 쿼리로 가져와서 조인으로 풀어쓰는 최적화를 수행하는데, 만약 서브쿼리의 모든 테이블이 아우터 쿼리로 끄집어 낼 수 있다면 서브쿼리 자체는 없어짐
+  - MySQL에서는 "최대한 서브쿼리를 조인으로 풀어서 사용해라"라는 튜닝가이드가 많은데 Table pullout 최적화는 이 가이드를 그대로 실행하는 것
 
 ```sql
 EXPLAIN
 SELECT * FROM employees e
 WHERE e.emp_no IN (SELECT de.emp_no FROM dept_emp de WHERE de.dept_no='d009');
-
 ```
 
 <br>
@@ -74,6 +82,10 @@ WHERE e.emp_no IN (SELECT de.emp_no FROM dept_emp de WHERE de.dept_no='d009');
 <br>
 
 ### 퍼스트 매치
+- In(subquery) 형태의 세미 조인을 EXIST(subquery) 형태로 튜닝한 것과 비슷한 방법으로 실행됨
+- 마찬가지로 눈여겨봐야할 부분은 실행 계획에서 id 칼럼의 값이 1이라는 것
+  - 또한 Extra 칼럼에는 "FirstMatch(e)"라는 문구가 출력됨
+
 
 <br>
 

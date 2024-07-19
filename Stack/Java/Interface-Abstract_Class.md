@@ -26,7 +26,7 @@
 - 인터페이스는 모든 메소드가 추상 메소드로 구성되어 있음. 그러나 추상 클래스에서 추상 메소드와 다르게 public abstract를 생략 가능(무조건 모든 메소드는 public abstract)
 - 상속으로는 inplements 라는 키워드를 사용하여 상속받고 다중상속이 가능
 - 상속하는 집한간에는 연관관계가 존재하지 않을 수 있음 -> 정의된 메소드를 각 클래스의 목적에 맞게 기능을 구현하기 위해 확장, 상속
-- Java 8 부터 static, default 메소드 사용이 가능해짐
+- Java 8 부터 static, default 메소드 사용, 9 이후에는 인터페이스 내부에만 사용하는 private 접근제한자 이 가능해짐
 - 상속의 관계는 has a (kind of) 관계라고 함
     - ex) Person has a Swimming
 
@@ -44,6 +44,62 @@
 - 인터페이스와 추상 클래스 모두 다형성이나 클래스 타입을 통합한다는 기능은 동일하지만 사용하는 위치가 다를 수 있다
 - 공통으로 가지는 메소드가 많아 중복 멤버 통합을 위해 기존 클래스처럼 상속을 사용하여 가져오는데 하위 클래스가 오버라이드하여 재정의하는 기능들을 공유하기 위한 상속 개념을 사용할 때 주로 사용하고 인터페이스와 달리 기존 클래스를 사용하는 것처럼 제약이 없음
 - 인터페이스는 대신 단 하나만 상속할 수 있는 기존 클래스와 다르게 여러 인터페이스를 상속이 가능하고 어플리케이션의 기능을 정의하되 구현 방식이나 대상에 대해 추상화하는데 사용할 수 있음. 클래스와 다르게 구현 객체가 같은 동작을 한다는 것을 보장하기 위해 사용
+
+<br>
+
+### Interface default method
+- jdk 8 이후 interface에서 구현부가 있는 일반 메서드를 생성이 가능
+- 메서드 선언부에 default modifier 추가 후 메서드 구현부 작성
+    - 접근 제한자는 public으로 한정됨 (생략가능)
+- 기존에 interface 기반으로 동작하는 라이브러리의 interface에 추가해야 하는 기능이 발생하여 필요하게 되었음
+    - 해당 메서드는 abstract가 아니므로 반드시 구현해야 할 필요는 없음
+- default 메서드의 충돌의 경우 우선순위는 다음과 같음
+    - super class method 우선 : super class가 구체적인 메서드를 갖는 경우 default 메서드는 무시됨
+    - interface 간의 충돌 : 하나의 interface에서 default 메서드를 제공하고 다른 interface에서도 같은 이름의 메서드가 있을 때 sub class는 반드시 override 해서 충돌 해결
+
+<br>
+
+### Interface static method
+- jdk 8 이후 interface에서 구현부가 있는 static 메서드를 생성이 가능
+- 일반 static 메서드와 마찬가지로 별도의 객체가 필요 없음
+- 구현체 클래스 없이 바로 인터페이스 이름으로 메서드에 접근해서 사용가능
+
+<br>
+
+### Interface private method
+- jdk 9 이후 interface에서 내부적으로만 사용하는 메서드를 구현하기 위해 private 접근제한자 생성이 가능. static 키워드로 사용은 가능하지만 default는 사용하지 못함
+    - 외부에 사용하지 못하게하는 private와 외부에서 사용하게 하기위한 default 사용 이유가 상반됨
+- 외부로 공개할 필요가 없는 메서드 지정을 위해 private method 추가
+
+<br>
+
+```java
+interface MyInterface {
+    default void defaultMethod() {
+        helperMethod();
+    }
+
+    private void helperMethod() {
+        System.out.println("Helper method in MyInterface");
+    }
+
+    static void staticMethod() {
+        System.out.println("Static method in MyInterface");
+    }
+
+    private static void privateStaticHelperMethod() {
+        System.out.println("Private static helper method in MyInterface");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        MyInterface myInterface = new MyInterface() {};
+        myInterface.defaultMethod();
+        MyInterface.staticMethod();
+    }
+}
+```
 
 <br>
 
@@ -83,6 +139,54 @@ class People extends Animal implements Swimmable, Talkable{ // 인터페이스�
 class Whale extends Fish implements Swimmable{ 
     @Override
     public void swimming() {}
+}
+```
+
+<br>
+
+### interface 추상화를 일부만 가져와야 하는 경우
+- abstract class를 사용하여 해당 특정 메서드만 사용하도록 할 수 있음
+- 추상 클래스를 상속받을 때, 그 추상 클래스가 이미 구현한 인터페이스의 메서드는 하위 클래스에서 반드시 구현할 필요는 없지만 추상 클래스에서 구현되지 않은 추상 메서드는 하위 클래스에서 반드시 구현해야 함
+
+```java
+interface InterfaceA {
+    void methodA();
+    void methodB();
+}
+
+interface InterfaceB {
+    void methodC();
+}
+
+abstract class AbstractClass implements InterfaceA {
+    @Override
+    public void methodA() {
+        System.out.println("Implemented methodA in AbstractClass");
+    }
+    // methodB는 추상 메서드로 남겨두어 하위 클래스에서 구현하도록 함
+}
+
+// 구체적인 클래스 정의: 추상 클래스 상속
+class ConcreteClass extends AbstractClass implements InterfaceB {
+    @Override
+    public void methodB() {
+        System.out.println("Implemented methodB in ConcreteClass");
+    }
+
+    @Override
+    public void methodC() {
+        System.out.println("Implemented methodC in ConcreteClass");
+    }
+}
+
+// 테스트 코드
+public class TestCode {
+    public static void main(String[] args) {
+        ConcreteClass concrete = new ConcreteClass();
+        concrete.methodA(); // 출력: Implemented methodA in AbstractClass
+        concrete.methodB(); // 출력: Implemented methodB in ConcreteClass
+        concrete.methodC(); // 출력: Implemented methodC in ConcreteClass
+    }
 }
 ```
 
