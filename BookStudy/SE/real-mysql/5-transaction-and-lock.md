@@ -95,5 +95,6 @@
 
 ### 스터디를 진행하면서
 - [Spring Transactional 황하림님 정리](https://magnetic-crow-9f1.notion.site/DB-cf3899644db848b4b466f8de7159ad06?pvs=4)
+    - @Transactional 은 AOP와 프록시로 동작하고, 
 
 <br>

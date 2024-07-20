@@ -46,19 +46,18 @@ class Solution {
 <br>
 
 ### 풀이 코드
-- 책의 풀이는 Point 객체를 생성하는 것과 Comparator.comparingDouble(p -> p.distance)로 우선순위 지정하는 법만 다름
+- 책의 풀이는 Point 객체를 생성하는 것과 우선순위 지정하는 법이 다르며, 불필요한 √ 제거
 
 ```java
 import java.util.PriorityQueue;
-import java.lang.Math;
 import java.util.Comparator;
 
 class Solution {
     static class Point {
-        double distance;
+        long distance;
         int[] point;
 
-        public Point(double distance, int[] point) {
+        public Point(long distance, int[] point) {
             this.distance = distance;
             this.point = point;
         }
@@ -70,7 +69,7 @@ class Solution {
             Comparator.comparingDouble(p -> p.distance));
 
         for(int[] point : points) {
-            double distance = getEuclidean(point);
+            long distance = point[0] * point[0] + point[1] * point[1];
             pq.add(new Point(distance, point));
         }
 
@@ -79,10 +78,6 @@ class Solution {
         }
         
         return result;
-    }
-
-    private double getEuclidean(int point[]) {
-        return Math.sqrt(point[0] * point[0] + point[1] * point[1]);
     }
 }
 ```
