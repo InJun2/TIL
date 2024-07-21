@@ -367,6 +367,72 @@ public class WinningLotto implements ValidateLottoNumbers {
 
 <br>
 
+## Ssafy Wizards CS Study
+
+### 인터페이스와 추상 클래스의 차이
+- 왜 클래스는 단일 상속만 가능한데, 인터페이스는 2개 이상 구현이 가능할까요?
+
+<details>
+<summary>정답</summary>
+
+#### 왜 클래스는 단일 상속만 가능한데, 인터페이스는 2개 이상 구현이 가능할까요?
+- 메서드 시그니처(추상화)만 정의하기 때문에 메서드 구현은 작성하지 않아 메서드의 충돌이 발생하지 않음
+    - 구현의 책임이 클래스에게 있음
+- 디폴트 메서드가 추가되었지만 자바 컴파일러가 디폴트 메서드 충돌 문제를 해결하기 위해 컴파일 타임에 검사를 수행하여 오류를 발생시키므로 충돌 문제를 해결하게 함
+
+<br>
+
+#### 추가 : 같은 default 메서드를 가진 2개의 인터페이스 상속 시
+- 충돌이 발생하며 컴파일러에서 오류 발생
+- 충돌을 해결하기 위해 직접 명시적으로 Ovveride 사용하거나 특정 클래스를 지정해야함
+
+```java
+public interface Student {
+
+    String getName();
+
+    default String getGreetingMessage() {
+        return "Hi! I am a student!";
+    }
+}
+
+public interface Citizen {
+
+    String getName();
+
+    default String getGreetingMessage() {
+        return "Hi! I am a Citizen!";
+    }
+}
+
+public class Brad implements Citizen, Student{
+
+    @Override
+    public String getName() {
+        return "Brad";
+    }
+
+// 중복된 default 메서드로 컴파일 에러 발생
+// 아래 코드 처럼 명시적으로 오버라이딩 혹은 구현 클래스 지정을 진행하여 충돌을 해결해야 함
+
+    // @Override
+    // public String getGreetingMessage() {
+    //     return "Hi! I am Brad!";
+    // }
+
+    // @Override
+    // public String getGreetingMessage() {
+    //     return Student.super.getGreetingMessage();
+    // }
+}
+}
+```
+
+</details>
+
+
+<br>
+
 ### 이후 스터디를 통한 사용하는 상황 비교 블로그
 - [블로그 링크](https://ifhead.tistory.com/entry/OOP-언제-왜-추상클래스와-인터페이스를-써야-할까)
 - [블로그 링크2](https://jjingho.tistory.com/158)
