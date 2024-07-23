@@ -1,6 +1,7 @@
 # Collection
 
 ### 컬렉션(Collection)이란?
+>- 자료구조는 컴퓨터 과학에서 효율적인 접근 및 수정을 가능케 하는 자료의 조직, 관리, 저장을 의미. 더 정확히 말해 자료 구조는 데이터 값의 모임, 또 데이터 간의 관계, 그리고 데이터에 적용할 수 있는 함수나 명령을 의미
 >- 컬렉션이란 데이터 집합, 그룹을 의미하며 Java에서 JCF( Java Collections Framework )는 이러한 데이터, 자료구조인 컬렉션과 이를 구현하는 클래스를 정의하는 인터페이스를 제공. 
 >- 개발에 소요되는 시간을 절약하면서 최적화된 알고리즘을 사용 가능.
 
@@ -10,6 +11,26 @@
 >- 일관된 API : Collection의 일관된 API를 사용하여 Collection 밑에 있는 모든 클래스
 >- 프로그래밍 노력 감소 : 객체 지향 프로그램의 추상화의 기본 개념이 성공적으로 구현되어있음
 >- 프로그램 속도 및 품질 향상 : 유용한 데이터 구조 및 알고리즘은 성능을 향상시킬 수 있음.  
+
+<br>
+
+### Collection 주요 메서드
+- 추가
+    - add(E e)
+    - addAll(Collection<? extends E> c)
+- 조회
+    - contains(Object o)
+    - containsAll(Collection<?> c)
+    - equals()
+    - isEmpty()
+    - iterator()
+    - size()
+- 삭제
+    - clear()
+    - remove(Object o)
+    - removeAll(Collection<?> c)
+- 기타
+    - toArray()
 
 <br>
 
@@ -44,11 +65,12 @@
 >
 >1. ArrayList
 >>- 동적 배열 제공. 표준 배열보다 느릴수 있지만 배열에서 많은 움직임이 필요한 프로그램에서 유용
->>- 단방향 포인터구조로 데이터 삽입, 삭제가 느리고 데이터 검색이 빠르다
+>>- 단방향 포인터구조로 내부적으로 배열을 사용하므로 비순차적인 데이터 삽입, 삭제가 느리고 데이터 검색이 빠르다
 >>- 컬렉션에서 객체를 추가, 삭제하면 ArrayList 크기가 자동으로 조정
 >
 >2. LinkedList
 >>- 요소가 연속 된 위치에 저장되지 않고 모든 요소가 데이터 부분과 주소부분이 있는 별도의 객체에 저장됨
+>>- 동적인 데이터 추가, 삭제가 많다면 ArrayList보다 빠르지만 많은 데이터 조회 시는 ArrayList보다 느림
 >>- 포인터의 주소에서 사용하는 데이터를 가져옴
 >>- 각 요소를 노드라 부른다.
 >
@@ -87,6 +109,9 @@
 >- 중복 값을 저장할 수 없는 정렬되지 않은 데이터 모음
 >- 중복을 방지하고 고유한 데이터만 저장해야하는 경우 사용
 >- 하나의 NULL 저장 가능. 마찬가지로 중복은 불가능
+>- 기본 자료형을 넣으면 해당 Wrapper 클래스로 값이 들어가게 됨
+>- 동일한 데이터의 기준은 객체의 equals()가 true를 리턴하고 hashCode() 값이 같은 것
+>- SortedSet, NavigableSet, TreeSet은 이진 트리로 정렬된 상태로 요소 관리
 >- HashSet, TreeSet, LinkedHashSet 등에서 사용
 >
 >>1. HashSet
@@ -103,10 +128,11 @@
 <br>
 
 ### Map Interface
->- Map은 데이터를 키-값으로 매핑을 지원하는 데이터 구조
+>- Map은 데이터를 키-값으로 매핑을 지원하는 데이터 구조. Key와 Value를 하나의 Entry로 묶어서 데이터 관리
 >- 동일한 키가 여러 개가 있을 수 없어 중복 키는 지원하지 않고 순서를 보장하지 않음
 >- 키를 기반으로 프로그래밍을 하는 경우 유용
 >- 뛰어난 검색속도를 가지며 인덱스가 따로 존재하지 않아 iterator를 사용
+>- 기본적으로 정렬되어 있지 않으나 정렬된 Map을 사용하려면 SortedMap, NavigableMap, TreeMap을 사용
 >- Map Interface는 HashMap, TreeMap 등의 클래스가 있음
 >
 >1. HashMap
@@ -127,8 +153,72 @@
 
 <br>
 
-#### \* Sorted 인터페이스
->- Set과 Map 인터페이스를 상속받아 정렬 기능이 추가된 SortedSet과 SortedMap 인터페이스가 되는데 구현체인 TreeSet, TreeMap은 Set과 Map의 기능을 가지고 있으면서 정렬기능이 존재한다.
+### Map Interface 메서드
+- 추가
+    - put(K key, V value)
+    - putAll(Map<? extends K, ? extends V> m)
+- 조회
+    - containsKey(Object key)
+    - containsValue(Object value)
+    - entrySet()
+    - keySet()
+    - get(Object key)
+    - values()
+    - size()
+    - isEmpty()
+- 삭제
+    - clear()
+    - remove()
+- 수정
+    - put(K key, V value)
+    - putAll(Map<? extends K, ? extends V> m)
+
+```java
+// EntrySet 조회
+Set<Entry<String, String>> entrySet = hMap.entrySet();
+for(Entry<String, String> entry : entrySet) {
+    System.out.println(entry.getKey() + " : " + entry.getValue());
+}
+    
+// KeySet 조회
+Set<String> keys = hMap.keySet();
+for(String key : keys) {
+    System.out.println(key + " : " + hMap.get(key));
+}
+```
+
+<br>
+
+### 상속과 Generic
+- Object와 사용자 정의 객체는 상속관계지만 컬렉션 안에 상위 객체에 넣을 수 없음
+- 상속 때문에 발생한 문제는 아니고 배열은 공변(convariant) 자료형, 제네릭은 불변(invariant) 자료형으로 성격 문제
+
+```java
+// compile error : type mismatch
+List<Obejct> list = new ArrayList<Person>();
+```
+
+<br>
+
+### 자료 삭제 시 주의 사항
+- 요소가 삭제되면 size()가 줄어들기 때문에 index를 사용한 for문 사용시 index를 차감하거나 거꾸로 접근해야함
+- forEach 문장 동작 시 Collection의 크기가 불변해야 함
+    - forEach문 동작 중 요소 삭제는 불가능하다
+
+<br>
+
+### 정렬
+>- 정렬이란 요소를 특정 기준에 대한 내림차순 또는 오름차순으로 배치하는 것
+>   - 크기를 비교할 수 있는 요소를 가지는 Collection 들만 정렬 가능 : List, SortedSet 자식 객체, SortedMap 자식 객체 (key 기준)
+>- Collections.sort() 정렬
+>   - 객체가 Comparable을 구현하고 있는 경우 내장 알고리즘을 통해 정렬
+>- Comparable 을 통해 고정된 정렬을 사용하거나 Comprable로 정렬하지 못하는 경우 Comparator 
+
+<br>
+
+### Sorted 인터페이스
+>- Set과 Map 인터페이스를 상속받아 정렬 기능이 추가된 SortedSet과 SortedMap 인터페이스가 되는데 구현체인 TreeSet, TreeMap은 Set과 Map의 기능을 가지고 있으면서 정렬기능이 존재
+
 
 <br>
 

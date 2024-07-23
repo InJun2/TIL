@@ -30,6 +30,25 @@ public interface Comparator<T> {
     - 내부적인 Comparable 정렬 기준은 숫자는 오름차순, 문자는 사전순으로 정렬됨
 - java.lang.Comparable 패키지
 
+```java
+class Person implements Comparable<Person> {
+    @Override
+	public int compareTo(Person person) {
+		int result = this.height - person.height;
+		
+		if(result > 0) {
+			return 1;
+		}
+		
+		else if(result < 0) {
+			return -1;
+		}
+		
+		return 0;
+	}
+}
+```
+
 <br>
 
 ### Comparator 라이브러리
@@ -46,21 +65,40 @@ public interface Comparator<T> {
 - 정렬이 필요한 객체를 작성할 때 Comparator를 생성이 필요
 
 ```java
+// 구현부를 작성하여 사용 방법
 String[] strings = {"apple", "banana", "orange", "grape", "kiwi"};
         
-    // 역순으로 정렬하는 Comparator 구현
-    Comparator<String> reverseComparator = new Comparator<String>() {
-        @Override
-        public int compare(String str1, String str2) {
-            return str2.compareTo(str1);
-        }
-    };
+// 역순으로 정렬하는 Comparator 구현
+Comparator<String> reverseComparator = new Comparator<String>() {
+    @Override
+    public int compare(String str1, String str2) {
+        return str2.compareTo(str1);
+    }
+};
 
-    // 위와 동일
-    // Comparator<String> reverseComparator = Collections.reverseOrder();
-    
-    // 정렬
-    Arrays.sort(strings, reverseComparator);
+// 위와 동일
+// Comparator<String> reverseComparator = Collections.reverseOrder();
+
+// 정렬
+Arrays.sort(strings, reverseComparator);
+
+// 클래스 생성 사용 방법 (내부 클래스, 로컬 내부 클래스로 생성 가능)
+public class StringLengthComparator implements Comparator<String>{
+
+	@Override
+	public int compare(String o1, String o2) {	// 반환 값에 대한 크기보다는 방향이 중요
+		int len1 = o1.length();
+		int len2 = o2.length();
+		
+		return Integer.compare(len1, len2) * -1;	// 역순 정렬
+	}
+}
+
+// 사용
+public void stringLengthSort(List<String> names) {
+    Collections.sort(names, new StringLengthComparator());
+    System.out.println(names); // [Hi, Java, World, Welcome]
+}
 ```
 
 <br>
