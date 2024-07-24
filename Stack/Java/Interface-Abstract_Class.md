@@ -380,6 +380,37 @@ public class WinningLotto implements ValidateLottoNumbers {
     - 구현의 책임이 클래스에게 있음
 - 디폴트 메서드가 추가되었지만 자바 컴파일러가 디폴트 메서드 충돌 문제를 해결하기 위해 컴파일 타임에 검사를 수행하여 오류를 발생시키므로 충돌 문제를 해결하게 함
 
+```java
+public class Person1{
+   void run() {		
+   	    System.out.println("slow run");
+   }
+}
+
+public class Person2{
+   void run() {		
+   	    System.out.println("fast run");
+   }
+}
+// 해당 클래스를 두개 상속이 가능했다면 자식 클래스는 어떤 부모의 메서드를 사용해야하는지 파악할 수 없음
+
+public interface Person1{
+   void run();
+}
+
+public interface Person2{
+   void run();
+}
+
+public class Person3 implements Person1, Person2 {
+    @Override
+    void run() {
+        System.out.println("상속 가능");
+    }
+}
+// 단일 상속, 다중 상속 모두 인터페이스를 상속받은 클래스는 메서드를 직접 구현하므로 문제가 일어나지 않음 -> 누구한테 상속받은 건지 알 필요가 없음
+```
+
 <br>
 
 #### 추가 : 같은 default 메서드를 가진 2개의 인터페이스 상속 시
