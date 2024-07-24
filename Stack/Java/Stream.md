@@ -4,6 +4,7 @@
 - Java는 객체지향적언어로 기본적으로는 함수형 프로그래밍이 불가능함
 - jdk8 부터 Stream API, 람다식, 함수형 인터페이스 등 함수형 프로그래밍할 수 있게 해주는 API 들을 제공
 - Stream API는 데이터를 추상화하고 처리하는데 자주 사용되는 함수들을 정의 해둠 -> 추상화 해두어 데이터 종류에 상관없이 데이터를 처리 가능
+- 손쉬운 병렬 처리 가능
 ```
 함수형 프로그래밍?
 - 등장 배경은 명령형 프로그래밍은 소프트웨어의 크기가 커짐에 따라 복잡하게 엉켜있어 유지보수가 매우 힘듬 -> 함수형 프로그래밍이라는 패러다임에 관심을 가지게 됨
@@ -20,15 +21,22 @@
 <br>
 
 #### Stream API의 특징
-1. 원본의 데이터를 변경하지 않음
+1. 컬렉션, 배열 등 소스에 대한 공통된 접근 방식 제공
+2. 원본의 데이터를 변경하지 않음
     - Stream API는 원본의 데이터를 조회하여 원본의 데이터가 아닌 별도의 요소들로 Stream을 생성함
     - 원본의 데이터로부터 읽기만 할 뿐이며, 정렬이나 필터링 등의 작업은 별도의 Stream 요소에서 처리가 됨
-2. 일회용으로 사용 
+3. 일회용으로 사용 
     - Stream API는 일회용이기 때문에 한번 사용이 끝나면 재사용이 불가능
     - Stream이 또 필요한 경우에는 Stream을 다시 생성해주어야 함. 만약 닫힌 Stream을 다시 사용한다면 IllegalStateException이 발생
-3. 내부 반복으로 작업을 처리
+4. 내부 반복으로 작업을 처리
     - Stream을 이용하면 코드가 간결해지는 이유는 내부 반복
     - 기존에는 반복문을 사용하기 위해 for이나 while 같은 문법을 사용해야 했지만 stream에서는 그러한 반복 문법을 메소드 내에 숨기고 있어 보다 간결한 코드 작성이 가능
+5. 손쉬운 병렬 처리
+    - parallelStream() 키워드를 사용하여 손쉽게 병렬 처리가 가능
+    - parallelStream은 내부적으로 ForkJoinPool을 활용
+        - 작업 할당: 스트림의 요소들은 여러 서브태스크로 분할되어 ForkJoinPool의 여러 스레드에 할당됨
+        - 작업 수행: 각 스레드는 할당된 서브태스크를 병렬로 처리 (할당 + 동시처리 = 스레딩)
+        - 결과 합병: 모든 서브태스크의 처리가 완료되면, 결과는 합쳐져 최종 결과를 생성
 
 <br>
 
@@ -63,14 +71,29 @@
 
 <br>
 
+### Stream 자료 처리
+- 스트림의 자료 처리 방식은 맵, 리듀스 모델을 지원함
+    - 맵 : 데이터를 작은 단위로 나누어 처리
+    - 리듀스 : 결과를 모아서 최종 결과를 생성
+- 중간 처리들과 최종 처리를 조합해서 사용
+    - 중간 처리 : 매핑, 필터링, 정렬 등 가공 처리
+    - 최종 처리 : 반복, 카운팅, 총합 등의 집계처리
+- 각각의 중간 처리는 새로운 스트림을 리턴하여 builder 패턴 적용
+    - 스트림 파이프 라인 개념은 빌더 패턴과 비슷. 빌더 패턴에서는 호출을 연결해서 설정을 만듬. 그리고 준비된 설정에 build 메서드를 호출함
+- 최종 처리는 최종적으로 원하는 값(void 포함)을 반환
+    - 한번 최종 처리가 끝난 스트림은 재사용 불가
+
+<br>
+
 ### 스트림 사용 순서 및 사용법
 #### 1. 스트림 생성 -> 2. 중간 연산 -> 3. 최종 연산
 - Stream 연산이 연결되어 있는 해당 모양이 파이프 같아 보여 파이프라이닝이라고 부르기도 함 
 - 스트림은 최종 연산이 들어오고 나서 실행 시작함 -> 그 결과 요소를 중간 연산으로 붙이는데 이런식의 데이터 플로우를 루프 퓨전이라고 함
-- 스트림 파이프 라인 개념은 빌더 패턴과 비슷. 빌더 패턴에서는 호출을 연결해서 설정을 만듬. 그리고 준비된 설정에 build 메서드를 호출함
+
 ```
 스트림 생성
 - Stream 객체를 생성하는 단계
+- Stream 획득은 Collection, 배열, File, Random 및 Stream 클래스의 static method로 생성
 - Stream 은 재사용이 불가능하므로 닫히면 다시 생성해주어야 함 -> 연산이 끝나면 Stream이 닫힘
 - Stream 객체는 배열, 컬렉션, 임의의 수, 파일 등 거의 모든 것을 가지고 스트림을 생성할 수 있음
 
@@ -161,6 +184,23 @@ Stream<String> stream = Files.lines(Paths.get("test.txt"), Charset.forName("UTF-
 Stream<String> stream1 = Stream.of("Apple", "Banana", "Melon");
 Stream<String> stream2 = Stream.of("Kim", "Lee", "Park");
 Stream<String> stream3 = Stream.concat(stream1, stream2);
+
+// txt File 을 사용한 스트림 처리
+public static List<String> setUpStream() {
+    List<String> words = null;
+    try {
+        Path text = Paths.get(StreamMiddleTest.class.getResource("../FilterTest.txt").toURI());
+        words = Files.readAllLines(text).stream()
+                .flatMap(data -> Arrays.stream(data.split("[,-. ]")))
+                .collect(Collectors.toList());
+
+        System.out.println("초기 단어 개수: " + words.size());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return words;
+}
 ```
 
 <br>
@@ -496,6 +536,30 @@ System.out.println("sum4: " + sum4);
 
 <br>
 
+### 추가 사용 예제
+```java
+private void filterTest() {
+    // 1. words에서 단어의 길이가 5 이상인 단어의 개수는?
+    long count = words.stream()
+            .filter(word -> word.length() >= 5)
+            .count();
+
+    // 2. '오'가 들어가는 단어 중 처음 4개를 생략하고 2개 출력해보자.
+    words.stream()
+        .filter(word -> word.contains("오"))
+        .skip(4)
+        .limit(2)
+        .forEach(System.out::println);
+
+    // 3. 0~100 까지의 정수에서 짝수의 합을 구해보자.
+    IntStream.rangeClosed(0, 100)
+        .filter(num -> num % 2 == 0)
+        .sum();
+}
+```
+
+<br>
+
 ### Null-Safe한 Stream 생성
 - NPE, 널포인터에러를 방지 하기 위해 Java8부터 Optional 이라는 Wrapper 클래스를 제공하여 Null 관련 코드를 가독성 있게 처리할 수 있도록 도와줌
 - Stream API 역시 Optional의 도움을 받아 Null-Safe한 Stream 을 생성할 수 있다고 함
@@ -619,7 +683,6 @@ Arrays.asList("a", "b", "c", "d", "e")
 <br>
 
 <div style="text-align: right">22-08-05</div>
-<div style="text-align: right"> + 내용추가 : 22-08-06</div>
 
 -------
 

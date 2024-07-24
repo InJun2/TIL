@@ -44,6 +44,7 @@ System.out.println(s);
 #### 기본 함수형 인터페이스 
 1. Predicate<T>
 >   - Predicate 는 인자 하나를 받아서 boolean 타입을 리턴
+>   - 파라미터를 조사해서 return 결정
 >   - 람다식으로는 T -> boolean 로 표현
 >   ```java
 >   @FunctionalInterface
@@ -52,9 +53,9 @@ System.out.println(s);
 >   }
 >   ```
 2. Consumer<T>
->   - Consumer 는 인자 하나를 받고 아무것도 리턴하지 않음
->   - 람다식으로는 T -> void 로 표현
+>   - Consumer 는 인자를 받아 소비하고 아무것도 리턴하지 않음
 >   - 소비자라는 이름에 걸맞게 무언가 (인자) 를 받아서 소비만 하고 끝낸다고 생각하면 됨
+>   - 람다식으로는 T -> void 로 표현
 >   ```java
 >   @FunctionalInterface
 >   public interface Consumer<T> {
@@ -63,8 +64,9 @@ System.out.println(s);
 >   ```
 3. Function<T, R>
 >   - Function 은 T 타입 인자를 받아서 R 타입을 리턴
->   - 람다식으로는 T -> R 로 표현
+>   - 주로 파라미터를 리턴으로 매핑. 새로운 타입으로 변환해서 리턴
 >   - 수학식에서의 함수처럼 특정 값을 받아서 다른 값으로 반환
+>   - 람다식으로는 T -> R 로 표현
 >   - T 와 R 은 같은 타입을 사용가능
 >   ```java
 >   @FunctionalInterface
@@ -73,9 +75,10 @@ System.out.println(s);
 >   }
 >   ```
 4. Supplier<T>
->   - 람다식으로는 () -> T 로 표현. 아무것도 받지 않고 특정 객체를 리턴
+>   - Consumer 와 상반된 공급자의 역할로 파라미터는 없고 반환 타입은 존재
 >  - Supplier\<T\>는 특이하게 매개변수를 받지 않고 단순히 무엇인가를 반환하는 추상메서드 T get(); 존재
 >  - Supplier\<T\>는 get()을 통해 게으른 연산(Lazy Evaluation)이 가능. 불필요한 연산을 피하기위해 연산을 지연시키는 것을 말함
+>   - 람다식으로는 () -> T 로 표현. 아무것도 받지 않고 특정 객체를 리턴
 >   ```java
 >   @FunctionalInterface
 >   public interface Supplier<T> {
@@ -93,10 +96,10 @@ System.out.println(s);
 >   ```
 6. Runnable
 >   - Runnable 은 아무런 객체를 받지 않고 리턴하지 않음
->   - 람다식으로는 () -> void 로 표현
 >   - Runnable 이라는 이름에 맞게 "실행 가능한" 이라는 뜻을 나타내며 이름 그대로 실행만 할 수 있다고 생각하면 됨
+>   - 자바에서 스레드를 구현할 때 자주 사용하는 인터페이스로 단순 실행 처리
 >   - Exception을 발생시키지 않음
->   - 자바에서 스레드를 구현할 때 자주 사용하는 인터페이스
+>   - 람다식으로는 () -> void 로 표현
 >   ```java
 >   @FunctionalInterface
 >   public interface Runnable {
@@ -104,15 +107,24 @@ System.out.println(s);
 >   }
 >   ```
 7. Callable<V>
->   - Callable 은 아무런 인자를 받지 않고 T 타입 객체를 리턴
->   - 람다식으로는 () -> T 로 표현
+>   - 아무런 인자를 받지 않고 T 타입 객체를 리턴
 >   - Runnable 과 비슷하게 Callable 은 "호출 가능한" 이라고 생각하면 됨
 >   - Exception을 발생시킬 수 있음
 >   - Callable과 Supplier은 거의 차이가 없으나 Callable은 Runnable과 함께 병렬 처리를 위해 등장 했던 개념으로 ExecutorService.submit 같은 함수는 인자로 Callable 을 받음 
+>   - 람다식으로는 () -> T 로 표현
 >   ```java
 >   @FunctionalInterface
 >   public interface Callable<V> {
 >       V call() throws Exception;
+>   }
+>   ```
+7. Operation<T>
+>   - 다양한 연산을 추상화하기 위해 사용됨. 특정 타입의 파라미터를 받아 그 타입의 결과를 반환하는 연산을 정의함
+>   - 제네릭 타입 파라미터 T를 사용하여 입력과 출력의 타입이 동일. 이는 다양한 타입에 대해 유연하게 사용할 수 있도록함
+>   ```java
+>   @FunctionalInterface
+>   public interface Operation<T> {
+>       T execute(T input);
 >   }
 >   ```
 
