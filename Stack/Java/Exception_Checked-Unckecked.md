@@ -63,11 +63,38 @@
 
 ### Checked Exception vs UnChecked Exception 선택
 - 임의의 예외 클래스를 만들어 예외 처리를 하는 경우가 많은데 이 때 try-catch로 묶어줄 필요가 있을 경우에만 Exception 클래스를 확장
+    - JVM이 해당 Exception 클래스의 객체 생성 후 던짐(throw)
+    - 던져진 exception을 처리할 수 있는 catch 블록에서 받은 후 처리
+    - 정상적으로 처리되면 try-catch 블록을 벗어나 다음 문장 진행
+    - try 블록에서 어떠한 예외도 발생하지 않은 경우 catch 문을 거치지 않고 다음 흐름 문장 실행
 - 일반적으로 실행시 예외를 처리할 수 있는 경우에는 RuntimeException 클래스를 확장해 Unchecked Exception을 사용하는 것이 좋음
 
 <br>
 
 ![Exception Handling](./img/exception_handling.png)
+
+<br>
+
+### Throwable
+- 모든 예외 및 오류의 기본 클래스로 'Object'의 직계 하위 클래스로 예외 처리를 위해 'Exception', 'Error' 하위 클래스를 가지고 있음
+    - Exception : 프로그램의 정상적인 실행 중에 발생할 수 있는 예외를 나타냄 (파일을 찾을 수 없거나, 네트워크 연결이 실패하는 등)
+    - Error : 주로 JVM에서 발생하는 심각한 문제를 나타냄 (OutOfMemoryError, StackOverflowError 등)
+- 생성자
+    - Throwable() : 기본 생성자로 아무 메시지 없이 Throwable 객체를 생성
+    - Throwable(String message) : 예외 또는 오류에 대한 설명 메시지를 포함하는 Throwable 객체 생성
+    - Throwable(String message, Throwable cause) : 원인을 포함하여 설명
+    - Throwable(Throwable cause) : 원인만을 포함하는 Throwable 객체를 생성
+
+#### 주요 메서드
+- public String getMessage()
+    - 발생된 구체적인 메시지 반환
+- public Throwable getCause()
+    - 에러의 원인이 되는 Throwable 객체 또는 null을 반환
+- public void printStackTrace()
+    - 예외가 발생된 메서드가 호출되기까지의 메서드 호출 스택을 출력
+    - 디버깅의 수단으로 주로 사용됨
+
+<br>
 
 ### 예외 처리 방법
 #### 1. 예외 복구
@@ -86,6 +113,25 @@
 - 호출한 쪽에서 예외를 받아서 처리할 때 좀 더 명확하게 인지할 수 있도록 돕기 위한 방법
 - 예시로 Checked Exception 중 복구가 불가능한 예외가 잡혔다면 이를 Unchecked Exception으로 전환해서 다른 계층에서 일일이 예외를 선언할 필요가 없도록 할 수 있음
 
+```
+발생 예외 예시
+
+java.lang.ClassNotFoundException: abc.Def
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:375)
+	at com.ssafy.day09.a_basic.MultiExceptionHandling.main(MultiExceptionHandling.java:13)
+
+
+3가지를 주로 참고 (what - why - where)
+
+java.lang.ClassNotFoundException : 발생한 예외
+abc.Def : 왜 발생했는지
+at com.ssafy.day09.a_basic.MultiExceptionHandling.main(MultiExceptionHandling.java:13) : 어디서 발생했는지 (발생지점)
+```
+
 <br>
 
 ### 자바 예외 처리 성능 영향 및 부하를 줄이는 방법
@@ -100,6 +146,86 @@
 - 성능이 민감한 코드에서는 예외를 피하기, 루프 안에서 예외가 발생하지 않도록 입력 값을 사전에 검증
 - 예외가 발생할 때마다 로깅을 수행하면 성능에 영향을 끼칠 수 있음. 로깅 레벨을 조정하거나, 중요하지 않은 예외에 대해 로깅을 피하기
 - 불필요한 캐치 블록을 줄이고 필요한 때만 예외를 잡기. 여러 단계에서 예외를 처리하기 보다 최종 단계에서 예외를 처리하는 것이 좋음
+
+<br>
+
+### try-with-resources
+- Java 7에서 도입된 기능으로, 리소스를 자동으로 닫아주는 기능을 제공
+- try-with-resources 는 해당 try 블록 안에서 리소스(객체)를 생성하여 사용하면 자동으로 객체를 정리해주는 기능
+- 확장된 try-with-resources 사용 시 주의점
+    - try-with-resources 문장에 하나 이상의 catch 또는 finally가 필요
+- Close 시점을 주의해야함
+    - try-with-resources 문장은 nested try 블록을 구성하여 처리됨
+    - 리소스를 닫는 시점과 예외 처리를 주의해야 함. 예외가 발생하거나 정상적으로 블록이 종료되면 리소스는 자동으로 닫히지만, catch 블록에서 리소스를 다시 사용하려고 하면 이미 닫힌 상태일 수 있음
+- 그렇기 때문에 해당 경우 try-with-resources를 사용하지 않아야 함
+    - 리소스를 try-with-resources 블록 외부에서 계속 사용해야하는 경우
+    - 리소스를 여러 리소스를 단계적으로 열고 닫는 등 관리하는 논리가 복잡한 경우
+- 확장된 try-with-resources 구문은 Java 9 에서 도입된 기능으로 기존 리소스를 닫기위한 구문을 더 간편하게 사용할 수 있게 함
+    - 해당 구문은 이미 선언된 리소스를 사용할 수 있게함
+    - 리소스는 'AuthCloseable' 인터페이스를 구현해야 함
+- 가존 try-with-resources와 마찬가지로 리소스는 자동으로 닫힘. 따라서 try 블록 내에서 리소스를 다시 사용하려고 하면 이미 닫힌 상태일 수 있음
+
+```java
+// try-with-resources 사용 예시
+try (BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+    String line;
+    while ((line = br.readLine()) != null) {
+        System.out.println(line);
+    }
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
+// 확장된 try-with-resources
+
+// 확장된 try-with-resources를 사용하기 위한 커넥션 객체 AutoCloseable 상속 후 구현체 생성
+public class JdbcConnection implements AutoCloseable {
+    private Connection connection;
+
+    public JdbcConnection(String url, String user, String password) throws SQLException {
+        this.connection = DriverManager.getConnection(url, user, password);
+    }
+
+    // ... 그외 메서드
+
+    @Override
+    public void close() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        String url = "jdbc:yourdatabaseurl";
+        String user = "yourusername";
+        String password = "yourpassword";
+
+        JdbcConnection jdbcConnection = null;
+
+        try {
+        // AutoCloseable를 상속받은 JdbcConnection 객체 사용 예시
+            jdbcConnection = new JdbcConnection(url, user, password);
+
+            // 확장된 try-with-resources 구문
+            try (jdbcConnection) {
+                Connection con = jdbcConnection.getConnection();
+                jdbcConnection.doSomething();
+                con.commit();
+            } catch (SQLException e) {
+                // 예외처리 로직
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
 
 <br>
 
