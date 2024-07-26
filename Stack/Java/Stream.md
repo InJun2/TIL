@@ -658,6 +658,44 @@ Arrays.asList("a", "b", "c", "d", "e")
 
 <br>
 
+```java
+String[] heroes = { "아이언맨", "스파이더맨", "헐크", "토르" , "홍길동", "이몽룡", "성춘향"};
+
+heroList.stream()
+        .forEach(hero -> {
+            System.out.println("stream : " + Thread.currentThread() + " " + hero);
+        });
+
+heroList.parallelStream()
+    	.forEach(hero -> {
+    		System.out.println("parallel : " + Thread.currentThread() + " " + hero);
+    	});
+
+// output
+
+/*
+
+stream : Thread[main,5,main] 아이언맨
+stream : Thread[main,5,main] 스파이더맨
+stream : Thread[main,5,main] 헐크
+stream : Thread[main,5,main] 토르
+stream : Thread[main,5,main] 홍길동
+stream : Thread[main,5,main] 이몽룡
+stream : Thread[main,5,main] 성춘향
+parallel : Thread[main,5,main] 홍길동
+parallel : Thread[main,5,main] 토르
+parallel : Thread[ForkJoinPool.commonPool-worker-2,5,main] 아이언맨
+parallel : Thread[main,5,main] 성춘향
+parallel : Thread[ForkJoinPool.commonPool-worker-2,5,main] 이몽룡
+parallel : Thread[ForkJoinPool.commonPool-worker-3,5,main] 헐크
+parallel : Thread[ForkJoinPool.commonPool-worker-1,5,main] 스파이더맨
+
+// ForkJoinPool 에서 스레드를 만들어놓고 사용
+*/
+```
+
+<br>
+
 ### 순차 Stream 바깥 변수 사용 주의 사항
 - 이전 순차 스트림을 쓰며 바깥 변수를 사용하고자 할때 해당 변수를 아토믹 자료형으로 바꿔야 사용이 가능했음
 - 이는 스트림 API의 내부 동작 방식과 관련이 있는데 내부적으로 람다 표현식이나 메서드 참조를 사용하여 함수형 프로그래밍을 구현함
