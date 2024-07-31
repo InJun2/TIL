@@ -155,6 +155,52 @@ public interface PlatformTransactionManager extends TransactionManager {
 
 <br>
 
+## 질문
+
+### 1. @Transactional(readOnly = true) 기능
+- 트랜잭션이 읽기 전용임을 지정하며 성능 최적화를 위해 사용됨
+    - 기존 @Transactional은 Hibernate 에서 스냅샷을 기록하여 변경 감지 매커니즘이 적용되는데 'readOnly=true'의 경우 변경되지 않으므로 스냅샷 생성 최소화하거나 생략하여 성능을 향상
+- 쓰기 작업 방지 : 읽기 전용 트랜잭션에서는 데이터 수정, 삭제, 삽입 작업이 금지되어 데이터 무결성을 보장하는데 도움이 됨
+- 플러시 모드 변경 : Hinbernate의 경우 'readOnly=true'로 설정된 트랜잭션은 플러시 모드를 'FlushMode.MANUAL'로 설정하여 변경 내역을 자동으로 플러시 하지 않아 성능 향상에 기여 가능
+- 만약 @Transactional(readOnly = true) 블럭 안에서 엔티티가 변경되는 상황시 'readOnly=true' 트랜잭션에서 변경사항을 감지했더라도 'FlushMode.MANUAL'이 적용되므로 엔티티 매니저는 트랜잭션이 종료될 때 까지 변경된 엔티티를 플러시하지 않음
+    - 영속성 컨텍스트에서는 엔티티의 변경사항을 파악해도 엔티티 매니저가 변경 엔티티를 플러시 하지 않으므로 데이터베이스에 반영되지 않음
+
+```java
+
+@Service
+public class MyService {
+    @Autowired
+    private EntityManager entityManager;
+
+    @Transactional(readOnly = true)
+    public void readOnlyTransaction() {
+        MyEntity entity = entityManager.find(MyEntity.class, 1L);
+        entity.setName("New Name"); // 엔티티 상태 변경
+        // 여기서는 flush()를 호출하지 않으므로 변경 사항이 데이터베이스에 반영되지 않음
+    }
+
+    @Transactional
+    public void readWriteTransaction() {
+        MyEntity entity = entityManager.find(MyEntity.class, 1L);
+        entity.setName("New Name"); // 엔티티 상태 변경
+        // 이 트랜잭션은 읽기 전용이 아니므로, 트랜잭션 종료 시점에 변경 사항이 자동으로 데이터베이스에 반영됨
+    }
+}
+```
+
+<br>
+
+### 2. 읽기에 트랜잭션을 거는 이유 및 @Transactional을 안 붙이면 되는게 아닌지
+- @Transactional 어노테이션 없이도 조회는 가능하지만 사용하는 이유는 아래와 같음
+- 트랜잭션은 ACID(Atomicity, Consistency, Isolation, Durability) 속성을 보장하므로 읽기 트랜잭션을 사용하면, 다른 트랜잭션이 데이터를 변경하는 동안에도 일관된 데이터를 읽을 수 있음
+- 트랜잭션은 데이터베이스의 격리 수준을 설정 가능. 이를 통해 읽기 작업이 다른 트랜잭션의 영향을 받지 않도록 할 수 있음
+- 위의 설명 처럼 트랜잭션 경계 내에서는 영속성 컨텍스트가 활성화되어 1차 캐시가 사용되므로 동일한 트랜잭션 내에서 동일한 엔티티를 여러 번 조회할 때 데이터베이스에 반복적으로 접근하지 않고 1차 캐시에서 데이터를 가져올 수 있어 성능이 최적화
+- 엔티티의 연관된 데이터를 지연 로딩(Lazy Loading)할 때 트랜잭션이 필요. 트랜잭션이 없으면 지연 로딩된 연관 데이터를 가져오지 못할 수 있음
+- 읽기 작업 중에도 예외가 발생할 수 있으며 트랜잭션을 사용하면 예외 발생 시 자동으로 롤백하여 데이터베이스 상태를 일관되게 유지할 수 있음
+- @Transactional(readOnly = true) 어노테이션을 사용하면 해당 메서드가 읽기 전용 작업임을 명확하게 표시할 수 있음
+
+<br>
+
 <div style="text-align: right">22-09-11</div>
 
 -------

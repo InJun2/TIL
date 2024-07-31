@@ -152,6 +152,124 @@
 
 <br>
 
+### 스프링의 3대 요소
+- DI/IoC
+- PSA
+- AOP
+
+<br>
+
+## 질문
+
+### 1. 후보 없이 특정 기능을 하는 클래스가 딱 한 개라면, 구체 클래스를 그냥 사용해도 될 것 같은데 그럼에도 불구하고 왜 Spring에선 Bean을 사용 할까요?
+- Spring은 DI를 통해 객체 간의 의존성을 관리하므로 유연한 객체 사용 및 설정 변경 등 코드가 더 유연해지고 테스트가 용이
+- 객체의 생명 주기를 Spring이 관리하여 중앙에서 일관적인 관리가 가능
+- Spring은 AOP를 통해 로깅, 트랜잭션 관리, 보안 등의 횡단 관심사(Cross-Cutting Concern)를 분리하여 코드에 적용 가능
+
+<br>
+
+### 2. Spring의 Bean 생성 주기에 대한 설명
+1. Bean 정의 (Definition)
+    - XML설정 파일 혹은 어노테이션을 통해 스프링 컨테이너가 Bean의 설정 정보를 읽어 들임
+```java
+@Configuration
+public class AppConfig {
+    
+    @Bean
+    public MyBean myBean() {
+        return new MyBean();
+    }
+}
+```
+2. Bean 인스턴스화 (Instantiation)
+- 스프링 컨테이너는 Bean의 인스턴스를 생성. 이는 Bean 클래스의 생성자를 호출하여 객체를 만드는 과정
+3. 의존성 주입 (Dependency Injection)
+- 생성된 Bean에 필요한 의존성을 주입. 의존성 주입 방식은 생성자 주입, 세터 주입, 필드 주입이 존재
+```java
+@Service
+public class MyService {
+    private final MyRepository myRepository;
+
+    public MyService(MyRepository myRepository) {
+        this.myRepository = myRepository;
+    }
+}
+```
+4. 초기화 (Initialization)
+- 의존성 주입이 완료된 후, Bean의 초기화 메서드가 호출. 초기화 메서드는 다음 중 하나로 정의할 수 있음
+    - @PostConstruct 어노테이션이 붙은 메서드
+    - InitializingBean 인터페이스의 afterPropertiesSet() 메서드
+    - XML 설정에서 지정한 init-method
+```java
+@Component
+public class MyBean {
+
+    @PostConstruct
+    public void init() {
+        // 초기화 로직
+    }
+}
+```
+5. 사용 (Usage)
+- 초기화가 완료된 Bean은 애플리케이션의 다른 부분에서 사용될 준비가 됨
+- 스프링 컨테이너는 애플리케이션 실행 동안 Bean을 관리하고, 필요에 따라 의존성을 주입하여 Bean을 사용할 수 있도록 함
+6. 소멸 (Destruction)
+- Bean의 생명 주기가 끝나면, 소멸 단계가 시작됨
+- 애플리케이션 컨텍스트가 종료되거나, Bean이 더 이상 필요하지 않을 때 발생하며 소멸 메서드는 다음 중 하나로 정의할 수 있음
+    - @PreDestroy 어노테이션이 붙은 메서드
+    - DisposableBean 인터페이스의 destroy() 메서드
+    - XML 설정에서 지정한 destroy-method
+
+```java
+@Component
+public class MyBean {
+
+    @PreDestroy
+    public void destroy() {
+        // 소멸 로직
+    }
+}
+```
+
+<br>
+
+### 3. 프로토타입 빈이란?
+- 스프링 빈이란 스프링 컨테이너에서 관리하는 자바 객체로 싱글톤 스코프로 생성되어 스프링 컨테이너와 생명주기를 같이 함
+- 프로토 타입 빈이란  Spring 프레임워크에서 제공하는 여러 빈 스코프 중 하나로, 요청 시마다 새로운 인스턴스를 생성하는 빈을 의미
+- 클라이언트에서 프로토타입 스코프의 스프링 빈을 스프링 컨테이너에 요청하면 스프링 컨테이너는 프로토타입 빈을 생성하고 의존 관계 주입하고 생성한 프로토타입 빈을 클라이언트에 반환
+- 여기서 프로토타입은 스프링 빈과 다르게 빈 생성, 의존관계 주입, 초기화 까지만 진행하여 반환
+    - 해당 프로토타입 빈은 이후에 관리하지 않기에 모두 클라이언트에서 자체적으로 관리해야함
+    - 기존 빈과 다르게 스프링 컨테이너와 생명주기를 같이 하지 않음
+    - 싱글톤 스프링 빈은 매번 동일한 인스턴스를 반환하지만 프로토타입 빈은 스프링컨테이너에 요청할 때마다 새로운 빈을 생성하고 의존 관계 주입 및 초기화 후 반환함
+- 웹 관련 스코프
+    - request : 웹 요청이 들어오고 나갈때까지 유지되는 스코프
+    - session : 웹 세션이 생성되고 종료될 때까지 유지되는 스코프
+    - application : 웹의 서블릿 컨텍스트와 같은 범위로 유지되는 스코프
+
+```java
+@Bean
+@Scope("prototype")
+public MyBean myPrototypeBean() {
+    return new MyBean();
+}
+
+public class Client {
+    @Autowired
+    private ApplicationContext context;
+
+    public void usePrototypeBean() {
+        MyBean bean1 = context.getBean(MyBean.class);
+        MyBean bean2 = context.getBean(MyBean.class);
+
+        // bean1과 bean2는 서로 다른 인스턴스입니다.
+        System.out.println(bean1 == bean2); // false
+    }
+}
+```
+
+
+<br>
+
 ### 사용모듈
 >- spring-core : 스프링에서 DI와 IoC를 제공
 >- spring-aop : AOP 구현 기능 제공

@@ -76,6 +76,106 @@
 
 <br>
 
+## 질문
+
+### 1. 여러 요청이 들어온다고 가정할 때 DispatcherServlet은 한번에 여러 요청을 모두 받을 수 있는지
+- DispatcherServlet은 서블릿 컨테이너(Tomcat, Jetty 등)에 의해 관리
+    - 서블릿 컨테이너는 HTTP 요청을 처리할 때 스레드 풀을 사용
+- 서블릿 컨테이너는 다중 스레드 환경에서 작동하며, 각 요청을 별도의 스레드로 처리하므로 DispatcherServlet이 여러 요청을 동시에 받을 수 있음을 의미
+    - 클라이언트로부터 HTTP 요청이 들어오면 서블릿 컨테이너는 스레드 풀에서 사용 가능한 스레드를 할당
+    - 할당된 스레드는 DispatcherServlet의 service() 메서드를 호출하여 요청을 처리
+
+- 동작 과정
+    1. 요청 수신 : 클라이언트가 HTTP 요청을 보낼 때, 이 요청은 서블릿 컨테이너에 도달
+    2. 스레드 할당 : 서블릿 컨테이너는 요청을 처리할 새로운 스레드를 생성하거나, 스레드 풀에서 사용 가능한 스레드를 할당
+    3. DispatcherServlet 호출 : 서블릿 컨테이너는 할당된 스레드 내에서 DispatcherServlet의 service() 메서드를 호출하여 요청을 처리
+    4. 요청 처리 : DispatcherServlet은 요청을 분석하고 적절한 핸들러(컨트롤러 메서드)를 찾아 호출, 핸들러가 요청을 처리하고, 결과를 DispatcherServlet에 반환
+    5. 응답 반환 : DispatcherServlet은 핸들러의 결과를 HTTP 응답으로 변환하여 클라이언트에 반환
+
+```properties
+<!-- Spring Boot를 사용하는 경우, application.properties 파일에서 스레드 풀 설정, 이는 내장된 톰캣에 적용됨 -->
+server.tomcat.max-threads=200
+server.tomcat.min-spare-threads=50
+server.tomcat.accept-count=100
+```
+
+<br>
+
+### 2. 수많은 @Controller를 DispatcherServlet은 어떻게 구분하는지
+- 컨트롤러의 적절한 메서드로 라우팅하는 방식은 핸들러 매핑(Handler Mapping)과 핸들러 어댑터(Handler Adapter)라는 두 가지 주요 컴포넌트를 통해 이루어짐
+- 핸들러 매핑 (HandlerMapping)
+    - Spring MVC에서 가장 흔히 사용되는 핸들러 매핑은 RequestMappingHandlerMapping
+    - '@RequestMapping', '@GetMapping', '@PostMapping' 등으로 어노테이션된 메서드와 요청 URL을 매핑
+        - URL을 해당 메서드와 매핑
+- 핸들러 어댑터 (Handler Adapter)
+    - 핸들러 매핑에 의해 선택된 컨트롤러 메서드를 실제로 호출하는 역할
+    - 적절한 컨트롤러와 메서드를 찾은 후, DispatcherServlet은 해당 메서드를 호출하여 요청을 처리하기 위해 HandlerAdapter 인터페이스를 사용
+    - Spring MVC에서 가장 흔히 사용되는 핸들러 어댑터는 RequestMappingHandlerAdapter
+    - '@RequestMapping'으로 어노테이션된 메서드를 호출할 수 있는데 메서드 인자처리 담당의 ArgumentResolver와 반환 값 처리를 담당하는 ReturnValueHandler도 함께 사용됨
+
+<br>
+
+```java
+// 요청 수신시 핸들러 매핑 검색 : 'DispatcherServlet'은 등록된 'HandlerMapping' 빈들을 사용하여 요청 URL에 매핑되는 핸들러를 찾음
+HandlerExecutionChain handler = getHandler(processedRequest);
+
+// 핸들러 어댑터 선택 : 핸들러가 결정되면 이를 실행할 수 있는 적절한 'HandlerAdepater'를 찾음
+HandlerAdapter ha = getHandlerAdapter(handler.getHandler());
+
+// 핸들러 메서드 호출 : 'HandlerAdapter'는 'ArgumentResolver'를 사용하여 메서드 인자를 설정하고 핸들러 메서드를 호출함
+ModelAndView mv = ha.handle(processedRequest, response, handler.getHandler());
+
+// 결과 처리 및 응답 반환: 핸들러 메서드의 실행 결과를 DispatcherServlet이 받아 적절한 뷰로 변환하고 클라이언트에게 응답을 반환함
+processDispatchResult(processedRequest, response, handler, mv, dispatchException);
+```
+
+<br>
+
+```java
+public class MyHandlerAdapter implements HandlerAdapter {
+
+    /**
+     * 핸들러가 이 어댑터에서 지원되는지 여부를 판단합니다.
+     * 
+     * @param handler 처리할 핸들러 객체
+     * @return 핸들러가 MyHandler 타입이면 true, 그렇지 않으면 false
+     */
+    @Override
+    public boolean supports(Object handler) {
+        return handler instanceof MyHandler;
+    }
+
+    /**
+     * 주어진 핸들러를 사용하여 요청을 처리합니다.
+     * 
+     * @param request 현재의 HTTP 요청
+     * @param response 현재의 HTTP 응답
+     * @param handler 처리할 핸들러 객체 (MyHandler 타입이어야 함)
+     * @return 처리 결과를 포함하는 ModelAndView 객체, null을 반환하면 응답 처리가 완료됨을 의미
+     * @throws Exception 요청 처리 중 발생할 수 있는 예외
+     */
+    @Override
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        MyHandler myHandler = (MyHandler) handler;
+        String result = myHandler.handleRequest(request, response);
+        response.getWriter().write(result);
+        return null; // View를 반환하지 않음
+    }
+
+    /**
+     * 마지막 수정 시각을 반환합니다. 이 핸들러는 캐싱을 지원하지 않으므로 항상 -1을 반환합니다.
+     * 
+     * @param request 현재의 HTTP 요청
+     * @param handler 처리할 핸들러 객체
+     * @return 마지막 수정 시각을 나타내는 long 값, 캐싱을 지원하지 않으므로 항상 -1 반환
+     */
+    @Override
+    public long getLastModified(HttpServletRequest request, Object handler) {
+        return -1;
+    }
+}
+```
+
 <div style="text-align: right">22-09-18</div>
 
 -------
