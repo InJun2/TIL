@@ -99,7 +99,6 @@ console.log(`당신의 이름은 ${str}입니다.`); // ${variable}를 사용해
     - 초기화 단계 : 변수 객체에 등록된 변수를 메모리에 할당. undefined로 초기화 됨
     - 할당 단계 : undefined로 초기화도니 변수에 실제 값을 할당
 
-
 ```js
 // num 이 선언되지 않아 error가 발생할 것 같지만 undefined가 출력
 // var num = 123;이 hoisting 되어 맨위로 옮겨진 것 처럼 동작(var num에서 var 키워드를 빼면 안됨)
@@ -111,6 +110,39 @@ var num = 123;
 // JS는 블록 레벨 스코프를 가지지 않고 함수 레벨 스코프만 갖음. num은 전역 변수이므로 전역에 선언
 // num은 전역 변수이므로 전역에 선언한 변수 num에 두번째 num이 재 할당 되기 때문에 456을 가짐 --> 이를 해결하기 위한 const, let (ES6)
 console.log(num);
+```
+
+<br>
+
+### 함수 호이스팅
+- 함수 선언문은 호이스팅되어 함수의 정의 전체가 스코프의 최상위로 올려짐. 이로 인해 함수 선언문은 선언되기 전에 호출할 수 있음
+- 함수 표현식(익명 함수나 이름이 있는 함수)은 변수 호이스팅 규칙을 따르므로, 함수 표현식으로 선언된 함수는 선언되기 전에 호출할 수 없음
+
+```js
+// 함수 선언문
+console.log(myFunction()); // 출력: "Hello, world!"
+
+function myFunction() {
+    return "Hello, world!";
+}
+
+// 익명함수
+console.log(myFunction); // 출력: undefined (변수는 호이스팅되지만 할당은 호이스팅되지 않음)
+
+var myFunction = function() {
+    return "Hello, world!";
+};
+
+console.log(myFunction()); // 출력: "Hello, world!"
+
+// 이름 있는 함수 선언
+console.log(myFunction); // 출력: undefined (변수는 호이스팅되지만 할당은 호이스팅되지 않음)
+
+var myFunction = function namedFunction() {
+    return "Hello, world!";
+};
+
+console.log(myFunction()); // 출력: "Hello, world!"
 ```
 
 <br>
@@ -345,3 +377,43 @@ var 함수이름 = new Function("매개변수1", "매개변수2", "매개변수3
 - JS에서 원시 데이터 타입이 아닌 모든 값은 참조 타입
 - 참조 타입은 Object, Array, Date, Error를 포함
     - 타입 확인 방법으로는 typeof 연산자가 존재
+
+<br>
+
+### Window 객체
+- Window 객체는 웹 브라우저에서 작동하는 JavaScript의 최상위 전역 객체
+- Window 객체에는 브라우저와 관련된 여러 객체와 속성 함수가 있음
+    - JavaScript에서 기본으로 제공하는 프로퍼티와 함수도 포함
+    - alert(), confirm(), prompt() 등 앞에 'window.' 가 생략되어 있는 것
+- BOM(Browser Object Model)으로 불리기도 함
+
+<br>
+
+#### window.navigator
+- navigator 객체는 브라우저의 정보가 내장된 객체
+    - 현재는 OS와 통신하여 다양한 필요 데이터를 받아올 수 있음
+- navigator 의 정보로 서로 다른 브라우저를 구분할 수 있으며 브라우저 별로 다르게 처리 가능
+- HTML5 에서는 위치 정보를 알려주는 역할 가능
+
+<br>
+
+#### window.location, window.history
+- location 객체를 이용하여 현재 페이지 주소(URL)와 관련된 정보들을 알 수 있음
+    - location.href : 프로퍼티에 값을 할당하지 않으면 현재 URL을 조회하고 값을 할당하면 할당 된 URL로 페이지 이동
+    - location.reload() : 현재 페이지를 새로 고침
+    - location.replace("URL") : 현재 페이지를 바꾸기 (뒤로가기 활성화 X)
+- history 객체는 브라우저의 페이지 이력을 담는 객체
+    - history.back() / history.forward() : 브라우저의 뒤로 가기/ 앞으로 가기 동작
+
+<br>
+
+#### window.open
+- window 객체의 open() 함수를 사용하여 새 창을 열 수 있음
+- window.open('페이지 URL', '창이름', '특성', 히스토리 대체여부);
+    - 창 이름(string) : open할 대상 (_blank, _self 등) 지정 혹은 창의 이름
+    - 특성(string) : 새로 열릴 창의 너비, 높이 등의 특성 지정
+    - 히스토리 대체여부(boolean) : 현재 페이지 히스토리에 덮어 쓸지 여부
+- window 객체의 close() 함수로 현재 창을 닫을 수 있음
+    - 브라우저에 내장된 창이 아닌 JavaScript로 자체 구현한 팝업에서 호출 필요
+
+<br>
