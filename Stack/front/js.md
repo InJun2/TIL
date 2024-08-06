@@ -644,6 +644,12 @@ window.onload = function () {
 - 여러 개의 함수를 한번에 호출이 가능
 - 최근 관심 받고 있는 CBD(Component Based Development) 방식의 Angular, React, Vue.js 와 같은 프레임워크에서는 인라인 방식으로 이벤트를 처리
 
+```html
+<body>
+    <button onclick="alert('Button clicked!');">Click me</button>
+</body>
+```
+
 #### 이벤트 핸들러 프로퍼티 방식
 - HTML에 직접 이벤트 핸들러를 등록하는 방법 대신에 JS에서 이벤트 핸들러를 등록하는 방법이 존재
 - JS에서의 이벤트 핸들러를 등록함으로써 HTML 코드와 JS 코드를 분리할 수 있음
@@ -652,6 +658,22 @@ window.onload = function () {
     - 인라인 이벤트 핸들러 방식처럼 HTML과 JS가 혼용되어 있는 문제를 해결할 수 있음
     - 하지만 이벤트 핸들러 프로퍼티에 하나의 이벤트 핸들러만을 바인딩할 수 있다는 단점을 가짐
 
+```html
+<body>
+    <button id="myButton">Click me</button>
+
+    <script>
+        // 특정 DOM 요소 선택
+        const button = document.getElementById('myButton');
+
+        // 이벤트 핸들러 등록
+        button.onclick = function() {
+            alert('Button clicked!');
+        };
+    </script>
+</body>
+```
+
 #### addEventListender 메서드 방식
 - DOM 레벨2 이벤트 명세의 좀더 세밀한 이벤트 제어가 가능
     - addEventListener(arg1, arg2, arg3)
@@ -659,50 +681,105 @@ window.onload = function () {
     - 첫 번째 전달인자의 이벤트 이름에는 'on'을 제거한 이벤트 이름을 사용
 - addEventEventListener 메서드를 이용하여 대상 DOM 요소에 이벤트를 바인딩하고 해당 이벤트가 발생했을 때 실행될 콜백 함수(이벤트 핸들러)를 지정
     - 하나의 이벤트에 대해 하나 이상의 이벤트 핸들러 추가 가능
-    - 캡처링과 버블링을 지원
+    - 캡처링과 버블링을 지원하며 캡쳐링은 아래에서 위로 올라가는 개념, 버블링은 위에서 아래로 내려가는 개념으로 동작 처리 순서를 정의 가능
     - HTML 요소 뿐만 아니라 모든 DOM(HTML, XML, SVG)에 대해 동작
 - 공통 규칙에 해당하는 값을 상수로 만들고 인자의 함수를 선언한뒤 callback 함수 호출
 - 두번째 매개변수의 함수를 직접 호출할 경우 이벤트 발생 시까지 대기하지 않고 바로 실행
 
 ```html
-<body>
+  <body>
     <div id="div1" style="width: 500px; height: 300px; background: magenta">
-        div1
-        <div id="div2" style="width: 400px; height: 200px; background: cyan">
-            div2
+      div1
+      <div id="div2" style="width: 400px; height: 200px; background: cyan">
+        div2
         <div id="div3" style="width: 300px; height: 100px; background: orange">div3</div>
-        </div>
+      </div>
     </div>
-<script type="text/javascript">
-    var div1 = document.getElementById("div1");
-    var div2 = document.getElementById("div2");
-    var div3 = document.getElementById("div3");
+    <script type="text/javascript">
+      var div1 = document.getElementById("div1");
+      var div2 = document.getElementById("div2");
+      var div3 = document.getElementById("div3");
 
-    div1.addEventListener(
+      div1.addEventListener(
         "click",
         function (e) {
-            alert("div1");
+          alert("div1");
         },
         false
-    );
+      );
 
-    div2.addEventListener(
+      div2.addEventListener(
         "click",
         function (e) {
-            alert("div2");
+          alert("div2");
         },
         false
-    );
+      );
 
-    div3.addEventListener(
+      div3.addEventListener(
         "click",
         function (e) {
-            alert("div3");
+            // e.stopPropagation(); // 해당 이벤트가 즉시 다른 버블링을 멈춰서 해당 이벤트만 발생 -> 복잡한 구조에서 다른 이벤트 동작에 영향을 끼칠 수 있어 사용에 주의해야함
+          alert("div3");;ㅁㄴㅇ람너아러닝라ㅓ민럼;
         },
         false
-    );
-    //true이면 캡쳐, false이면 버블
-    // 캡쳐링은 아래에서 위로 올라가는 개념, 버블링은 위에서 아래로 내려가는 개념
-</script>
-</body>
+      );
+      //true이면 캡쳐, false이면 버블
+      // 캡쳐링은 아래에서 위로 올라가는 개념, 버블링은 위에서 아래로 내려가는 개념
+    </script>
+  </body>
+```
+
+<br>
+
+### Web Storage
+- 키와 값을 하나의 세트로 저장
+- 도메인과 브라우저별로 저장
+- 값은 문자열로 저장됨
+    - 객체를 저장할 수 없음
+    - json 데이터로 사용
+- LocalStroage, SessionStorage 로 기본 구성
+
+#### 공통 메서드와 프로퍼티
+|method|description|
+|:---:|:---:|
+|setItem(key, value)|key - value 를 쌍으로 저장|
+|getItem(key)|key에 해당하는 데이터 읽기|
+|removeItem(key)|key에 해당하는 데이터 삭제|
+|clear()|모든 key의 데이터 삭제|
+|key(index)|index에 해당하는 key|
+|length|저장된 key-value 쌍의 개수|
+
+<br>
+
+### LocalStorage
+- WebStorage API : LocalStorage
+- 데이터를 사용자 로컬에 보존하는 방식
+- 데이터를 저장, 덮어쓰기, 삭제 등 조작 가능
+- 자바스크립트(JavaScript)로만 동작
+- 모바일엦서도 사용 가능
+
+<br>
+
+### LocalStorage이 Cookie와 다른 점
+- 유효 기간이 없고 영구적으로 이용 가능
+    - 브라우저에서 명시적으로 삭제하지 않는 한 영구적으로 저장
+- 단순 문자열외에 (스크립트) 객체 정보 저장 가능
+- 일반적으로 5mb ~ 10mb 정도로 많은 데이터 저장이 가능
+    - 쿠키는 도메인당 20개의 쿠키수가 제한되며 4KB까지, 브라우저마다 다를 수 있음
+- 쿠키(매번 서버로 전송)와는 다르게 네트워크 요청 시 서버로 전송되지 않음
+    - 클라이언트 측에만 저장되어 서버로 자동 전송되지 않아 네트워크 트래픽을 줄이는데 도움을 줌
+- 서버가 HTTP 헤더를 통해 스토리지 객체를 조작할 수 없음
+    - 쿠키는 서버와 클라이언트 양측에서 접근 및 수정이 가능
+- 웹스토리지는 origin(프로토콜, 도메인, 포트)이 다르면 접근 불가
+    - 동일 origin 정책에 따라 접근이 제한되어 동일 프로토콜, 도메인, 포트에서만 접근이 가능
+    - 쿠키는 'Secure', 'HttpOnly'을 통해 보안 강화가 가능. 'HttpOnly' 플래그를 설정하면 클라이언트 측 스크립트에서 쿠키 접근 불가
+
+```js
+// 객체 저장
+const user = { name: 'John', age: 30 };
+localStorage.setItem('user', JSON.stringify(user));
+
+// 객체 조회
+const storedUser = JSON.parse(localStorage.getItem('user'));
 ```
