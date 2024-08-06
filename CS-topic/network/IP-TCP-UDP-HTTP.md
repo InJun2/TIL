@@ -206,6 +206,42 @@ Unauthorized
 <div style="text-align: right"> + 22-07-03 ( IP/ HTTP 내용 추가 ) </div>
 <div style="text-align: right"> + 22-07-20 ( 인프런 강의 시청 후 상태코드 내용 추가 ) </div>
 
+<br>
+
+## Ssafy Wizards CS Study
+
+### 1. Checksum
+
+<br>
+
+### 2. TCP와 UDP 중 Checksum을 수행하는 프로토콜
+
+<br>
+
+### 3. Checksum을 통해 오류를 정정 가능 유무
+
+<br>
+
+### 4. TCP가 신뢰성을 보장하는 방법
+
+<br>
+
+### 5. TCP의 혼잡 제어 처리 방법
+
+<br>
+
+### 6. HTTP는 TCP를 사용하는 이유
+
+<br>
+
+### 7. 브라우저가 서버가 TCP를 쓰는지 UDP를 쓰는지 어떻게 알 수 있는 방법
+
+<br>
+
+### 8. 본인이 새로운 통신 프로토콜을 TCP나 UDP를 사용해서 구현한다고 하면, 프로토콜 선택 기준
+
+<br>
+
 -------
 
 ## Reference
