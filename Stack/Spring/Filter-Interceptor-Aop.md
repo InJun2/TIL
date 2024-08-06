@@ -329,8 +329,37 @@ public class TimerAop { // 주로 사용되는 메서드 수행시간 출력을 
 
 <br>
 
-#### 스프링 MVC 구조
-- [스프링 컨테이너]()
+## Ssafy Wizards CS Study
+
+### 1. @Aspect는 어떻게 동작하는지
+1. Aspect 정의
+    - @Aspect 애노테이션을 클래스에 사용하여 그 클래스가 하나의 Aspect(횡단 관심사)를 정의함
+    - Aspect 클래스는 하나 이상의 어드바이스(Advice)를 가질 수 있음. 어드바이스는 실제로 횡단 관심사를 구현하는 메서드
+2. Advice 정의
+    - 어드바이스는 특정 시점에 실행되는 코드임 (포인트컷이 지정한 조인 포인트에서 실행될 실제 동작(코드))
+    - @Before: 타겟 메서드가 호출되기 전에 실행됨
+    - @After: 타겟 메서드가 완료된 후에 실행됨
+    - @AfterReturning: 타겟 메서드가 성공적으로 완료된 후에 실행됨
+    - @AfterThrowing: 타겟 메서드가 예외를 던진 후에 실행됨
+    - @Around: 타겟 메서드 호출 전후에 실행되며, 가장 강력한 어드바이스
+3. Pointcut 정의
+    - 포인트컷(Pointcut)은 어드바이스가 적용될 타겟 메서드를 정의하는 표현식
+    - 포인트 컷은 어드바이스가 적용될 위치로 대상 패키지, 클래스, 메서드를 지정
+    - @Pointcut 애노테이션을 사용하여 포인트컷을 정의하고, 어드바이스에서 참조함
+
+>- 이후 스프링 컨테이너가 시작될 때, AOP 설정을 읽고, 포인트컷과 어드바이스에 따라 프록시 객체를 생성
+>- 프록시 객체는 타겟 객체의 메서드 호출을 가로채어, 정의된 어드바이스를 실행
+
+```java
+// Aspect 정의
+@Aspect
+public class LoggingAspect {
+    @Before("execution(* com.example.service.*.*(..))") // Advice, Pointcut 정의
+    public void logBeforeMethod() {
+        System.out.println("Method is about to be called.");
+    }
+}
+```
 
 <br>
 

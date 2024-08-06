@@ -75,6 +75,34 @@
 
 <br>
 
+### HTTP 기반 웹 소켓이 양방향, 연결 지향을 지원한 방법
+- 웹소켓은 HTTP를 통해 초기 연결을 설정한 후, 지속적인 데이터 스트림을 통해 양방향 통신을 지원
+- 웹소켓 연결은 HTTP 요청을 통해 시작. 클라이언트는 HTTP Upgrade 헤더를 포함한 요청을 서버에 보냄
+- 서버는 이 요청을 받아들이고, 응답 헤더에 101 Switching Protocols 상태 코드를 포함하여 웹소켓 프로토콜로 업그레이드됨
+- 핸드셰이크가 완료되면, 클라이언트와 서버 간에 지속적인 연결이 유지됩니다. 이를 통해 양쪽 모두 언제든지 데이터를 전송할 수 있음
+    - 웹소켓은 메시지를 프레임으로 구분하여 전송
+- 웹소켓 연결은 클라이언트나 서버가 명시적으로 연결을 종료할 때까지 지속됨. HTTP의 요청-응답 모델과 달리, 지속적인 데이터 스트림을 가능하게 함
+- 웹 소켓의 업그레이드 3-way handshake
+    - 클라이언트 요청: 클라이언트는 서버에 웹소켓 연결을 요청하는 HTTP 요청을 보냄. 이 요청에는 Upgrade: websocket 헤더와 Sec-WebSocket-Key 등이 포함됨
+    - 서버 응답: 서버는 이 요청을 처리하고, 연결을 수락하면 101 Switching Protocols 상태 코드와 함께 응답. 또한 Sec-WebSocket-Accept 헤더를 포함하여 웹소켓 키를 확인
+    - 연결 설정: 서버의 응답을 받은 클라이언트는 웹소켓 연결이 성공적으로 설정되었음을 확인함. 이 후, 클라이언트와 서버는 HTTP가 아닌 웹소켓 프로토콜을 사용하여 데이터를 주고 받음
+
+```http
+GET /chat HTTP/1.1
+Host: example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13
+
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+```
+
+<br>
+
 ## Ssafy Wizards CS Study
 
 ### 1. 소켓과 포트의 차이
@@ -111,8 +139,15 @@
 <br>
 
 ### 4. 소켓과 웹 소켓의 차이
-
-- 
+- 소켓은 TCP/IP 전송 계층에서의 지속적인 양방향 통신 방법
+    - TCP/UDP 를 사용
+    - 일반적인 네트워크 애플리케이션, 예를 들어 파일 전송, 원격 제어, 채팅 애플리케이션 등에서 사용
+- 웹 소켓은 업그레이드된 HTTP 헤더를 통해 초기 연결만 HTTP 를 사용하고 이후 웹 소켓 프로토콜을 통해 지속적인 양방향 통신
+    - 초기 연결 설정을 위해 HTTP를 사용하고, 연결이 설정된 후에는 웹소켓 프로토콜을 사용
+    - 실시간 웹 애플리케이션, 예를 들어 실시간 채팅, 실시간 게임, 실시간 업데이트가 필요한 대시보드 등에서 사용
+- 두 통신 방법은 서로 다른 계층에서 동작함
+    - TCP/IP 4계층 전송 계층
+    - 웹 소켓 7계층 응용 계층
 
 <br>
 
