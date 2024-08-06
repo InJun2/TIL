@@ -417,3 +417,292 @@ var 함수이름 = new Function("매개변수1", "매개변수2", "매개변수3
     - 브라우저에 내장된 창이 아닌 JavaScript로 자체 구현한 팝업에서 호출 필요
 
 <br>
+
+### DOM (Document Object Model)
+- HTML과 XML 문서의 구조를 정의하는 API를 제공
+- DOM은 문서 요소 집합을 트리 형태의 계층 구조로 HTML을 표현
+- HTML 계층 구조의 제일 위에는 document 노드가 있음
+- 그 아래로 HTML 태그나 요소(element)들을 표현하는 노드와 문자열을 표현하는 노드가 있음
+
+>- Document : HTML 또는 XML 문서를 표현
+>- HTMLDocument : HTML 문서와 요소만을 표현
+>- HTMLElement 하위 타입 : HTML 단일 요소나 요소 집합의 속성에 해당하는 JS 프로퍼티 정의
+>- Comment : HTML이나 XML 주석을 표현
+
+<br>
+
+### 문서 객체 만들기
+>- createElement(tagName) : element node를 생성
+>- craeteTextNode(text) : text node를 생성
+>- appendChild(node) : 객체에 node를 child로 추가
+
+```js
+window.onload = function () {
+    // 변수를 선언하고 element node와 text node 생성.
+    var title = document.createElement("h2");
+    var msg = document.createTextNode("Hello !!!");
+
+    // text node를 element node에 추가.
+    title.appendChild(msg);
+    document.body.appendChild(title);
+};
+```
+
+<br>
+
+>- setAttribute(name, value) : 객체의 속성을 지정
+>- getAttribute(name) : 객체의 속성값을 가져옴
+
+```js
+window.onload = function () {   // 해당 방법도 가능하지만 기존에 존재하는 속성에만 사용이 가능
+    var profile = document.createElement("img");
+    profile.src = "profile.png";
+    profile.width = 150;
+    profile.height = 200;
+    profile.my_data = "내사진입니다.";
+
+    document.body.appendChild(profile);
+}
+
+window.onload = function () {   // 해당 요소에 특정 속성을 추가할 수 있어 해당 방법이 권장되는 방법
+    var profile = document.createElement("img");
+    profile.setAttribute("src", "profile.png");
+    profile.setAttribute("width", 150);
+    profile.setAttribute("height", 200);
+
+    profile.setAttribute("data-content", "내사진");
+
+    document.body.appendChild(profile);
+};
+```
+
+<br>
+
+>- innerHTML : 문자열을 HTML 태그로 삽입
+>- innerText : 문자열을 text node로 삽입
+
+```js
+var html = document.getElementById("divHtml");
+var text = document.getElementById("divText");
+var htmlToText = document.getElementById("divHtmlToText");
+
+html.innerHTML = "<h2>Hello!!!</h2>";
+text.innerText = "<h2>Hello!!!</h2>";
+// htmlToText.innerHTML = "<h2>Hello!!!</h2>"
+//   .replace(/</g, "&lt;")
+//   .replace(/>/g, "&gt;");
+htmlToText.innerHTML = "<h2>Hello!!!</h2>".replace("<", "&lt;").replace(">", "&gt;");
+```
+
+<br>
+
+>- getElementById(id) : 태그의 id 속성이 id와 일치하는지 element 객체 얻기
+>- getElementsByClassName(class-name) : 태그의 class 속성이 class-name과 일치하는 element 배열 얻기
+>- getElementsByTagName(tag-name) : 태그 이름이 tag-name과 일치하는 element 배열 얻기
+>- getElementsByName(name) : 태그의 name 속성이 name과 일치하는 element 배열 찾기
+>- querySelector(selector) : selector에 일치하는 첫번째 element 객체 얻기
+>- querySelectorAll(selector) : selector에 일치하는 모든 element 배열 얻기
+
+```js
+function load() {
+    let color = ["cyan", "magenta", "orange"];
+    let test = document.getElementsByClassName("test");
+       
+    for (let i = 0; i < test.length; i++) {
+        test[i].style.background = color[i % 3];
+    }
+}
+
+function greeting() {
+    let name = document.querySelector("input[type='text']").value;
+    alert(name + "님 안녕하세요!!!!");
+}
+
+window.onload = function () {
+    var color = ["cyan", "magenta", "orange"];
+    var test = document.querySelectorAll(".test");
+
+    for (var i = 0; i < test.length; i++) {
+        test[i].style.background = color[i % 3];
+    }
+};
+```
+
+<br>
+
+>- removeChild(childnode) : 객체의 자식 노드를 제거
+
+```js
+<head>
+    <script type="text/javascript">
+      function removeElement(th) {
+        let el = document.querySelector(`#test${th}`);
+
+        document.body.removeChild(el);
+      }
+    </script>
+</head>
+<body>
+    <div id="test9">
+        Test9
+        <button onclick="removeElement(9);">삭제</button>
+    </div>
+    <div id="test10">
+        Test10
+        <button onclick="removeElement(10);">삭제</button>
+    </div>
+    <div id="test11">
+        Test11
+        <button onclick="removeElement(11);">삭제</button>
+    </div>
+    <div id="test12">
+        Test12
+        <button onclick="removeElement(12);">삭제</button>
+    </div>
+    <div id="test13">
+        Test13
+        <button onclick="removeElement(13);">삭제</button>
+    </div>
+    <div id="test14">
+        Test14
+        <button onclick="removeElement(14);">삭제</button>
+    </div>
+</body>
+```
+
+<br>
+
+```
+백틱(` `)을 사용하여 문자열 혹은 JS의 변수를 쉽게 사용이 가능
+```
+
+<br>
+
+### Event
+- 웹 페이지에서 여러 종류의 상호작용이 있을 때마다 이벤트가 발생
+- 사용자가 마우스를 클릭하였을 때, 키보드를 눌렀을 때 등 다양한 종류의 이벤트 존재
+- JS를 사용하여 DOM에서 발생하는 이벤트를 감지하여 이벤트에 대응하는 여러 작업 수행
+- 이벤트는 일반적으로 함수와 연결이 되고 이 함수는 이벤트가 발생되기 전에는 실행되지 않다가 이벤트가 발생할 경우 실행
+    - 이벤트 핸들러(Handler) 또는 이벤트 리스터(Listener)라 하며 이 함수에 이벤트 발생시 실행해야 하는 코드 작성
+
+<br>
+
+#### 마우스 이벤트
+>- onclick : 마우스로 Element를 클릭했을 때 발생
+>- ondblclick : 마우스로 Element를 더블 클릭 했을 때 발생
+>- onmouseup : 마우스로 Element에서 마우스 버튼을 올렸을 때 발생
+>- onmousedown : 마우스로 Element에서 마우스 버튼을 눌렀을 때 발생
+>- onmouseover : 마우스를 움직여서 Element 밖에서 안으로 들어 올 때 발생
+>- onmouseout : 마우스를 움직여서 Element 안에서 밖으로 나갈 때 발생
+>- onmousemove : 마우스를 움직일 때 발생
+
+<br>
+
+#### 키보드 이벤트
+>- onkeypress : 키보드가 눌려졌을 때 발생 (ASCII)
+>- onkeydown : 키보드를 누르는 순간 발생 (KeyCode)
+>- onkeyup : 키보드의 누르고 있던 키를 뗄 때 발생
+
+<br>
+
+#### Frame 이벤트
+- Frame 관련 이벤트는 특정 DOM 문서에 관련된 이벤트가 아니라 Frame 자체에 대한 이벤트
+    - Frame 이벤트 중에서는 load 이벤트가 가장 많이 사용
+- Load는 문서 및 자원들이 모두 웹 브라우저에 탑재되면 이벤트를 수행
+- unload는 사용자가 브라우저를 떠날 때 이벤트가 발생하지만 사용자가 브라우저를 떠나는 것을 막을 수는 없음
+
+>- onload :document, image, frame 등이 모두 로딩 되었을 때 발생
+>- onabort : 이미지 등의 내용을 로딩하는 도중 취소 등으로 중단 되었을 때 발생
+>- onerror : 이미지 등의 내용을 로딩 중 오류가 발생 했을 때 발생
+>- onresize : document, element의 크기가 변경되었을 경우 발생
+>- onscroll : document, element가 스크롤 되었을 때 발생
+>- onselect : 텍스트를 선택했을 때 발생
+
+<br>
+
+### Form 이벤트
+- Form 관련 이벤트는 웹 초기부터 지원되어 여러 웹 브라우저에서 가장 안정적으로 동작하는 이벤트
+    - 자주 사용되는 이벤트로 form이 전송될 때 submit 이벤트가 발생
+    - submit, reset은 이벤트 핸들러에서 취소할 수 있음
+
+>- onsubmit : form이 전송될 때 발생
+>- onreset : 입력 form이 reset 될 때 발생
+>- oninput : input 또는 textarea 값이 변경 되었을 때 발생
+>- onchange : select box, checkbox, radio button의 상태가 변경 되었을 때 발생
+>- onfocus : input 같은 요소에 입력 포커스가 들어올 때 발생
+>- onblur : input 같은 요소 등에서 입력 포커스가 다른 곳으로 이동할 때 발생
+>- onselect : input, textarea 에 입력 값 중 일부가 마우스 등으로 선택될 때 발생
+
+<br>
+
+### 이벤트 핸들러 등록
+- 이벤트를 감지하고 대응하는 작업을 등록하는 방법은 여러가지 제공
+- 어떤 이벤트를 처리할 작업을 등록하는 것을 이벤트 핸들러 또는 리스터를 등록한다고 표현
+- JS 초기에는 HTML 요소 내부에서 직접 이벤트 핸들러를 등록했으나 이러한 방식은 JS 코드가 침범한다는 문제가 존재
+
+#### 인라인 이벤트 핸들러
+- 여러 개의 함수를 한번에 호출이 가능
+- 최근 관심 받고 있는 CBD(Component Based Development) 방식의 Angular, React, Vue.js 와 같은 프레임워크에서는 인라인 방식으로 이벤트를 처리
+
+#### 이벤트 핸들러 프로퍼티 방식
+- HTML에 직접 이벤트 핸들러를 등록하는 방법 대신에 JS에서 이벤트 핸들러를 등록하는 방법이 존재
+- JS에서의 이벤트 핸들러를 등록함으로써 HTML 코드와 JS 코드를 분리할 수 있음
+- 이벤트 대상이 되는 특정 DOM을 선택하고 이벤트 핸들러를 등록
+- div1 요소에 클릭 이벤트가 발생하면 핸들러로 등록한 함수가 실행
+    - 인라인 이벤트 핸들러 방식처럼 HTML과 JS가 혼용되어 있는 문제를 해결할 수 있음
+    - 하지만 이벤트 핸들러 프로퍼티에 하나의 이벤트 핸들러만을 바인딩할 수 있다는 단점을 가짐
+
+#### addEventListender 메서드 방식
+- DOM 레벨2 이벤트 명세의 좀더 세밀한 이벤트 제어가 가능
+    - addEventListener(arg1, arg2, arg3)
+- 전달 인자의 첫 번째에는 이벤트 이름, 두번째에는 이벤트 핸들러, 세번째는 캡쳐링 여부를 사용
+    - 첫 번째 전달인자의 이벤트 이름에는 'on'을 제거한 이벤트 이름을 사용
+- addEventEventListener 메서드를 이용하여 대상 DOM 요소에 이벤트를 바인딩하고 해당 이벤트가 발생했을 때 실행될 콜백 함수(이벤트 핸들러)를 지정
+    - 하나의 이벤트에 대해 하나 이상의 이벤트 핸들러 추가 가능
+    - 캡처링과 버블링을 지원
+    - HTML 요소 뿐만 아니라 모든 DOM(HTML, XML, SVG)에 대해 동작
+- 공통 규칙에 해당하는 값을 상수로 만들고 인자의 함수를 선언한뒤 callback 함수 호출
+- 두번째 매개변수의 함수를 직접 호출할 경우 이벤트 발생 시까지 대기하지 않고 바로 실행
+
+```html
+<body>
+    <div id="div1" style="width: 500px; height: 300px; background: magenta">
+        div1
+        <div id="div2" style="width: 400px; height: 200px; background: cyan">
+            div2
+        <div id="div3" style="width: 300px; height: 100px; background: orange">div3</div>
+        </div>
+    </div>
+<script type="text/javascript">
+    var div1 = document.getElementById("div1");
+    var div2 = document.getElementById("div2");
+    var div3 = document.getElementById("div3");
+
+    div1.addEventListener(
+        "click",
+        function (e) {
+            alert("div1");
+        },
+        false
+    );
+
+    div2.addEventListener(
+        "click",
+        function (e) {
+            alert("div2");
+        },
+        false
+    );
+
+    div3.addEventListener(
+        "click",
+        function (e) {
+            alert("div3");
+        },
+        false
+    );
+    //true이면 캡쳐, false이면 버블
+    // 캡쳐링은 아래에서 위로 올라가는 개념, 버블링은 위에서 아래로 내려가는 개념
+</script>
+</body>
+```
