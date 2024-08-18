@@ -22,6 +22,7 @@
 
 #### transaction isolation level
 - 트랜잭션 격리 수준에 따라 락의 사용이 결정됨
+    - [트랜잭션 격리 수준 정리 링크](https://github.com/InJun2/TIL/blob/main/CS-topic/DB/transaction-isolation-level.md)
 - Repeatable Read 이상의 격리 수준에서는 읽기 작업 시 Read-Lock을 사용하여, 트랜잭션이 데이터를 여러 번 읽더라도 일관된 데이터를 읽을 수 있도록 함
 - Read Committed 격리 수준에서는 쓰기 작업 시 Write-Lock을 사용하여, 다른 트랜잭션이 데이터를 읽거나 수정하지 못하게 함
 - 락의 범위는 데이터베이스 엔진에 따라 다름
@@ -31,10 +32,28 @@
 
 ### MVCC (Multiversion concurrency control)
 - MVCC는 commit 된 데이터만 읽으므로 다른 트랜잭션이 값을 변경하던 중 커밋을 하지 않았다면 다른 트랜잭션은 변경 전 값을 읽음
-- 
+- 데이터를 읽을 때 특정 시점을 기준으로 가장 최근의 commit된 데이터를 읽음
+    - 데이터의 이전 버전을 유지하여 트랜잭션이 요청한 시점의 데이터를 정확하게 반환가능. 데이터의 일관성 유지
+    - consistent read (일관된 읽기) : 트랜잭션이 시작된 이후에 다른 트랜잭션이 데이터를 변경하고 커밋하더라도, 현재 트랜잭션은 이를 보지 않고 트랜잭션이 시작될 때의 데이터를 계속 읽음
+- 데이터 변화(write) 이력을 관리
+- read와 write는 서로를 block 하지 않음
+    - 읽기 작업은 데이터의 기존 버전을 참조하고, 쓰기 작업은 새로운 버전을 생성하므로, 트랜잭션 간의 락 경쟁이 줄어듬
 - MySQL InnoDB와 postgreSQL 에서 사용됨
+- 모든 트랜잭션이 완료될 때까지 여러 버전을 유지해야하므로 추가적인 스토리지가 필요할 수 있고 데이터베이스가 오래된 데이터 버전을 정리하는 Garbage Collection 메커니즘 필요
 
 <br>
+
+<!-- ### 개인적인 궁금증
+
+#### 1. MongoDB vs Redis
+- 
+
+<br>
+
+#### 2. MySQL vs Postgres
+
+
+<br> -->
 
 ### Reference
 - https://www.youtube.com/watch?v=0PScmeO3Fig
