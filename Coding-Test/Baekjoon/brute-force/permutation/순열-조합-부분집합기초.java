@@ -42,30 +42,30 @@ public class Main {
 	}
 
 	private static void makePermutation2(final int nthChoice, char[] choosed) {	// 중복 순열
-    // 기저 상황
-    if (nthChoice >= r) {
-        System.out.println(Arrays.toString(choosed));
-        return;
-    }
-    
-    // 재귀 상황
-    for (int i = 0; i < chars.length; i++) {
-        choosed[nthChoice] = chars[i];
-        makePermutation(nthChoice + 1, choosed);
-    }
-}
-	
-	private static void makeCombination2(int cnt, int start, char[] selected) {	// 중복 조합
-		if(cnt == r) {
-			System.out.println(Arrays.toString(selected));
-			
+		// 기저 상황
+		if (nthChoice >= r) {
+			System.out.println(Arrays.toString(choosed));
 			return;
 		}
 		
-		for(int i = start; i < chars.length; i++) {
-			selected[cnt] = chars[i];
-			makeCombination(cnt +1, start, selected);
+		// 재귀 상황
+		for (int i = 0; i < chars.length; i++) {
+			choosed[nthChoice] = chars[i];
+			makePermutation(nthChoice + 1, choosed);
 		}
+	}
+	
+	private static void makeCombination2(int cnt, int start, char[] selected) {	// 중복 조합
+			if(cnt == r) {
+				System.out.println(Arrays.toString(selected));
+				
+				return;
+			}
+			
+			for(int i = start; i < chars.length; i++) {
+				selected[cnt] = chars[i];
+				makeCombination(cnt +1, start, selected);
+			}
 	}
 
 	private static void subset(int cnt, boolean[] selected) {	// 부분 집합
@@ -85,4 +85,3 @@ public class Main {
 		selected[cnt] = false;
 		subset(cnt + 1, selected);
 	}
-}
