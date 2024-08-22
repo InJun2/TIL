@@ -8,21 +8,8 @@ public class Main {
 //		makePermutation(0, new char[r], new boolean[chars.length]);
 		makeCombination(0, 0, new char[r]);
 	}
-	
-	private static void makeCombination(int cnt, int start, char[] selected) {	// 조합
-		if(cnt == r) {
-			System.out.println(Arrays.toString(selected));
-			
-			return;
-		}
-		
-		for(int i = start; i < chars.length; i++) {
-			selected[cnt] = chars[i];
-			makeCombination(cnt +1, start +1, selected);
-		}
-	}
 
-		private static void makePermutation(final int nthChoice, char[] choosed, boolean[] visited) {	// 순열
+	private static void makePermutation(final int nthChoice, char[] choosed, boolean[] visited) {	// 순열
 		// 기저 상황
 		if(nthChoice >= r) {
 			System.out.println(Arrays.toString(choosed));
@@ -38,7 +25,6 @@ public class Main {
 				visited[i] = false;
 			}
 		}
-		
 	}
 
 	private static void makePermutation2(final int nthChoice, char[] choosed) {	// 중복 순열
@@ -52,6 +38,19 @@ public class Main {
 		for (int i = 0; i < chars.length; i++) {
 			choosed[nthChoice] = chars[i];
 			makePermutation(nthChoice + 1, choosed);
+		}
+	}
+
+	private static void makeCombination(int cnt, int start, char[] selected) {	// 조합
+		if(cnt == r) {
+			System.out.println(Arrays.toString(selected));
+			
+			return;
+		}
+		
+		for(int i = start; i < chars.length; i++) {
+			selected[cnt] = chars[i];
+			makeCombination(cnt +1, start +1, selected);
 		}
 	}
 	
