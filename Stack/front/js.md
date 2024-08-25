@@ -28,7 +28,7 @@
 - 변수의 이름은 함수 이름과 혼동되지 않도록 유일한 이름을 사용하고 ECMA Script 표준에 따라 카멜 케이스를 사용
    - 키워드, 공백 문자 포함, 숫자로 시작 X
    - 특수문자는 _와 $ 허용 
-- 백틱(` `)을 사용하여 JS 변수를 출력이 가능
+- 백틱(\` \`)을 사용하여 JS 변수를 출력이 가능
 
 ```js
 var str = "안효인";
@@ -97,7 +97,8 @@ console.log(`당신의 이름은 ${str}입니다.`); // ${variable}를 사용해
 - 변수의 생성은 선언 단계, 초기화 단계가 한번에 이르어지고 이후 할당이 이루어짐
     - 선언 단계 : 변수 객체에 변수를 등록
     - 초기화 단계 : 변수 객체에 등록된 변수를 메모리에 할당. undefined로 초기화 됨
-    - 할당 단계 : undefined로 초기화도니 변수에 실제 값을 할당
+    - 할당 단계 : undefined로 초기화되니 변수에 실제 값을 할당
+- 변수의 선언만 호이스팅되며, 초기화는 호이스팅되지 않음
 
 ```js
 // num 이 선언되지 않아 error가 발생할 것 같지만 undefined가 출력
@@ -386,6 +387,9 @@ var 함수이름 = new Function("매개변수1", "매개변수2", "매개변수3
     - JavaScript에서 기본으로 제공하는 프로퍼티와 함수도 포함
     - alert(), confirm(), prompt() 등 앞에 'window.' 가 생략되어 있는 것
 - BOM(Browser Object Model)으로 불리기도 함
+    - BOM은 웹 브라우저의 창이나 프레임을 제어하기 위한 객체 모델
+    - BOM은 특정 HTML 문서와 관련이 없으며, 웹 브라우저 자체와 상호작용하는 데 사용
+    - 브라우저 창, 화면, URL, 탐색 기록, 사용자 에이전트(navigator) 등의 브라우저와 관련된 정보를 관리하고 제어할 수 있는 객체와 메서드의 집합
 
 <br>
 
@@ -416,6 +420,23 @@ var 함수이름 = new Function("매개변수1", "매개변수2", "매개변수3
 - window 객체의 close() 함수로 현재 창을 닫을 수 있음
     - 브라우저에 내장된 창이 아닌 JavaScript로 자체 구현한 팝업에서 호출 필요
 
+```javascript
+let newWindow = window.open(
+  'https://www.example.com', // 열릴 페이지 URL
+  '_blank', // 새 창에서 열기
+  'width=600,height=400,resizable=yes,scrollbars=yes', // 창의 특성 지정
+  false // 히스토리 대체 여부 (기본값: false)
+);
+
+// open()으로 연 창을 닫기
+if (newWindow) {
+  newWindow.close(); // 새로 열린 창 닫기
+}
+
+// 현재 창을 닫는 방법 (JavaScript로 연 창에서만 동작)
+window.close();
+```
+
 <br>
 
 ### DOM (Document Object Model)
@@ -423,11 +444,23 @@ var 함수이름 = new Function("매개변수1", "매개변수2", "매개변수3
 - DOM은 문서 요소 집합을 트리 형태의 계층 구조로 HTML을 표현
 - HTML 계층 구조의 제일 위에는 document 노드가 있음
 - 그 아래로 HTML 태그나 요소(element)들을 표현하는 노드와 문자열을 표현하는 노드가 있음
+    - 웹 페이지의 문서를 트리 구조로 표현한 객체 모델
 
 >- Document : HTML 또는 XML 문서를 표현
 >- HTMLDocument : HTML 문서와 요소만을 표현
 >- HTMLElement 하위 타입 : HTML 단일 요소나 요소 집합의 속성에 해당하는 JS 프로퍼티 정의
 >- Comment : HTML이나 XML 주석을 표현
+
+<br>
+
+| **특징**          | **BOM (Browser Object Model)**                                  | **DOM (Document Object Model)**                                |
+|-------------------|----------------------------------------------------------------|---------------------------------------------------------------|
+| **목적**          | 브라우저와 상호작용                                           | 웹 페이지 문서의 구조와 콘텐츠를 조작                           |
+| **최상위 객체**   | `window`                                                      | `document`                                                    |
+| **제어 대상**     | 브라우저 창, URL, 탐색 기록, 사용자 에이전트 등               | HTML/XML 문서의 요소 및 구조                                  |
+| **표준화**        | 표준화되지 않음 (브라우저마다 다를 수 있음)                   | W3C에 의해 표준화                                             |
+| **주요 메서드/속성** | `window.alert()`, `window.open()`, `navigator.userAgent`, `location.href` | `document.getElementById()`, `document.querySelector()`, `element.innerHTML` |
+
 
 <br>
 
@@ -596,12 +629,61 @@ window.onload = function () {
 >- onmouseout : 마우스를 움직여서 Element 안에서 밖으로 나갈 때 발생
 >- onmousemove : 마우스를 움직일 때 발생
 
+```javascript
+ // Element 클릭 이벤트
+document.getElementById("clickBtn").onclick = function() {
+    alert("Button Clicked!");
+};
+
+// Element에 마우스가 들어왔을 때 이벤트
+document.getElementById("hoverDiv").onmouseover = function() {
+    this.style.backgroundColor = "lightgreen";
+};
+
+// Element에서 마우스가 나갔을 때 이벤트
+document.getElementById("hoverDiv").onmouseout = function() {
+    this.style.backgroundColor = "lightblue";
+};
+```
+
 <br>
 
 #### 키보드 이벤트
 >- onkeypress : 키보드가 눌려졌을 때 발생 (ASCII)
 >- onkeydown : 키보드를 누르는 순간 발생 (KeyCode)
 >- onkeyup : 키보드의 누르고 있던 키를 뗄 때 발생
+
+```java
+// onkeypress -> ASCII 값만 처리하며, 특수 키(예: Enter, Escape)는 감지되지 않을 수 있음
+document.getElementById("textInput").onkeypress = function(event) {
+    if (charCode === 13) { // Enter key
+        alert("Enter key was pressed.");
+    }
+    if (charCode === 27) { // Escape key
+        alert("Escape key was pressed.");
+    }
+};
+
+// onkeydown -> 모든 키(문자 키, 특수 키 등)를 감지할 수 있음 (권장)
+document.getElementById("textInput").onkeydown = function(event) {
+    if (event.key === 'Enter') {
+        alert("Enter key was pressed.");
+    }
+    if (event.key === 'Escape') {
+        alert("Escape key was pressed.");
+    }
+};
+
+// onkeyup
+document.getElementById("textInput").onkeyup = function(event) {
+    if (event.key === 'Enter') {
+        alert("Enter key was released.");
+    }
+    if (event.key === 'Escape') {
+        alert("Escape key was released.");
+    }
+};
+```
 
 <br>
 
@@ -618,6 +700,18 @@ window.onload = function () {
 >- onscroll : document, element가 스크롤 되었을 때 발생
 >- onselect : 텍스트를 선택했을 때 발생
 
+```java
+// 이미지가 모두 로드되었을 때 발생
+document.getElementById("image").onload = function() {
+    console.log("Image has loaded.");
+};
+
+// 페이지가 스크롤 될 때 발생
+window.onscroll = function() {
+    console.log("Page scrolled.");
+};
+```
+
 <br>
 
 ### Form 이벤트
@@ -632,6 +726,44 @@ window.onload = function () {
 >- onfocus : input 같은 요소에 입력 포커스가 들어올 때 발생
 >- onblur : input 같은 요소 등에서 입력 포커스가 다른 곳으로 이동할 때 발생
 >- onselect : input, textarea 에 입력 값 중 일부가 마우스 등으로 선택될 때 발생
+
+```javascript
+// onsubmit: Form이 제출될 때 발생
+document.getElementById("myForm").onsubmit = function(event) {
+    event.preventDefault(); // 기본 동작(제출)을 막음
+    alert("Form submitted!");
+};
+
+// onreset: Form이 리셋될 때 발생
+document.getElementById("myForm").onreset = function() {
+    alert("Form reset!");
+};
+
+// oninput: input 또는 textarea 값이 변경되었을 때 발생
+document.getElementById("nameInput").oninput = function() {
+    console.log("Name input changed: " + this.value);
+};
+
+// onchange: select box, checkbox, radio button의 상태가 변경되었을 때 발생
+document.getElementById("genderSelect").onchange = function() {
+    console.log("Gender selected: " + this.value);
+};
+
+// onfocus: input 요소에 포커스가 들어올 때 발생
+document.getElementById("ageInput").onfocus = function() {
+    console.log("Age input focused.");
+};
+
+// onblur: input 요소에서 포커스가 다른 곳으로 이동할 때 발생
+document.getElementById("ageInput").onblur = function() {
+    console.log("Age input lost focus.");
+};
+
+// onselect: input 또는 textarea에서 텍스트를 선택했을 때 발생
+document.getElementById("textArea").onselect = function() {
+    console.log("Text selected in textarea.");
+};
+```
 
 <br>
 
@@ -720,7 +852,7 @@ window.onload = function () {
         "click",
         function (e) {
             // e.stopPropagation(); // 해당 이벤트가 즉시 다른 버블링을 멈춰서 해당 이벤트만 발생 -> 복잡한 구조에서 다른 이벤트 동작에 영향을 끼칠 수 있어 사용에 주의해야함
-          alert("div3");;ㅁㄴㅇ람너아러닝라ㅓ민럼;
+          alert("div3");
         },
         false
       );
@@ -757,7 +889,7 @@ window.onload = function () {
 - 데이터를 사용자 로컬에 보존하는 방식
 - 데이터를 저장, 덮어쓰기, 삭제 등 조작 가능
 - 자바스크립트(JavaScript)로만 동작
-- 모바일엦서도 사용 가능
+- 모바일에서도 사용 가능
 
 <br>
 
@@ -775,7 +907,7 @@ window.onload = function () {
     - 동일 origin 정책에 따라 접근이 제한되어 동일 프로토콜, 도메인, 포트에서만 접근이 가능
     - 쿠키는 'Secure', 'HttpOnly'을 통해 보안 강화가 가능. 'HttpOnly' 플래그를 설정하면 클라이언트 측 스크립트에서 쿠키 접근 불가
 
-```js
+```javascript
 // 객체 저장
 const user = { name: 'John', age: 30 };
 localStorage.setItem('user', JSON.stringify(user));
@@ -783,3 +915,53 @@ localStorage.setItem('user', JSON.stringify(user));
 // 객체 조회
 const storedUser = JSON.parse(localStorage.getItem('user'));
 ```
+
+<br>
+
+### SessionStorage
+- WebStorage API : SessionStorage
+- 데이터를 현재 세션 동안만 보존하는 방식
+- 데이터를 저장, 덮어쓰기, 삭제 등 조작 가능
+- 자바스크립트(JavaScript)로만 동작
+- 모바일에서도 사용 가능
+- 브라우저나 탭을 닫으면 데이터가 삭제됨
+
+<br>
+
+```javascript
+// 객체 저장
+const sessionUser = { name: 'Jane', age: 25 };
+sessionStorage.setItem('sessionUser', JSON.stringify(sessionUser));
+
+// 객체 조회
+const storedSessionUser = JSON.parse(sessionStorage.getItem('sessionUser'));
+console.log(storedSessionUser); 
+```
+
+<br>
+
+
+| **특징**               | **localStorage**                                      | **sessionStorage**                                    |
+|------------------------|------------------------------------------------------|-------------------------------------------------------|
+| **데이터 지속성**      | 브라우저를 닫아도 데이터가 유지됨                    | 브라우저 또는 탭을 닫으면 데이터가 사라짐             |
+| **스토리지 용량**      | 보통 5~10MB                                          | 보통 5~10MB                                           |
+| **데이터 접근 범위**   | 동일한 도메인 내에서 모든 탭과 창에서 접근 가능      | 데이터가 저장된 브라우저 탭에서만 접근 가능           |
+| **주요 사용 사례**    | 장기적인 사용자 설정, 로그인 상태 유지               | 일시적인 데이터 저장, 세션 내 사용자 활동 추적        |
+| **삭제 방법**          | `localStorage.clear()` 또는 개별 항목 제거            | `sessionStorage.clear()` 또는 개별 항목 제거           |
+
+<br>
+
+### SSR vs CSR
+
+| **특징**               | **SSR (Server-Side Rendering)**                               | **CSR (Client-Side Rendering)**                                |
+|------------------------|--------------------------------------------------------------|----------------------------------------------------------------|
+| **렌더링 위치**        | 서버에서 HTML 생성 후 클라이언트로 전송                      | 클라이언트(브라우저)에서 자바스크립트로 렌더링                |
+| **초기 로드 속도**     | 빠름 (서버에서 완전한 HTML 제공)                             | 느림 (빈 HTML + 자바스크립트 로드 후 렌더링)                 |
+| **SEO(검색 엔진 최적화)**                | 우수함 (완전한 HTML 제공)                                   | 상대적으로 열악함 (빈 HTML로 시작, 검색 엔진 크롤링 어려움)   |
+| **페이지 전환 속도**   | 느림 (서버에서 새로운 페이지 로드 필요)                     | 빠름 (자바스크립트로 동적 페이지 전환)                        |
+| **서버 부하**          | 많음 (서버에서 모든 요청 처리)                              | 적음 (클라이언트에서 렌더링 처리)                             |
+| **복잡도**             | 서버에서 모든 렌더링을 처리하므로 상대적으로 단순            | 클라이언트에서 상태 관리와 렌더링을 처리해야 하므로 복잡      |
+| **예시**               | 전통적인 웹 애플리케이션, SEO가 중요한 웹 사이트             | 단일 페이지 애플리케이션(SPA), 상호작용이 많은 웹 애플리케이션|
+
+<br>
+

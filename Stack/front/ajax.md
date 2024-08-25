@@ -1,7 +1,18 @@
 # AJAX
 
+### 비동기 통신
+- 서버와 클라이언트 간의 데이터 교환을 비동기적으로 처리하는 방식
+- 동기 방식에서는 요청을 보낸 후 서버의 응답을 기다리는 동안 클라이언트 측 코드가 계속 실행되며, 서버의 응답이 도착하면 그때 별도로 응답을 처리
+
+#### 비동기 통신 특징
+- Non-blocking(비차단): 요청을 보낸 후 응답을 기다리지 않고 다른 작업을 계속 수행할 수 있음
+- 성능 향상: UI가 응답하지 않는 문제(응답 지연)가 줄어들어 사용자 경험이 개선됨
+- 서버와의 효율적 통신: 필요한 데이터만 비동기적으로 불러올 수 있으므로, 페이지 전체를 다시 로드할 필요가 없음
+
+<br>
+
 ### Ajax (Asynchronous Javascript And XML)
-- Ajax 는 언어나 프레임워크가 아닌 구현하는 방식을 의미
+- Ajax는 언어나 프레임워크가 아닌 구현하는 방식을 의미
 - Ajax는 웹에서 화면을 갱신하지 않고 데이터를 서버로부터 가져와 처리하는 방법을 의미
     - 서버로부터 받은 데이터를 CSR 방식을 통해 페이지에 동적으로 적용 
 - JavaScript의 XMLHttpRequest 객체로 데이터를 전달하고 비동기 방식으로 결과를 조회
@@ -31,7 +42,7 @@
     - 프레젠테이션 영역의 JSP나 PHP, ASP 등
 
 #### CSR (Client Side Rendering)
-- 클라잉언트 중심의 개발방식은 클라이언트에서 화면을 구성
+- 클라이언트 중심의 개발방식은 클라이언트에서 화면을 구성
     - 주로 JavaScript
 - Ajax는 클라이언트 중심의 개발 방식이며 비동기 요청보다는 동적 화면구성이 관건임
 
@@ -41,6 +52,51 @@
 - XMLHttpRequest 이용 방식 (Browser)
 - fetch() 이용 방식 (Browser)
 - 외부라이브러리 이용 방식 - jQuery, axios
+
+<br>
+
+### 비동기 통신 사용 객체 (XMLHttpReqeust)
+- 비동기 통신을 구현할 때 사용되는 주요 객체
+- 이 객체를 사용하면 웹 페이지가 다시 로드되지 않고도 서버와 데이터를 주고받을 수 있음
+- XML뿐만 아니라 JSON, HTML, plain text 등 다양한 형식의 데이터를 주고받을 수 있음
+- XMLHttpRequest는 비교적 복잡한 API를 제공하며, 더 간결하고 현대적인 대체 API로 fetch가 많이 사용됨
+
+```javascript
+// XMLHttpRequest 객체 생성
+var xhr = new XMLHttpRequest();
+
+// 요청 초기화: 'POST' 요청을 보낼 URL 지정
+xhr.open('POST', 'https://jsonplaceholder.typicode.com/posts', true);
+
+// 요청 헤더 설정 (보내는 데이터가 JSON임을 명시)
+xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+// 요청이 완료되었을 때 실행될 콜백 함수 정의
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 201) {
+            // 요청이 성공적으로 완료된 경우 (201 Created)
+            console.log('Response:', xhr.responseText);
+            // JSON 데이터로 변환하여 사용
+            var data = JSON.parse(xhr.responseText);
+            console.log('Created Post ID:', data.id);
+        } else {
+            // 요청이 실패한 경우
+            console.error('Request failed. Status:', xhr.status);
+        }
+    }
+};
+
+// 전송할 데이터 객체 생성
+var postData = {
+    title: 'foo',
+    body: 'bar',
+    userId: 1
+};
+
+// 요청 전송 (JSON 데이터로 직렬화하여 전송)
+xhr.send(JSON.stringify(postData));
+```
 
 <br>
 
@@ -70,7 +126,7 @@
 | 200  | OK                    | 요청 성공     |
 | 403  | Forbidden             | 접근 거부     |
 | 404  | Not Found             | 페이지 없음   |
-| 500  | Internal Server Error | 서버 오류 발생|
+| 500  | Internal Server Error | 서버 오류 발생 |
 
 <br>
 
@@ -84,6 +140,7 @@
 - options에 아무것도 넘기지 않으면 요청은 GET 방식으로 진행되며 url로 부터 content가 다운로드 됨
 - 실행 결과 Promise 타입의 객체를 반환
 - 반환된 Promise 객체는 API 호출이 성공했을 경우 응답 객체를 resolve하고 실패했을 경우 예외 객체를 reject함
+    - 해당 처리 결과를 통해 콜백 지옥을 피하고 비동기 작업을 보다 읽기 쉽게 작성할 수 있게함
 
 <br>
 
@@ -103,7 +160,66 @@
     - PATCH 메소드는 리소스의 부분적인 업데이트를 수행. 변경하고자 하는 데이터만 서버로 보냄
     - PUT 메소드는 지정된 리소스를 대체하거나, 리소스가 존재하지 않으면 새로 만듬
 
+```java
+// POST 요청 예시
+fetch('https://example.com/api/data', {
+    method: 'POST', // HTTP 메서드 (POST)
+    headers: {
+        'Content-Type': 'application/json' // 요청이 JSON 데이터임을 명시
+    },
+    body: JSON.stringify({ name: 'John', age: 30 }) // 요청 본문을 JSON 문자열로 직렬화
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json(); // 응답을 JSON 형식으로 파싱
+})
+.then(data => {
+    console.log('Success:', data); // 성공적으로 처리된 응답 데이터
+})
+.catch(error => {
+    console.error('Error:', error); // 요청 실패 시 에러 처리
+});
+```
+
 <br>
+
+### Promise
+- Promise 란 비동기 작업의 완료 또는 실패를 나타내는 객체
+    - 비동기 작업을 관리하고 그 결과를 처리하는데 사용됨. 주로 비동기 코드를 작성할 때 콜백 함수 대신 사용되어 가독성과 유지보수성을 향상시킴
+- Promise는 총 3개의 상태를 가짐
+    - Pending(대기) : 실제 작업을 위한 준비 단계로 Promise 객체 생성 및 fulfilled, rejected 상황에서 호출할 handler 함수 바인딩함
+    - Fulfilled(이행) : 동작이 성공적으로 완료된 상태로 'resolve'가 호출된 상태
+    - Rejected(거부) : 동작이 실패한 상태로 'reject'가 호출된 상태
+
+<br>
+
+### Promise 객체의 생성과 호출
+- Promise 함수는 생성자에 executor라는 함수를 파라미터로 받는데 executor는 즉시 실행되는 함수
+    - new Promise(executor)
+- executor는 resolver와 rejecter 라는 2개의 콜백 함수를 인자로 받는데 Promise는 executor 내부에서 상황에 따라 작업 성공 시 resolver를, 실패 시 rejecter를 호출하는 것을 약속함 (확실히 호출)
+    - Promise가 정상동작해서 호출되는 resolver는 handler에서 사용할 값 하나를 인자로 받음
+    - Promise가 실패해서 동작하는 rejecter는 실패 이유 하나를 인자로 받음
+
+<br>
+
+### Promise 주요 메서드
+- resolve(value): 비동기 작업이 성공했을 때 호출하여 value를 전달
+- reject(reason): 비동기 작업이 실패했을 때 호출하여 reason(실패 이유)을 전달
+- then(onFulfilled, onRejected): Promise가 성공하면 onFulfilled를, 실패하면 onRejected를 호출
+- catch(onRejected): Promise가 실패했을 때 onRejected를 호출. then(null, onRejected)와 동일
+- finally(onFinally): Promise가 성공하거나 실패한 후 무조건 실행되는 함수
+
+<br>
+
+### Callback Hell
+- 문제는 1초 후에 또 1초 후에.. 이런식으로 계속 callback 내에서 다른 callback 내에서 다른 callback 이 불러야 하는 경우 발생
+- 동작은 잘 되지만 추적이 매우 힘들어지는 상태를 callback hell 이라고 함
+- 해당 Callback Hell을 해결하기 위해 Promise 객체가 등장
+
+<br>
+
 
 ### Data 전송 형식
 - Server와 Client는 주고 받을 data의 형식을 맞춰야함
@@ -180,26 +296,44 @@ console.log(`작업 결과 num: ${num}`);
 
 <br>
 
-### Callback Hell
-- 문제는 1초 후에 또 1초 후에.. 이런식으로 계속 callback 내에서 다른 callback 내에서 다른 callback 이 불러야 하는 경우 발생
-- 동작은 잘 되지만 추적이 매우 힘들어지는 상태를 callback hell 이라고 함
-- 해당 Callback Hell을 해결하기 위해 Promise 객체가 등장
+### async/await
+- async/await는 비동기 코드를 동기 코드처럼 작성할 수 있게 해주어, 가독성을 크게 향상시킴
+- async 키워드를 함수 앞에 붙이면 해당 함수는 항상 Promise를 반환함. 함수 내부에서 return한 값은 자동으로 Promise.resolve로 감싸져 반환됨
+- await 표현식은 await 키워드는 Promise가 해결될 때까지 기다림. await은 async 함수 내부에서만 사용할 수 있음
+
+```java
+// Promise를 반환하는 함수
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("Data fetched!");
+        }, 1000);
+    });
+}
+
+// async/await 사용 예시
+async function fetchDataAsync() {
+    try {
+        const result = await fetchData(); // fetchData()가 완료될 때까지 기다림
+        console.log(result); // "Data fetched!" 출력
+    } catch (error) {
+        console.error("Error:", error);
+    } finally {
+        console.log("Fetch attempt completed.");
+    }
+}
+
+fetchDataAsync();
+
+```
 
 <br>
 
-### Promise
-- Promise 란 비동기 작업의 완료 또는 실패를 나타내는 객체
-    - 비동기 작업을 관리하고 그 결과를 처리하는데 사용됨. 주로 비동기 코드를 작성할 때 콜백 함수 대신 사용되어 가독성과 유지보수성을 향상시킴
-- Promise는 총 3개의 상태를 가짐
-    - Pending(대기) : 실제 작업을 위한 준비 단계로 Promise 객체 생성 및 fulfilled, rejected 상황에서 호출할 handler 함수 바인딩함
-    - Fulfilled(이행) : 동작이 성공적으로 완료된 상태
-    - Rejected(거부) : 동작이 실패한 상태
-
-<br>
-
-### Promise 객체의 생성과 호출
-- Promise 함수는 생성자에 executor라는 함수를 파라미터로 받는데 executor는 즉시 실행되는 함수
-    - new Promise(executor)
-- executor는 resolver와 rejecter 라는 2개의 콜백 함수를 인자로 받는데 Promise는 executor 내부에서 상황에 따라 작업 성공 시 resolver를, 실패 시 rejecter를 호출하는 것을 약속함 (확실히 호출)
-    - Promise가 정상동작해서 호출되는 resolver는 handler에서 사용할 값 하나를 인자로 받음
-    - Promise가 실패해서 동작하는 rejecter는 실패 이유 하나를 인자로 받음
+| **특징**               | **Promise**                                           | **async/await**                                     |
+|------------------------|------------------------------------------------------|-----------------------------------------------------|
+| **구문**               | `then`, `catch`, `finally` 메서드를 사용하여 체인으로 연결 | `async` 함수와 `await` 키워드를 사용하여 작성          |
+| **가독성**             | 비동기 작업이 중첩되면 콜백 지옥이 발생할 수 있음       | 동기 코드처럼 작성할 수 있어 가독성이 좋음           |
+| **에러 처리**          | `catch` 메서드를 사용하여 처리                         | `try/catch` 블록을 사용하여 동기 코드처럼 에러 처리  |
+| **지원 환경**          | 모든 JavaScript 환경에서 사용 가능                     | ES2017(ES8) 이상에서 지원, 구형 환경에서는 폴리필 필요 |
+| **사용 방식**          | 비동기 작업 완료 후 다음 작업을 `then`으로 연결         | `await` 키워드를 사용해 비동기 작업이 완료될 때까지 기다림 |
+| **코드 작성 방식**     | 비동기 작업을 체인 형태로 연결                         | 동기 코드처럼 순차적으로 작성 가능                    |
