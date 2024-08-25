@@ -100,7 +100,7 @@ xhr.send(JSON.stringify(postData));
 
 <br>
 
-### JavaScript AJAX
+### JavaScript XMLHttpRequest AJAX
 - XMLHttpRequest 는 자바스크립트가 Ajax 방식으로 통신할 때 사용하는 객체
 - XMLHttpRequest 객체는 Ajax 통신 시 전송방식, 경로, 서버로 전송할 data 등 전송 정보를 담는 역할
 - 실제 서버와의 통신은 브라우저의 Ajax 엔진에서 수행
