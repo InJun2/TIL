@@ -701,7 +701,11 @@ public class RedisRedlockExample {
 - 트랜잭션이 비정상적으로 종료되거나 클라이언트와의 연결이 끊어진 경우, DBMS는 해당 트랜잭션을 자동으로 롤백하고 이 과정에서 모든 락이 해제됨
 
 <br>
+
 ### Reference
 - https://www.youtube.com/watch?v=0PScmeO3Fig
+- https://www.youtube.com/watch?v=EBBS_giQ4AM
 - https://minwoo-it-factory.tistory.com/entry/Lock-정리낙관적-락과-비관적-락-분산락-데드락-및-활용까지
-- 
+- https://keylog.tistory.com/entry/동시성-이슈-해결방법-Synchronized-DB-Lock-Redis-Lock
+- https://velog.io/@hyojhand/named-lock-distributed-lock-with-redis
+- https://6161990src.tistory.com/146
