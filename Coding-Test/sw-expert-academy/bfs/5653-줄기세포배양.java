@@ -162,9 +162,6 @@ public class Solution {
             // 결과 출력.
 
             System.out.println("#"+tc+" "+pq.size());
-
-
-
         }
 
 
@@ -205,8 +202,6 @@ public class Solution {
 
             // 배양을 할 때, 모든 애들이 다 배양되는 것은 아님
             // => 임시 리스트를 만들어서 배양되는 후보를 먼저 저장해둔다.
-
-
 
         }
 
