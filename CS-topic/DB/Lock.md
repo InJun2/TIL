@@ -293,6 +293,7 @@ SELECT RELEASE_LOCK('my_lock');
 ![next key lock](./img/next-key-lock.png)
 
 7. 넥스트 키 락 (Next-Key Lock)
+
 - 레코드와 인접한 간격을 잠그는 락으로 갭락과 레코드 락을 결합한 잠금 메커니즘
     - 레코드 락은 인덱스에서 특정 레코드 자체를 잠그는 것이고, 갭 락은 인덱스 사이의 간격(갭)을 잠그는 것
 - 갭 락을 보완하기 위해 사용되는 락으로, 범위 기반의 검색 쿼리에서 범위의 끝에 해당하는 키 다음에 오는 레코드를 잠그는 락으로 갭락보다 정밀한 잠금을 제공
@@ -730,4 +731,5 @@ public class RedisRedlockExample {
 - https://6161990src.tistory.com/146
 - https://mangkyu.tistory.com/298
 - https://velog.io/@kylekim2123/MySQL의-잠금Lock에-관하여
+- https://cl8d.tistory.com/109
 - https://cl8d.tistory.com/109
