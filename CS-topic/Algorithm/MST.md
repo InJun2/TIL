@@ -152,3 +152,77 @@ output :
     - MST를 만들기 위해 선택된 정점들
 - 비트리 정점들(non-tree vertices)
     - 선택 되지 않은 정점들
+
+<br>
+
+### 구현 방법
+- 자바에서는 주로 우선순위 큐를 사용하여 Prim 알고리즘을 구현함
+- 우선순위 큐는 다음과 같음
+	- [우선순위 큐 정리](./priority-queue.md)
+
+<br>
+
+```java
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class PrimTest {
+	public static void main(String[] args) {
+		new PrimTest().solution();
+	}
+	
+	public void solution() {
+		Scanner sc = new Scanner(System.in);
+		
+		int V = sc.nextInt();
+		int[][] adjMatrix = new int[V][V];
+		
+		boolean[] visited = new boolean[V];
+		int[] minEdge = new int[V];
+		
+		for(int i = 0; i < V; i++) {
+			for(int j = 0; j < V; j++) {
+				adjMatrix[i][j] = sc.nextInt();
+			}
+		}
+		
+		Arrays.fill(minEdge,Integer.MAX_VALUE);
+		minEdge[0] = 0;
+		int cost = 0;
+		int i = 0;
+		
+		for(i = 0; i < V; i ++) {
+			// step 1 : 트리 구성에 포함될 가장 유리한 정점 선택
+			int min = Integer.MAX_VALUE;
+			int minVertex = -1;
+			
+			for (int j = 0; j < V; j++) {
+				if(visited[j]) {
+					continue;
+				}
+				
+				if(min > minEdge[j]) {
+					minVertex = j;
+					min = minEdge[j];
+				}
+			}
+			
+			if(minVertex == -1) {
+				break;
+			}
+			visited[minVertex] = true;
+			cost += min;
+			// step2 : 선택된 정점과 다른 정점들 간선 비용 비교하기
+			for(int j = 0; j < V; j++) {
+				if(!visited[j] && adjMatrix[minVertex][j] > 0 && minEdge[j] > adjMatrix[minVertex][j]) {
+					minEdge[j] = adjMatrix[minVertex][j];
+				}
+			} 
+		}
+		
+		System.out.println(i==V ? cost : -1);
+		
+	}
+}
+
+```
