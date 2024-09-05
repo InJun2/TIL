@@ -27,7 +27,7 @@ public class Solution {
         // maxArea를 미리 설정 (테스트를 위해)
         int maxArea = 100;  // 임의의 값 설정
 
-        // 1. String + 연산
+        // 1. String + 연산 후 1번 출력
         long startTime = System.nanoTime();
         String result1 = "";
         for (int i = 0; i < 1000; i++) {
@@ -37,7 +37,7 @@ public class Solution {
         long endTime = System.nanoTime();
         time1 = endTime - startTime;
 
-        // 2. StringBuilder 사용
+        // 2. StringBuilder 사용 후 1번 출력
         startTime = System.nanoTime();
         StringBuilder result2 = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
@@ -47,7 +47,7 @@ public class Solution {
         endTime = System.nanoTime();
         time2 = endTime - startTime;
 
-        // 3. printf 사용
+        // 3. printf 사용 하여 여러번 출력 (출력할 타입을 기입해야하므로)
         startTime = System.nanoTime();
         for (int i = 0; i < 1000; i++) {
             System.out.printf("#Test %d %d\n", i, maxArea);  // 출력을 많이 써서 다른 것과 비교해서 성능이 매우 안좋음. 출력 자체 횟수를 줄이는게 Best
@@ -55,7 +55,7 @@ public class Solution {
         endTime = System.nanoTime();
         time3 = endTime - startTime;
 
-        // 4. String.format과 StringBuilder 함께 사용
+        // 4. String.format과 StringBuilder 함께 사용하여 한번 출력
         startTime = System.nanoTime();
         StringBuilder result4 = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
@@ -90,7 +90,7 @@ Time 4 : 9181101 ns
 |-----------------------------|--------------|------|
 | **String + 연산**            | 14,330,300   | - 문자열 `+` 연산은 **불변 객체**인 `String`을 계속 생성하므로, 문자열이 커질수록 **새로운 객체**를 매번 생성하게 됨 <br> - 이로 인해 메모리 소비가 커지고, 많은 GC(Garbage Collection) 작업이 발생해 시간이 오래 걸림. |
 | **StringBuilder 사용**       | 1,242,701    | - `StringBuilder`는 가변 객체로, 문자열을 **변경하는 과정에서 새로운 객체를 생성하지 않기 때문에** 매우 효율적. <br> - 반복적으로 문자열을 추가하는 작업에 최적화되어 있어 **가장 빠른 성능**을 보임. |
-| **printf 사용**              | 53,078,000   | - `System.out.printf`는 형식을 지정하여 출력을 할 수 있지만, 내부적으로는 출력 스트림을 처리하는 비용이 크기 때문에 가장 **비효율적**. <br> - 이 메서드는 I/O 작업에 많은 시간이 소요되므로 성능이 매우 느립니다. |
+| **printf 사용**              | 53,078,000   | - `System.out.printf`는 형식을 지정하여 출력을 할 수 있지만, 내부적으로는 출력 스트림을 처리하는 비용이 크기 때문에 가장 **비효율적**. <br> - 이 메서드는 I/O 작업에 많은 시간이 소요되므로 성능이 매우 느림. |
 | **String.format + StringBuilder 사용** | 9,181,101    | - `String.format`은 형식 문자열을 사용해 새로운 문자열을 생성하지만, 내부적으로 **문자열 처리에 비교적 많은 연산**이 필요. <br> - 그럼에도 결과를 `StringBuilder`에 추가하면서 객체 생성을 최소화하여 성능이 **String + 연산보다는 빠르고** 순수 `StringBuilder` 사용보다는 느린 결과를 보임. |
 
 <br>
@@ -216,8 +216,9 @@ Time 4 : 536500 ns
     - System.out.print() : 2023900 ns
     - BufferedWriter() : 1137700 ns
 - 물론 문자열을 매번 System.out.print()를 출력하는 경우가 가장 느림
-    - System.out.print() * 100 : 8980600 ns
-- 근데 StringBuilder로 한번에 출력 보다 BufferedWriter를 여러번 출력하는게 더 빨랐음
+    - System.out.print() * 1000 : 8980600 ns
+- 근데 StringBuilder로 한번에 출력 보다 한번 생성했던 BufferedWriter를 여러번 출력하는게 더 빨랐음
+    - bw * 1000 : 536500 ns
     - BufferedWriter는 출력될 내용을 메모리에 버퍼링한 후, 내부적으로 적절한 크기에서 출력 스트림으로 내보내므로 데이터 전송 비용이 저렴
     - StringBuilder에 계속해서 문자열을 추가하고, 한 번에 모아서 출력을 하게 되면 그 사이에 많은 문자열 객체가 생성되고 메모리를 점유하게 됨. 이로 인해 자바의 Garbage Collector가 실행되어 메모리 관리를 하면서 성능에 영향을 줄 수 있음
 
