@@ -53,7 +53,40 @@ public class Permutation {
                 used[i] = false;
             }
         }
-   
+    }
+}
+```
+
+<br>
+
+#### 부분 순열
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class DuplicatePermutation {
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3};
+        List<Integer> current = new ArrayList<>();
+        
+        // 중복 순열: 같은 원소를 여러 번 선택할 수 있음.
+        generateDuplicatePermutation(arr, current, 3); // 중복 순열의 길이 (r = 3)
+    }
+    
+    public static void generateDuplicatePermutation(int[] arr, List<Integer> current, int r) {
+        if (current.size() == r) {
+            System.out.println(current);
+            return;
+        }
+        
+        for (int i = 0; i < arr.length; i++) {
+            current.add(arr[i]);
+            generateDuplicatePermutation(arr, current, r); // 중복 허용
+            current.remove(current.size() - 1);
+        }
+    }
+}
 ```
 
 <br>
@@ -84,6 +117,38 @@ public class Combination {
         for (int i = start; i < arr.length; i++) {
             current.add(arr[i]);
             generateCombination(arr, r, i + 1, current);
+            current.remove(current.size() - 1);
+        }
+    }
+}
+```
+
+<br>
+
+#### 부분 조합
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class DuplicateCombination {
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3};
+        int r = 2;
+        
+        // 중복 조합: 같은 원소를 여러 번 선택할 수 있음.
+        generateDuplicateCombination(arr, r, 0, new ArrayList<>());
+    }
+    
+    public static void generateDuplicateCombination(int[] arr, int r, int start, List<Integer> current) {
+        if (current.size() == r) {
+            System.out.println(current);
+            return;
+        }
+        
+        for (int i = start; i < arr.length; i++) {
+            current.add(arr[i]);
+            generateDuplicateCombination(arr, r, i, current);  // i를 그대로 전달하여 중복 허용
             current.remove(current.size() - 1);
         }
     }
