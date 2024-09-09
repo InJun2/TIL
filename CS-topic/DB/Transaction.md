@@ -188,6 +188,55 @@
 
 <br>
 
+### MySQL 트랜잭션 실습
+- 해당 트랜잭션 확인을 위해 workbench와 cmd를 통해 트랜잭션 실습 진행
+- MySQL\MySQL Server 8.0\bin 디렉토리 위치에서 cmd 실행하여 mysql 트랜잭션 확인 예정
+- cmd 에서 아래 명령어를 사용하여 autocommit 되지 않도록 설정
+
+```sql
+-- 트랜잭션 확인용 DB 접속
+use ssafydb;
+
+-- autocommit 설정 확인
+select @@session.autocommit;
+
+-- autocommit 되지 않도록 설정 변경
+set @@session.autocommit = false;
+```
+
+![transaction Practice](./img/transaction-setting.PNG)
+
+<br>
+
+![transaction Practice2](./img/transaction-setting2.PNG)
+
+- ide 에서 특정 row에 업데이트를 진행하고 commit 하지 않았을 때 cmd에 해당 조회는 조회되지 않고 row 수정을 위한 접근이 불가능
+- ide 에서 락을 가지고 있는 채 cmd에서 업데이트 요청시 락을 얻지 못하고 타임 아웃 발생
+
+```sql
+mysql> update ssafy_members set userpwd = 'bb7788' where idx = 2;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+```
+
+<br>
+
+![trancation Practice3](./img/transaction-setting3.PNG)
+
+- ide 수정 사항을 커밋하고 이후 cmd 에서 커밋을 진행하면 변경 사항이 적용되어 조회 가능
+- 변경한 쪽에서 커밋하고 다른 쪽에서 데이터 조회를 하지 못하는 이유는 트랜잭션 격리 수준에 의해 발생하는 문제
+    - IDE 에서 커밋을 하기 전에는 UNDO에 저장되어 있다가 commit시 데이터 변경사항이 적용되고 cmd에서도 commit 전에는 MySQL은 기본적으로 REPEATABLE READ 격리 수준이므로 변경 전 기존 읽었던 데이터 값을 읽게됨
+    - 한쪽에서 커밋을 수행하면, 그 세션의 변경 사항이 데이터베이스에 저장되지만, 다른 세션에서는 아직 이전 커밋의 스냅샷을 통해 데이터에 접근하므로 해당 변경 사항을 자동으로 즉시 조회할 수 없을 수 있음
+    - 트랜잭션 격리 수준이나 세션별 캐시에 따라 달라지며, READ COMMITTED 같은 격리 수준에서는 다른 세션에서 커밋된 내용을 즉시 조회할 수 있음
+
+<br>
+
+![trancation Practice4](./img/transaction-setting4.PNG)
+
+- 추가적으로 ide에서 update 진행하고 commit을 했을 때 값이 변경되었고 cmd는 아직 commit 하지 않아 데이터를 조회해도 이전 값을 조회하지만 ide에서는 락을 반환하였기 때문에 cmd 에서 해당 row에 변경이 가능함
+    - 물론 아직 cmd에서 commit을 하지 않아 작업을 반영하지 않았기 때문에 ide 에서는 기존 ide 에서 변경했던 데이터를 읽게 됨
+
+<br>
+
 <div style="text-align: right">22-07-22</div>
 
 -------
@@ -196,3 +245,4 @@
 - https://gyoogle.dev/blog/computer-science/data-base/Transaction.html
 - https://devjem.tistory.com/27
 - https://brunch.co.kr/@skeks463/27
+- https://goodteacher.tistory.com/688

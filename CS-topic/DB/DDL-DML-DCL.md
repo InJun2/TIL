@@ -21,6 +21,7 @@
     - 릴레이션 정의
 - DML (Data Manipulation Language, 데이터 조작어) : 정의된 데이터베이스에 입력된 레코드를 조회하거나 수정하거나 삭제하는 등의 역할
     - 데이터 관리
+    - 테이블의 레코드를 CRUD (Create, Retrieve, Update, Delete)
 - DCL (Data Control Language, 데이터 제어어) : 데이터를 제어하는 언어. 데이터베이스에 접근하거나 권한을 주는 등의 역할을 하는 언어
     - 관리하고 접근하는 권한
 
@@ -30,6 +31,7 @@
 - CREATE : 데이터베이스, 테이블 등을 생성하는 역할 
 - ALTER : 테이블을 수정하는 역할
 - DROP : 데이터베이스, 테이블을 삭제하는 역할
+- RENAME : 데이터베이스 객체의 이름 변경하는 역할
 - TRUNCATE : 테이블을 초기화 시키는 역할 -> 로그를 기록하지 않음
 
 <br>
@@ -65,6 +67,25 @@ DROP TABLE [IF EXISTS] 테이블 이름;
 - INSERT : 데이터를 삽입하는 역할
 - UPDATE : 데이터를 수정하는 역할
 - DELETE : 데이터를 삭제하는 역할
+
+<br>
+
+#### SELECT
+- SELECT 에서 FROM clause(절) 은 필수
+    - clause(절)는 특정한 작업을 수행하는 명령어와 조건의 집합을 의미
+    - SELECT 절, FROM 절, WHERE 절, ORDER BY 절, GROUP BY 절 등으로 구성 
+- DATABASE 에서 NULL은 알 수 없음으로 데이터 비교에서 조회되지 않음
+
+<br>
+
+|select clause|description|
+|:---:|:---:|
+|*|FROM 절에 나열된 테이블에서 모든 열을 선택|
+|ALL|선택된 모든 행을 반환. ALL이 default(생략 가능)|
+|DISTINCT|선택된 모든 행 중에서 중복 행 제거|
+|column|FROM 절에 나열된 테이블에서 지정된 열을 선택|
+|expression|표현식은 값으로 인식되는 하나 이상의 값, 연산자 및 SQL 함수의 조합을 뜻함|
+|alias|별칭|
 
 <br>
 

@@ -41,6 +41,7 @@
     - 처음 읽은 데이터를 트랜잭션이 끝날 때 까지 동일하게 읽을 수 있음
 - 트랜잭션 내에서 동일한 데이터를 여러 번 읽더라도 같은 결과를 보장하여 Non-repeatable Read(반복 불가능한 읽기)를 방지
 - 트랜잭션 동안 새로운 행이 삽입되거나 삭제되는 Phantom Read는 여전히 발생할 수 있음
+    - 새로운 행이 삽입되거나 삭제되는 것은 해당 행에 lock이 걸려있지 않으므로 가능
     - 즉, 팬텀 리드란 트랜잭션이 실행되는 동안 발생할 수 있는 일관성 문제 중 하나로 한 트랜잭션이 같은 쿼리를 두 번 이상 실행했을 때, 이 쿼리 사이에 새로운 행을 삽입하거나 삭제하여 결과 집합에 "유령" 같은 행이 추가되거나 사라지는 현상을 의미
     - 팬텀 리드는 read uncommitted, read committed, repeatable read 모두 발생할 수 있음
 
@@ -64,6 +65,17 @@
     - 즉, 데이터베이스 락은 트랜잭션 격리 수준에 맞춰 사용되는 동시성 제어 기법
     - 공유 락(Shared Lock): 여러 트랜잭션이 동시에 읽기 가능. 데이터 수정 불가
     - 배타 락(Exclusive Lock): 트랜잭션이 데이터를 읽거나 쓸 수 없도록 제한. 데이터 수정 가능
+
+<br>
+
+### MySQL 트랜잭션 격리 수준 변경
+```sql
+-- 트랜잭션 격리 수준 조회
+select @@global.transaction_isolation, @@session.transaction_isolation;
+
+-- 트랜잭션 격리 수준 변경
+set @@session.transaction_isolation = 'READ-COMMITTED';
+```
 
 <br>
 
