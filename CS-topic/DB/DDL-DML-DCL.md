@@ -47,13 +47,15 @@ CREATE TABLE 테이블이름 (
  )
 
 -- 테이블 이름 수정
-ALTER TABLE 테이블이름 RENAME TO 새로운 테이블이름;
+ALTER TABLE 이전테이블명 RENAME 새로운 변경테이블명;
 -- 테이블 컬럼 추가
-ALTER TABLE 테이블이름 ADD 컬럼명 컬럼타입;
+ALTER TABLE 테이블이름 ADD COLUMN 컬럼명 컬럼타입 제약조건;
 -- 테이블 컬럼 변경
-ALTER TABLE 테이블이름 MODIFY COLUMN 컬럼명 NEW 컬럼명 NEW 컬럼타입;
+ALTER TABLE 테이블이름 MODIFY COLUMN 이전컬럼명 변경컬럼명 변경컬럼타입 제약조건;
+-- 컬럼 이름 변경
+ALTER TABLE 테이블명 CHANGE COLUMN 이전컬럼명 변경컬럼명 컬럼타입 제약조건;
 -- 테이블 컬럼 삭제
-ALTER TABLE 테이블이름 DROP 컬럼명;
+ALTER TABLE 테이블이름 DROP COLUMN 컬럼명;
 
 -- 테이블/데이터베이스 제거
 DROP DATABASE [IF EXISTS] 데이터베이스 이름;
