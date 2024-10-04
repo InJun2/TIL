@@ -32,6 +32,22 @@
 
 <br>
 
+### Container & Context?
+- WAS는 여러 웹 어플리케이션을 포함해서 동작하며 관리하는 역할으로 Container 라고 부름
+    - WAS가 Container 역할을 하고 컨테이너는 서블릿이나 JSP 같은 웹 애플리케이션을 실행하고 관리하는 책임을 가짐
+    - Tomcat은 Servlet Container 라고도 불리며 웹 애플리케이션을 관리하고 HTTP 요청과 응답을 처리
+- Context는 Container 안의 각각의 애플리케이션을 나타냄
+    - 각 Context는 WAS 내에서 각 애플리케이션은 고유한 Context Root를 가지며 이 루트를 통해 외부에서 애플리케이션에 접근할 수 있음
+    - 실제 사용자의 요청을 처리하는 것으로 하나의 웹 애플리케이션을 가르킴
+    - 즉, Spring Application은 톰캣의 Context 중 하나
+
+|Container Root|Context Root|
+|:---:|:---:|
+|WAS의 경로|http://192.168.0.1:8080|
+|WAS에 설치된 Application|http://192.168.0.1:8080/**contextA**|
+
+<br>
+
 ### Servlet 라이프사이클
 
 #### 1. init()
