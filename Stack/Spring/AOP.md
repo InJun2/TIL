@@ -13,6 +13,7 @@
 - AOP 를 통해 횡단 관심사를 모듈 형태로 개발하고 일반 개발자는 이러한 횡단 관심 코드를 필요한 곳에 개발된 모듈을 적용 시키기만 하면 됨
 - 이를 통해 비즈니스 로직에만 집중할 수 있어 개발 속도가 빨라지고 불필요한 코드가 사라져서 코드의 가독성 및 유지보수성이 향상됨
 
+
 <br>
 
 ### 주로 사용되는 횡단 관심사
@@ -223,7 +224,43 @@ public long getFactorialUseCache(ProceedingJoinPoint pjp, int n) throws Throwabl
 |**returning**|메서드의 반환값을 어드바이스 메서드로 전달함.|아님|`@AfterReturning(pointcut="execution(* com.ssafy..*(..))", returning="result") public void logReturn(Object result)`|
 |**throwing**|발생한 예외 객체를 어드바이스 메서드로 전달함.|아님|`@AfterThrowing(pointcut="execution(* com.ssafy..*(..))", throwing="ex") public void logException(Exception ex)`|
 
+<br>
 
+### AOP target이 인터페이스를 상속받고 있을 경우
+- AOP는 프록시 객체를 생성하여 대상 target 객체 시점 전/후 처리를 진행
+    - 프록시객체 : 원본이 아닌(target) 원본과 유사한 가짜 객체로 런타임에 target 메서드 호출 전/후 등에 끼어들어서 무언가 부가적인 작업을 하는 객체
+- 그런데 AOP에서 이 프록시 객체는 빈이 interface 기반인지 또는 class 기반인지에 따라서 생성 방식이 약간 다름
+    - 인터페이스를 상속한 객체의 경우 인터페이스를 먼저 방문 후 해당 인터페이스로 객체가 생성되지만 객체 초기화는 해당 인터페이스의 구현체로 초기화됨
+- 어떤 방식으로 Proxy를 만들던지 동작은 동일하며 proxy 클래스는 target 빈의 메서드를 재정의 하기 때문에 외부에서는 proxy의 메서드를 부르는지 target 빈의 메서드를 부르는지 알지 못함
+    - @EnableAspectJAutoProxy(proxyTargetClass = false) 의 기본값은 proxyTargetClass = false
+    - SpringBoot에서는 CGLIB를 기본으로 설정할 것인지에 대한 옵션으로 spring.aop.proxy-target-class 속성이 있는데 기본값은 true
+    - true : 해당 클래스가 인터페이스로 구현되었는지 유무에 상관없이 CGLIB 방식의 Proxy 적용됨
+    - false : target 클래스가 인터페이스로 구현되어 있지 않은 경우 예외 발생 
+
+```
+public interface MyServiceInterface {
+    void doSomething();
+}
+
+public class MyService implements MyServiceInterface {
+    public void doSomething() {
+        System.out.println("Doing something...");
+    }
+}
+
+spring.aop.proxy-target-class=true 일때
+- CGLIB 기반의 프록시가 생성되어 대상 객체(target)가 인터페이스를 구현하고 있더라도 구체적인 클래스를 상속한 프록시가 만들어짐
+- ex) MyService myService = context.getBean(MyService.class);
+
+spring.aop.proxy-target-class=false 일때
+- 인터페이스 기반이므로 프록시는 인터페이스를 상속받기 때문에 인터페이스 타입으로만 접근이 가능
+- 타깃 클래스가 인터페이스로 구현되어 있지 않은 경우 예외 발생
+- ex) MyServiceInterface myService = context.getBean(MyServiceInterface.class);
+```
+
+<br>
+
+![AOP Proxy](./img/aop-proxy.PNG)
 
 <br>
 
