@@ -282,6 +282,35 @@ public @interface Bean {
 
 - 위의 @Configuration이 들어간 클래스를 만들고 작업하지 않고도 main 메서드를 가지고 생성된 시작 클래스를 살펴보면 @SpringBootApplication이 설정되어 있는데 해당 Annotation은 내부적으로 @SpringBootConfiguration을 가지고 있고 이것이 다시 @Configuration을 가지고 있음
 - 따라서 이 클래스에 직접 @Bean을 설정해도 무방하지만 많은 설정들이 해당 클래스에 작성되면 복잡도가 높아지므로 전문적인 설정파일을 만들고 분산하는 것이 좋음
+- @SpringBootApplication은 다음 3개의 에너테이션이 합쳐진 것
+  - @SpringBootConfiguration, @EnableAutoConfiguration, @ComponentScan
+
+```
+@SpringBootConfiguration
+- @SpringBootApplication이 선언된 클래스가 메타정보 설정 클래스로 동작하도록 함
+- 내부적으로 @Configuration을 가지고 있기 때문에 간단히 @Bean으로 다른 빈에 대한 정의도 가능
+- 하지만 메타 정보의 유지 보수를 위해 용도에 따라 빈 선언을 별도의 @Configuration이 적용된 클래스로 분리해서 관리하는 것을 권장함
+
+@EnableAutoConfiguration
+- XXXAutoCinfiguration들을 이용해 설정을 자동화하는 기능을 활성화 시키는 것, 예를 들어 의존성에서 spring-web-mvc.jar를 발견하면 WebMvcAutoConfiguration을 이용해 DispatcherServlet과 web.xml을 구성함
+- 만약 자동으로 등록된 설정을 제거하고 싶다면 exclude 속성을 이용할 수 있음
+
+@ComponentScan
+- @SpringBootApplication이 선언된 클래스의 하위 패키지를 스캔해서 @Component 들을 빈으로 등록할 수 있게 함
+```
+
+```java
+@Target(ElementType.TYPE)
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan(excludeFilters = { ...})
+public @interface SpringBootApplication {
+  @AliasFor(annotation = EnableAutoConfiguration.class)
+  Class<?>[] exclude() default {};
+  @AliasFor(annotation = ComponentScan.class, attribute = "basePackageClasses")
+  Class<?>[] scanBasePackageClasses() default {};
+}
+```
 
 <br>
 
@@ -296,11 +325,24 @@ public @interface Bean {
 
 #### Component
 
-- 빈으로 사용될 클래스에 선언하는 애너테이션
+- 빈으로 사용될 클래스에 선언하는 어노테이션
 - 스프링은 기본적으로 타입 기반으로 빈을 관리하는데 동일한 타입의 빈이 2개 이상인 경우 이름이 중요한 구분자 역할을 하므로 @Component 로 지정할 때도 이름에 대한 지정이 필요
 - @Componenet를 이용해 만들어진 빈의 이름은 클래스가 Pascal case인 경우 camel case로 변경해서 사용하고 그렇지 않은 경우 클래스 이름을 그대로 사용함
   - pascal case 인 경우: IronMan -> ironMan
-  - pascal case가 아닌경우: SPhone -> SPhone
+  - pascal case가 아닌 경우: SPhone -> SPhone
+- 그러나 이름 기준으로 빈을 사용하다 클래스 이름을 refactoring 하는 경우 빈의 이름은 변경되겠지만 참조하는 이름은 단순 문자열이어서 변경되지 않아 참조되는 곳을 모두 쫓아다니면서 변경해야 함
+  - 이름 기반으로 빈을 구별해야 하면 자동으로 생성되는 이름에 의존하지 않고 value 속성을 이용해 빈에 적절한 이름을 명시적으로 작성하는 것을 권장함
+
+```java
+@Component("customBeanName")
+public class MyService {
+    // 이 클래스는 "customBeanName"이라는 이름으로 빈으로 등록됨
+}
+
+@Autowired
+@Qualifier("customBeanName")  // 명시된 이름으로 빈을 참조
+private MyService myService;
+```
 
 <br>
 
@@ -309,6 +351,136 @@ public @interface Bean {
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Component {
   String value() default "";     // 생성되는 빈의 이름을 재정의 하려는 경우 사용
+}
+```
+
+<br>
+
+#### @Autowired 
+- 빈을 등록할 때는 단순히 Bean 객체를 생성하는 것 뿐 아니라 의존성에 대한 주입, 즉 DI 가 필요
+  - @Component는 단지 Bean 객체를 생성할 뿐으로 직접 주입이 필요
+- 빈 주입에서 @Autowired 는 자동으로 빈을 연결하는 역할
+- 타입 기반으로 빈을 자동 주입하며 해당 타입의 빈이 반드시 하나만 존재해야하고 만약 타입 충돌이 발생하면 이름 기반의 사용을 위해서는 @Qulifier을 사용
+  - @Autowired는 타입 기반으로 빈을 자동 주입하므로 이름 기반으로 주입될 빈을 한정짓기 위해서는 @Qulifier 에너테이션이 사용됨
+  - @Qulifier 는 @Autowired와 함께 사용되며 value 속성에 주입할 빈의 이름을 적으면 됨
+- 생성자와 메서드에 사용 시 파라미터 모두가 스프링 빈이어야 함. 이때 여러 개의 파라미터에 대해 모두 주입이 이뤄지거나 @Value에 의한 scalar 값 주입도 가능
+- 한 클래스에 @Autowired 가 적용되는 생성자는 최대 하나만 가능하며 메서드는 생성자와 달리 여러번 사용 가능
+- 생성자가 1개일 경우 어차피 그 생성자가 호출되어야 객체가 생성되므로 @Autowired를 생략해도 됨
+
+```java
+@Component("suvCar")  // 'suvCar'라는 이름으로 등록
+class SUV implements Car {
+    @Override
+    public void drive() {
+        System.out.println("Driving an SUV...");
+    }
+}
+
+@Autowired
+@Qualifier("suvCar")  // 'suvCar'로 등록된 빈을 주입
+private Car car;
+```
+
+<br>
+
+#### @ComponentScan
+- @Component를 선언했다고 빈이 생성되는 것이 아니고 실제로 빈을 만들기 위해서는 @Configuration에서 @ComponentScan을 통해 빈을 찾아주는 과정이 필요
+- @SpringBootApplication 도 또한 @ComponentScan을 통해 하위 패키지에서 빈으로 사용되는 객체를 찾아보고 있음
+  - 우리가 빈을 @SpringBootApplication이 선언된 클래스의 하위 패키지에 선언한다면 번거롭게 추가로 스캔할 필요가 없음
+  - 다른곳에 배치하는 것도 가능
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@Repeatable(ComponentScans.class)
+public @interface ComponentScan {
+    @AliasFor("basePackages")
+    String[] value() default {};
+    @AliasFor("value")
+    String[] basePackages() default {}; // @Component를 찾아볼 package 등록
+}
+
+// @SpringBootApplication 코드
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@SpringBootConfiguration  // 내부적으로 @Configuration을 갖음
+@EnableAutoConfiguration
+@ComponentScan(...)
+public @interface SpringBootApplication {
+   ...
+}
+```
+
+<br>
+
+#### @Value
+- @Value는 객체가 아닌 스칼라 값(문자열, 숫자 등)을 주입받는데 사용됨
+- @Value는 Field, Method, Parameter에 선언할 수 있고 value 속성이 반드시 설정되어야 함
+- 일반적으로 @Value 는 .properties 또는 .yml 등에 설정된 값을 참조할 경우 사용됨
+
+```java
+@Target({ElementType.FIELD, ElementType.METHOD, 
+         ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Value {
+  String value();  // 반드시 설정되어야 함
+}
+
+// application.yml
+server:
+  url: localhost:8080
+connection:
+  max-pool-size: 5
+
+// ${} 안에 property를 넣어 값을 사용 가능. 원하는 형태로 저장하고 사용이 가능
+@SpringBootTest
+public class EtcAnnotations {
+  @Value("${server.url}")
+  String serverUrl;
+
+  @Value("${connection.max-pool-size}")
+  int maxPoolSize;
+```
+
+<br>
+
+### 스테레오타입 에너테이션(Stereotype Annotation)
+- 빈을 묵시적으로 선언하기 위해 @Componenet를 사용할 수 있었는데 이는 단순한 Bean 이라는 정보 외에 다른 의미를 주지 못함
+- 스프링에서는 @Component를 용도에 따라 미리 여러 타입으로 정형화 해 놓았는데 이것을 스테레오 타입이라고 부름
+  - 스테레오 타입 에너테이션들은 내부적으로 @Component를 포함하고 있어 @ComponentScan 을 통해 빈으로 관리되는 것은 기본
+- 이를 통해 용도별로 빈을 구분해서 관리할 수 있고 특정 타입의 빈에 AOP를 적용하는 등의 작업이 가능
+
+| 어노테이션         | 설명                                                      |
+|------------------|---------------------------------------------------------|
+| `@Component`     | 스프링 빈으로 등록되며, 모든 계층에서 사용 가능한 일반적인 빈    |
+| `@Service`       | 서비스 계층에서 사용되며, 비즈니스 로직을 처리하는 클래스에 적용  |
+| `@Repository`    | 데이터 접근 계층에서 사용되며, 데이터베이스와 상호작용하는 클래스에 적용 |
+| `@Controller`    | 프레젠테이션 계층에서 사용되며, 웹 요청을 처리하는 클래스에 적용  |
+| `@RestController`| `@Controller`와 동일하지만, JSON/XML 응답을 직접 반환   |
+
+
+<br>
+
+### @Resource
+- 이름 기반으로 빈을 주입 받는다는 점에서 @Autowired + @Qualifier의 형태라고 볼 수 있음
+- @Resource는 다음의 절차로 빈을 주입
+  1. 타입 기반으로 빈을 주입함
+  2. 동일한 타입의 빈이 2개 있으면 이름 기반으로 필터링하는데 기본적으로 변수의 이름에 해당하는 빈을 찾음
+  3. 만약 빈의 이름을 지정하려는 경우는 name 속성을 이용함
+
+```java
+@Autowired
+@Qualifier("hulkBuster")
+IronMan imanAutowired;
+
+@Resource(name = "hulkBuster")
+IronMan imanResource;
+
+@Test
+public void resourceTest() {
+  assertEquals(imanAutowired, imanResource);
 }
 ```
 
@@ -338,6 +510,18 @@ public class BootPhoneTest {
     }
 }
 ```
+
+<br>
+
+### 명시적 DI vs 묵시적 DI?
+
+- 관리 측면에서는 명시적 DI가 좋아 보이지만 직접적으로 코드를 작성해야 한다는 점은 큰 부담이므로 일반적으로 묵시적 DI가 선호됨
+  - 요즘은 툴들이 좋아서 전체적인 빈의 구조를 쉽게 보여주기 때문에 큰 문제가 되지 않음
+- 프로젝트에서 어떤 DI 방식을 사용할지는 개발 상황과 요구사항에 따라 달라질 수 있음
+  - 복잡성이 높거나 외부라이브러리를 많이 사용하는 프로젝트에서는 명시적 DI가 유리할 수 있고 간단한 프로젝트에서는 묵시적 DI가 유리할 수 있음
+- 묵시적 DI를 기본으로 하고 필요 시 명시적 DI를 사용하기
+
+![명시적 DI vs 묵시적 DI](./img/di-difference.png)
 
 <br>
 
