@@ -1,17 +1,102 @@
 # Swagger
 
 ### Swagger 란?
+
 - 백엔드 개발에 있어 Web API를 문서화하기 위한 도구
 - 간단한 설정으로 프로젝트의 API 목록을 웹에서 확인 및 테스트 가능하게 하는 라이브러리이며, 특히 RESTful API를 문서화시키고 관리 가능
+  - 일반적으로 Rest API 문서화를 위해 사용
 - SpringBoot에서는 Swagger를 사용하면 문서 수정을 자동화가 가능
-- Spring-fox, Spring-Doc 2가지가 존재하며 현재는 spring fox를 다루지만 spring-doc이 꾸준히 업데이트 되고 있어 사용한다면 spring-doc을 추천하고 싶음
+- Spring-fox, Spring-Doc 2가지가 존재하며 현재는 spring fox은 업데이트가 되지 않아 spring-doc이 꾸준히 업데이트 되고 있어 사용한다면 spring-doc을 추천
+  - 해당 글을 작성할 때는 Spring-fox를 사용했으나 현재는 spring-doc을 사용
+  - 각각 구현체가 다른 라이브러리로 설정과 의존성 부분에서 차이가 있고 문서화를 적용하는 실제 코드 상의 사용법은 동일
 
-### 사용 방법
+<br>
+
+### spring-doc 설정 사용 방법
+
+- 의존성을 추가하고 SwaggerConfig.class 설정을 추가
+- OpenAPI 객체를 사용하여 설정 관리
+
+```java
+@Configuration
+@RequiredArgsConstructor
+public class SwaggerConfig {
+    @PostConstruct
+    public void init() {
+        SpringDocUtils.getConfig().addRequestWrapperToIgnore(AuthUser.class);
+    }
+
+    @Bean
+    public OpenAPI openAPI() {
+        return new OpenAPI()
+                .components(
+                        new Components()
+                                .addSecuritySchemes(
+                                        READYS_AUTH_HEADER_KEY,
+                                        new SecurityScheme()
+                                                .type(SecurityScheme.Type.APIKEY)
+                                                .in(SecurityScheme.In.HEADER)
+                                                .name(READYS_AUTH_HEADER_KEY)
+                                                .description("인증이 필요한 경우 ex) X-READYS-AUTH-TOKEN xxxxxxx")
+                                )
+                )
+                .security(List.of(new SecurityRequirement().addList(READYS_AUTH_HEADER_KEY)))
+                .info(swaggerInfo());
+    }
+
+    // title : 문서화 타이틀
+    // description : 설명, html로 작성 가능
+    // version : 버전 명시
+    //
+    private Info swaggerInfo() {
+        return new Info().title("Readys API").description("url shortener");
+    }
+
+    // 그룹별 문서화 지정 (Controller 별 문서화 지정)
+    // pathsToMatch 를 사용하여 특정 패턴에 맞는 요청만 문서화가 가능
+    @Bean
+	public GroupedOpenApi allApi() {
+		return GroupedOpenApi.builder().group("selab-all").pathsToMatch("/**").build();
+	}
+
+	@Bean
+	public GroupedOpenApi adminApi() {
+		return GroupedOpenApi.builder().group("selab-admin").pathsToMatch("/admin/**").build();
+	}
+
+	@Bean
+	public GroupedOpenApi userApi() {
+		return GroupedOpenApi.builder().group("selab-user").pathsToMatch("/user/**").build();
+	}
+
+	@Bean
+	public GroupedOpenApi fileApi() {
+		return GroupedOpenApi.builder().group("selab-file").pathsToMatch("/file/**").build();
+	}
+
+}
+```
+
+<br>
+
+### Spring-doc 적용
+
+- Swagger 적용될 컨트롤러에는 @Tag 어노테이션을 통해 등록
+- 컨트롤러 메서드에 @Operation을 사용하여 메서드에 대한 정보를 문서화로 등록
+- 사용되는 DTO, VO, DAO 객체에 @Schema 어노테이션을 통해 해당 클래스나 변수에 대한 정보를 문서화로 등록
+- 마찬가지로 문서화 등록 중 html로 등록이 가능
+
+<br>
+
+### Spring-fox 설정 방법
+
 - 다음 방식은 action 프로젝트에서 사용한 방식으로 설정해둔 어노테이션을 사용하여 직접 추가.
 - 의존성 추가
-    - implementation 'io.springfox:springfox-boot-starter:3.0.0'
-- Swagger Config class 생성. 
+  - implementation 'io.springfox:springfox-boot-starter:3.0.0'
+- Swagger Config class 생성.
+
 ```java
+// springfox
 @Configuration
 public class SwaggerConfig {
 
@@ -35,34 +120,14 @@ public class SwaggerConfig {
     }
 }
 ```
-- 사용하는 Controller에서 메소드에 @ApiOperation 어노테이션을 통해 지정
-```java
-@PostMapping
-@ApiOperation(value = "경매 참여", notes = "해당 상품 번호와 멤버 번호, 경매 참여 가격 입력받아 경매 참여 진행하기")
-public ResponseEntity<AuctionResponseDto> participateAuction(@RequestBody @Valid CreateAuctionDto createDto) {
-    var response = auctionService.participateAuction(createDto);
 
-    return ResponseDto.created(response);
-}
+### Spring-fox
 
-@PostMapping("/immediate-purchase")
-@ApiOperation(value = "상품 즉시 구매", notes = "해당 상품 번호와 멤버 번호를 입력받아, 즉시 구매 가격으로 구매 진행하기")
-public ResponseEntity<AuctionResponseDto> immediatePurchaseItem(@RequestBody @Valid CreateImmediatePurchaseDto createDto) {
-    var response = auctionService.immediatePurchaseItem(createDto);
-
-    return ResponseDto.created(response);
-}
-```
-- 이후 확인은 자신의 url에서 /swagger-ui/index.html을 추가하여 확인 가능
-    - ex) localhost:8080/swagger-ui.html/
-
-<br>
-
-### 사용방법2
 - 다음 방식은 glass-bottle에서 지인의 자동화 설정을 통한 구현방식
 - 의존성 추가 동일
-    - implementation 'io.springfox:springfox-boot-starter:3.0.0'
-- 설정 자동화. 해당 방식은 [DongGeon0908](https://github.com/DongGeon0908)님의 방식으로 사용하면서도 작동방식이 신기하기만 하다..
+  - implementation 'io.springfox:springfox-boot-starter:3.0.0'
+- 설정 자동화. 해당 방식은 [DongGeon0908](https://github.com/DongGeon0908)님의 방식 참조
+
 ```java
 @Configuration
 @EnableWebMvc
@@ -146,6 +211,7 @@ public class SwaggerConfig {
     }
 }
 ```
+
 - 이후 확인은 자신의 url에서 /swagger-ui/index.html을 추가하여 확인 가능
 
 <br>
@@ -154,12 +220,93 @@ public class SwaggerConfig {
 
 <br>
 
+### 문서화 적용 방법
+
+- 이후 확인은 자신의 url에서 /swagger-ui/index.html을 추가하여 확인 가능
+  - ex) localhost:8080/swagger-ui.html/
+
+<br>
+
+```java
+@Slf4j
+@RestController
+@RequestMapping("/admin")
+@Tag(name = "어드민 컨트롤러", description = "회원 목록과 상세보기, 등록, 수정, 삭제등 전반적인 회원 관리를 처리하는 클래스")
+public class AdminUserController {
+
+    @Operation(summary = "회원목록", description = "회원의 <big>전체 목록</big>을 반환")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "회원목록 조회 성공"),
+			@ApiResponse(responseCode = "404", description = "페이지없음"),
+			@ApiResponse(responseCode = "500", description = "서버에러") })
+	@GetMapping(value = "/user")
+	public ResponseEntity<?> userList() {
+		log.debug("userList call");
+		try {
+			List<MemberDto> list = memberService.listMember(null);
+			if (list != null && !list.isEmpty()) {
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+				return ResponseEntity.ok().headers(headers).body(list);
+			} else {
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			}
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+
+	}
+
+    // @Hidden 을 통해 모든 인원이 문서화를 보는 것을 방지
+	@Operation(summary = "회원등록", description = "회원의 정보를 받아 데이터베이스에 등록.")
+    @Hidden
+    @PostMapping(value = "/user")
+	public ResponseEntity<?> userRegister(
+			@RequestBody(description = "등록할 회원정보.", required = true, content = @Content(schema = @Schema(implementation = MemberDto.class))) @RequestBody MemberDto memberDto) {
+		log.debug("userRegister memberDto : {}", memberDto);
+		try {
+			memberService.joinMember(memberDto);
+			List<MemberDto> list = memberService.listMember(null);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+			return ResponseEntity.ok().headers(headers).body(list);
+		} catch (Exception e) {
+			return exceptionHandling(e);
+		}
+	}
+}
+
+// 사용 DTO 문서화
+@Schema(title = "MemberDto (회원정보)", description = "회원의 아이디, 비번, 이름을 가진 Domain Class")
+public class MemberDto {
+
+	@Schema(description = "회원아이디", requiredMode = Schema.RequiredMode.REQUIRED, example = "as1234")
+	private String userId;
+	@Schema(description = "회원이름", example = "홍길동")
+	private String userName;
+	@Schema(description = "회원비밀번호")
+	private String userPwd;
+	@Schema(description = "이메일아이디")
+	private String emailId;
+	@Schema(description = "이메일도메인", defaultValue = "naver.com", example = "google.com")
+	private String emailDomain;
+	@Schema(description = "가입일", defaultValue = "현재시간")
+	private String joinDate;
+	@Schema(description = "refreshToken", defaultValue = "")
+	private String refreshToken;
+
+    // ... getter 등등
+}
+```
+
+<br>
+
 ### 후기
-- swagger 3.0을 사용하였는데 spring-fox에 대해 문제가 많이 발생한다. 업데이트가 이후 거의 진행되지 않아 actuator 사용시에 endpoint 접근 방식에서 문제, 스프링 버전과도 문제 등등..
-- 지인의 자동화 설정을 보고 신기하고 이해가 잘 되지 않았음.. 이후 따로 다시 확인해서 내용을 추가해보고자 함
-- 문서화를 간단히 진행하기 위해 사용했는데 테스트코드 위주의 진행을 한다면 RestDocs가 좋을 것 같음. 문서화로 사용하기 매우 편했지만 이후 RestDocs를 통한 문서화도 진행해 보고싶음
+
+- swagger 3.0을 사용하였는데 spring-fox에 대해 문제가 많이 발생한다. 업데이트가 이후 거의 진행되지 않아 actuator 사용시에 endpoint 접근 방식에서 문제, 스프링 버전과도 문제 등이 발생
 
 <br>
 
 ### 참조링크
+
 - https://lucas-owner.tistory.com/28
+- SSAFY SWAGGER HI 강사님 강의
