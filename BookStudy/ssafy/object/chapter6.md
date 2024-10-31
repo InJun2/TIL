@@ -612,4 +612,84 @@ for(Movie each : movies) {
   - 객체의 상태를 수정하는 오퍼레이션이 명령
   - 객체와 관련된 정보를 반환하는 오퍼레이션이 쿼리
 - 명령-쿼리 분리 원칙의 요지는 부수효과를 발생시키는 명령이거나 부수효과를 발생시키지 않는 쿼리 중 하나여야 함
--
+- 해당 원칙에 따르면 객체는 블랙박스이며 객체의 인터페이스는 객체의 관찰 가능한 상태를 보는 일련의 디스플레이와 객체의 상태를 변경하기 위해 누를 수 있는 버튼의 집합
+- 이런 스타일의 인터페이스를 사용함으로써 객체의 캡슐화와 다양한 문맥에서의 재사용성을 보장할 수있고 해당 원칙에 따라 작성된 객체의 인터페이스를 **명령-쿼리 인터페이스(Command-Query Interface)** 라고 함
+
+<br>
+
+### 반복 일정의 명령과 쿼리 분리하기
+
+- 해당 책에서 일정 관리 소프트웨어 개발 중 "이벤트"와 "반복 일정"에 관해 버그가 발생함
+- 2019-05-08 수요일 10:30 ~ 2019-05-08 수요일 11:00 까지 회의가 잡혀있다면 이 회의는 이벤트가 되고 반복 일정은 일주일 단위로 돌아오는 특정 시간 간격에 발생하는 사건 전체를 포괄적으로 지칭
+- 반복 일정을 만족하는 특정 일자와 시간에 발생하는 사건이 바로 이벤트로 구현되어 있음
+- 해당 책에서 2019-05-08 10:30 ~ 11:00 까지 Event 인스턴스를 생성하여 수요일의 반복 일정의 조건을 만족하여 isSatisfed 메서드는 true를 반환
+- 이후 2019-05-09 10:30 ~ 11:00 Event 인스턴스는 목요일이므로 수요일이라는 반복 일정의 조건을 만족시키지 못해 isSatisfied 메서드는 false를 반환하였음
+- 여기까지는 정상 동작이었으나 다시 한 번 isSatisfied 메서드를 호출하면 true를 반환하였고 해당 코드는 다음과 같음
+
+```java
+public class Event {
+    public boolean isSatisfied(RecurringSchedule chedule) {
+        if(from.getDayOfWeek() != schedule.getDayOfWeek()) ||
+            !from.toLocalTime().equals(schedule.getFrom()) ||
+            !duration.equals(schedule.getDuration) {
+                reschedule(schedule);
+
+                return false;
+            }
+
+        return true;
+    }
+
+    private void reschedule(RecurringSchedule schedule) {
+        from = LocalDateTime.of(from.toLocalDate().plusDays(dayDistance(schedule))),
+            schedule.getFrom());
+
+        duration = schedule.getDuration;
+    }
+
+    private long daysDistance(RecurringSchedule schedule) {
+        return schedule.getDayOfWeek().getValue() - from.getDayOfWeek().getValue();
+    }
+}
+```
+
+- isSatisfied 메서드는 먼저 인자로 전달된 RecurringSchedule 의 요일, 시작 시간, 소요 시간이 현재 Event의 값과 동일한지 판단
+- 이 메서드는 이 값중 하나라도 같지 않다면 false를 반환하지만 false를 반환하기 전에 reschedule 메서드를 호출하고 있는데 해당 메서드는 Event 객체의 상태를 수정하고 있음
+- reschedule 메서드는 Event 일정이 조건에 만족하지 않으면 false를 반환하기전 Event의 조건을 만족시키도록 변경하고 있음
+- 이를 찾기 어려웠던 이유는 isSatisfied 가 명령과 쿼리의 두 가지 역할을 동시에 수행하고 있었기 때문
+- 보기에는 말도 안되는 코드지만 처음 구현 이후 기능을 추가하는 과정에서 누군가 Event 가 RecurringSchedule 의 조건이 맞지 않을 경우 Event 의 상태를 수정해야 한다는 요구사항이 추가되어 해당 코드를 추가했다고 함
+- 이를 통해 명령과 쿼리가 뒤섞이면 실행 결과를 예측하기 어려워질 수 있음
+- 이를 분리하여 해당 메서드가 쿼리임을 나타내고 부수효과에 대한 부담이 없어짐
+
+```java
+public class Event {
+    public boolean isSatisfied(RecurringSchedule schedule) {
+        if (from.getDayOfWeek() != schedule.getDayOfWeek() ||
+            !from.toLocalTime().equals(schedule.getFrom()) ||
+            !duration.equals(schedule.getDuration())) {
+            return false;
+        }
+        return true;
+    }
+
+    // 명령과 쿼리를 분리하고 이를 호출하기 위해 내부에서 사용되던 private를 public 으로 변경
+    public void reschedule(RecurringSchedule schedule) {
+        from = LocalDateTime.of(from.toLocalDate().plusDays(daysDistance(schedule)), schedule.getFrom());
+        duration = schedule.getDuration();
+    }
+}
+```
+
+<br>
+
+### 명령-쿼리 분리와 참조 투명성
+
+- 지금까지 확인한 것처럼 명령과 쿼리로 엄격하게 분리하면 객체의 부수효과를 제어하기 수월해지고 쿼리는 객체의 상태를 변경하지 않으므로 반복적으로 호출되어도 상관이 없음
+- 명령이 개입하지 않는 한 쿼리의 값은 변경되지 않으므로 쿼리의 결과를 예측하기 쉬워지고 쿼리의 순서를 자유롭게 변경해도됨
+- 명령과 쿼리를 분리함으로써 틀 안에서 **참조 투명성(referential transparency)** 의 장점을 제한적이나마 누릴 수 있게 됨
+- 참조 투명성을 잘 활용하면 버그가 적고, 디버깅이 용이 하며, 쿼리의 순서에 따라 실행 결과가 변하지 않는 코드를 작성할 수 있음
+- 또한 컴퓨터의 세계와 수학의 세계를 나누는 가장 큰 특징은 부수효과(side effect)의 존재 유무로 수학의 경우 값을 초기화한 후 값을 변경하는 것이 불가능 하나 프로그램에서는 대입문을 통해 값 변경이 가능하기 때문
+    - 즉, 부수효과로 인해 결과값이 매번 다를 수 있음
+- 이런 부수효과를 이야기 할때의 개념이 참조 투명성으로 이는 "어떤 표현식 e가 있을때 e의 값으로 나타나는 모든 위치를 교체하더라도 결과가 달라지지 않는 특성"을 의미함
+- 수학에서 함수는 동일한 입력에 대해 항상 동일한 값을 반환하는데 이는 참조 투명성을 만족시키는 이상적인 예로, 이처럼 어떤 값이 변하지 않는 성질을 **불변성(immutability)** 라고 함
+- 객체지향 패러다임이 객체의 상태 변경이라는 부수효과를 기반으로 하여 참조 투명성은 예외에 가까우나 해당 혜택을 누리면 변경 전 같은 결과가 나오는 혜택을 누릴 수 있음
