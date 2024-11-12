@@ -226,3 +226,67 @@ public class PrimTest {
 }
 
 ```
+
+- 우선순위큐를 활용한 Prim 알고리즘
+
+```java
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.Scanner;
+
+public class PrimTest {
+	public static void main(String[] args) {
+		new PrimTest().solution();
+	}
+	
+	public void solution() {
+		Scanner sc = new Scanner(System.in);
+		
+		int V = sc.nextInt();
+		int[][] adjMatrix = new int[V][V];
+		
+		boolean[] visited = new boolean[V];
+		int[] minEdge = new int[V];
+		
+		for(int i = 0; i < V; i++) {
+			for(int j = 0; j < V; j++) {
+				adjMatrix[i][j] = sc.nextInt();
+			}
+		}
+		
+		Arrays.fill(minEdge, Integer.MAX_VALUE);
+		minEdge[0] = 0;
+		
+		int cost = 0;
+		int count = 0;
+
+		// 우선순위 큐를 사용하여 가중치가 작은 순으로 정점을 선택
+		PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> Integer.compare(a[1], b[1]));
+		pq.offer(new int[] {0, 0}); // {정점, 가중치}
+
+		while (!pq.isEmpty()) {
+			int[] minEdgeInfo = pq.poll();
+			int minVertex = minEdgeInfo[0];
+			int minWeight = minEdgeInfo[1];
+			
+			// 이미 방문한 정점이면 스킵
+			if (visited[minVertex]) continue;
+
+			visited[minVertex] = true;
+			cost += minWeight;
+			count++;
+
+			// 현재 정점과 인접한 정점들에 대해 최소 간선 업데이트
+			for (int j = 0; j < V; j++) {
+				if (!visited[j] && adjMatrix[minVertex][j] > 0 && minEdge[j] > adjMatrix[minVertex][j]) {
+					minEdge[j] = adjMatrix[minVertex][j];
+					pq.offer(new int[] {j, minEdge[j]});
+				}
+			}
+		}
+		
+		System.out.println(count == V ? cost : -1);
+		sc.close();
+	}
+}
+```
