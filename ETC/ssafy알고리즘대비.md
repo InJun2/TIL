@@ -8,66 +8,92 @@
 - 우선순위큐를 활용한 Prim 알고리즘
 
 ```java
-import java.util.Arrays;
-import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
-public class PrimTest {
-	public static void main(String[] args) {
-		new PrimTest().solution();
-	}
-	
-	public void solution() {
-		Scanner sc = new Scanner(System.in);
-		
-		int V = sc.nextInt();
-		int[][] adjMatrix = new int[V][V];
-		
-		boolean[] visited = new boolean[V];
-		int[] minEdge = new int[V];
-		
-		for(int i = 0; i < V; i++) {
-			for(int j = 0; j < V; j++) {
-				adjMatrix[i][j] = sc.nextInt();
-			}
-		}
-		
-		Arrays.fill(minEdge, Integer.MAX_VALUE);
-		minEdge[0] = 0;
-		
-		int cost = 0;
-		int count = 0;
+public class Main {
 
-		// 우선순위 큐를 사용하여 가중치가 작은 순으로 정점을 선택
-		PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> Integer.compare(a[1], b[1]));
-		pq.offer(new int[] {0, 0}); // {정점, 가중치}
+    public static void main(String[] args) throws IOException {
+        new Main().solution();
+    }
 
-		while (!pq.isEmpty()) {
-			int[] minEdgeInfo = pq.poll();
-			int minVertex = minEdgeInfo[0];
-			int minWeight = minEdgeInfo[1];
-			
-			// 이미 방문한 정점이면 스킵
-			if (visited[minVertex]) continue;
+    int V;
 
-			visited[minVertex] = true;
-			cost += minWeight;
-			count++;
+    class Edge implements Comparable<Edge>{
+        int v;
+        int w;
 
-			// 현재 정점과 인접한 정점들에 대해 최소 간선 업데이트
-			for (int j = 0; j < V; j++) {
-				if (!visited[j] && adjMatrix[minVertex][j] > 0 && minEdge[j] > adjMatrix[minVertex][j]) {
-					minEdge[j] = adjMatrix[minVertex][j];
-					pq.offer(new int[] {j, minEdge[j]});
-				}
-			}
-		}
-		
-		System.out.println(count == V ? cost : -1);
-		sc.close();
-	}
+        public Edge(int v, int w) {
+            this.v = v;
+            this.w = w;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return this.w - o.w;
+        }
+    }
+
+    List<List<Edge>> list = new ArrayList<>();
+
+    private void solution() throws IOException, NumberFormatException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        V = Integer.parseInt(st.nextToken());
+        int vertex = Integer.parseInt(st.nextToken());
+
+        for(int i = 0; i < V; i++) {
+            list.add(new ArrayList<>());
+        }
+
+        int minVertex = Integer.MAX_VALUE;
+        for(int t = 0; t < vertex; t++) {
+            st = new StringTokenizer(br.readLine());
+
+            int start = Integer.parseInt(st.nextToken()) -1;
+            int end = Integer.parseInt(st.nextToken()) -1;
+            int weight = Integer.parseInt(st.nextToken());
+            minVertex = Math.min(minVertex, weight);
+
+            list.get(start).add(new Edge(end, weight));
+            list.get(end).add(new Edge(start, weight));
+        }
+
+        System.out.println(prim(0));
+    }
+
+    private int prim(int start) {
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        boolean[] visited = new boolean[V];
+        int result = 0;
+        int cnt = 0;
+
+        pq.add(new Edge(start, 0));
+        while(!pq.isEmpty()) {
+            Edge edge = pq.poll();
+            if(visited[edge.v]) {
+                continue;
+            }
+
+            visited[edge.v] = true;
+            result += edge.w;
+            cnt ++;
+
+            for(Edge next: list.get(edge.v)) {
+                if(!visited[next.v]) {
+                    pq.add(next);
+                }
+            }
+        }
+
+        if (cnt != V) {
+            return -1;
+        }
+
+        return result;
+    }
 }
-
 ```
 
 <br>
