@@ -140,6 +140,8 @@ output :
 
 ### PRIM 알고리즘
 - 하나의 정점에서 연결된 간선들 중에 하나씩 선택하면서 MST를 만들어 가는 방식
+- 프림알고리즘 자체는 모두 연결이 되어있는 그래프에서 최소 가중치의 합을 구하는 알고리즘
+- 다익스트라는 알고리즘은 유사하나 최소 가중치가 되는 경로를 구하는 알고리즘
 
 1. 임의 정점을 하나 선택해서 시작
 2. 선택한 정점과 인접하는 정점들 중의 최소 비용이 간선이 존재하는 정점을 선택
@@ -163,130 +165,188 @@ output :
 <br>
 
 ```java
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
-public class PrimTest {
-	public static void main(String[] args) {
-		new PrimTest().solution();
-	}
-	
-	public void solution() {
-		Scanner sc = new Scanner(System.in);
-		
-		int V = sc.nextInt();
-		int[][] adjMatrix = new int[V][V];
-		
-		boolean[] visited = new boolean[V];
-		int[] minEdge = new int[V];
-		
-		for(int i = 0; i < V; i++) {
-			for(int j = 0; j < V; j++) {
-				adjMatrix[i][j] = sc.nextInt();
-			}
-		}
-		
-		Arrays.fill(minEdge,Integer.MAX_VALUE);
-		minEdge[0] = 0;
-		int cost = 0;
-		int i = 0;
-		
-		for(i = 0; i < V; i ++) {
-			// step 1 : 트리 구성에 포함될 가장 유리한 정점 선택
-			int min = Integer.MAX_VALUE;
-			int minVertex = -1;
-			
-			for (int j = 0; j < V; j++) {
-				if(visited[j]) {
-					continue;
-				}
-				
-				if(min > minEdge[j]) {
-					minVertex = j;
-					min = minEdge[j];
-				}
-			}
-			
-			if(minVertex == -1) {
-				break;
-			}
-			visited[minVertex] = true;
-			cost += min;
-			// step2 : 선택된 정점과 다른 정점들 간선 비용 비교하기
-			for(int j = 0; j < V; j++) {
-				if(!visited[j] && adjMatrix[minVertex][j] > 0 && minEdge[j] > adjMatrix[minVertex][j]) {
-					minEdge[j] = adjMatrix[minVertex][j];
-				}
-			} 
-		}
-		
-		System.out.println(i==V ? cost : -1);
-		
-	}
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        new Main().solution();
+    }
+
+    int V;
+
+    class Edge implements Comparable<Edge>{
+        int v;
+        int w;
+
+        public Edge(int v, int w) {
+            this.v = v;
+            this.w = w;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return this.w - o.w;
+        }
+    }
+
+    List<List<Edge>> list = new ArrayList<>();
+
+    private void solution() throws IOException, NumberFormatException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        V = Integer.parseInt(st.nextToken());
+        int vertex = Integer.parseInt(st.nextToken());
+
+        for(int i = 0; i < V; i++) {
+            list.add(new ArrayList<>());
+        }
+
+        int minVertex = Integer.MAX_VALUE;
+        for(int t = 0; t < vertex; t++) {
+            st = new StringTokenizer(br.readLine());
+
+            int start = Integer.parseInt(st.nextToken()) -1;
+            int end = Integer.parseInt(st.nextToken()) -1;
+            int weight = Integer.parseInt(st.nextToken());
+            minVertex = Math.min(minVertex, weight);
+
+            list.get(start).add(new Edge(end, weight));
+            list.get(end).add(new Edge(start, weight));
+        }
+
+        System.out.println(prim(0));
+    }
+
+    private int prim(int start) {
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        boolean[] visited = new boolean[V];
+        int result = 0;
+        int cnt = 0;
+
+        pq.add(new Edge(start, 0));
+        while(!pq.isEmpty()) {
+            Edge edge = pq.poll();
+            if(visited[edge.v]) {
+                continue;
+            }
+
+            visited[edge.v] = true;
+            result += edge.w;
+            cnt ++;
+
+            for(Edge next: list.get(edge.v)) {
+                if(!visited[next.v]) {
+                    pq.add(next);
+                }
+            }
+        }
+
+        if (cnt != V) {
+            return -1;
+        }
+
+        return result;
+    }
 }
 
 ```
 
-- 우선순위큐를 활용한 Prim 알고리즘
+<br>
+
+### 프림 알고리즘을 통한 다익스트라 알고리즘 구현
 
 ```java
-import java.util.Arrays;
-import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
-public class PrimTest {
-	public static void main(String[] args) {
-		new PrimTest().solution();
-	}
-	
-	public void solution() {
-		Scanner sc = new Scanner(System.in);
-		
-		int V = sc.nextInt();
-		int[][] adjMatrix = new int[V][V];
-		
-		boolean[] visited = new boolean[V];
-		int[] minEdge = new int[V];
-		
-		for(int i = 0; i < V; i++) {
-			for(int j = 0; j < V; j++) {
-				adjMatrix[i][j] = sc.nextInt();
-			}
-		}
-		
-		Arrays.fill(minEdge, Integer.MAX_VALUE);
-		minEdge[0] = 0;
-		
-		int cost = 0;
-		int count = 0;
+public class Main {
 
-		// 우선순위 큐를 사용하여 가중치가 작은 순으로 정점을 선택
-		PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> Integer.compare(a[1], b[1]));
-		pq.offer(new int[] {0, 0}); // {정점, 가중치}
+    public static void main(String[] args) throws IOException {
+        new Main().solution();
+    }
 
-		while (!pq.isEmpty()) {
-			int[] minEdgeInfo = pq.poll();
-			int minVertex = minEdgeInfo[0];
-			int minWeight = minEdgeInfo[1];
-			
-			// 이미 방문한 정점이면 스킵
-			if (visited[minVertex]) continue;
+    int V;
 
-			visited[minVertex] = true;
-			cost += minWeight;
-			count++;
+    class Edge implements Comparable<Edge> {
+        int v;
+        int w;
 
-			// 현재 정점과 인접한 정점들에 대해 최소 간선 업데이트
-			for (int j = 0; j < V; j++) {
-				if (!visited[j] && adjMatrix[minVertex][j] > 0 && minEdge[j] > adjMatrix[minVertex][j]) {
-					minEdge[j] = adjMatrix[minVertex][j];
-					pq.offer(new int[] {j, minEdge[j]});
-				}
-			}
-		}
-		
-		System.out.println(count == V ? cost : -1);
-		sc.close();
-	}
+        public Edge(int v, int w) {
+            this.v = v;
+            this.w = w;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return this.w - o.w;  // 가중치 기준 오름차순 정렬
+        }
+    }
+
+    List<List<Edge>> list = new ArrayList<>();
+    int[] dist;  // 시작 정점에서 각 정점까지의 최단 거리
+
+    private void solution() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        V = Integer.parseInt(st.nextToken());
+        int vertex = Integer.parseInt(st.nextToken());
+
+        // 그래프 초기화
+        for (int i = 0; i < V; i++) {
+            list.add(new ArrayList<>());
+        }
+
+        for (int t = 0; t < vertex; t++) {
+            st = new StringTokenizer(br.readLine());
+
+            int start = Integer.parseInt(st.nextToken()) - 1;
+            int end = Integer.parseInt(st.nextToken()) - 1;
+            int weight = Integer.parseInt(st.nextToken());
+
+            list.get(start).add(new Edge(end, weight));
+            list.get(end).add(new Edge(start, weight));  // 양방향 그래프
+        }
+
+        // 시작 정점 설정 (0번 정점에서 시작)
+        int start = 0;
+        dijkstra(start);
+
+        // 결과 출력: 시작 정점에서 각 정점까지의 최단 거리
+        for (int i = 0; i < V; i++) {
+            System.out.println("정점 " + start + "에서 정점 " + i + "까지의 최단 거리: " + (dist[i] == Integer.MAX_VALUE ? "도달 불가" : dist[i]));
+        }
+    }
+
+    private void dijkstra(int start) {
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        dist = new int[V];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[start] = 0;
+        
+        pq.add(new Edge(start, 0));
+
+        while (!pq.isEmpty()) {
+            Edge edge = pq.poll();
+            int current = edge.v;
+
+            // 현재 정점까지의 최단 거리가 더 크면 무시
+            if (edge.w > dist[current]) continue;
+
+            // 현재 정점에서 연결된 정점의 최단 거리 갱신
+            for (Edge next : list.get(current)) {
+                int nextVertex = next.v;
+                int weight = next.w;
+                if (dist[nextVertex] > dist[current] + weight) {
+                    dist[nextVertex] = dist[current] + weight;
+                    pq.add(new Edge(nextVertex, dist[nextVertex]));
+                }
+            }
+        }
+    }
 }
+
 ```
