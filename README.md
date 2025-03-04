@@ -1,12 +1,12 @@
 # 📝 공부 내용 정리
 
 ## 📂 Project
-- ⚖️ [Auction](https://github.com/selab-hs/auction_project)
-- 💌 [Glass Bottle](https://github.com/selab-hs/glass-bottle)
-    - [이슈 내용](./Project/glass-bottle)
+- ✂️ [URL Shortener](https://github.com/selab-hs/url-shortener)
 - 🌍 [SE Community Service](https://github.com/selab-hs/SE-Community-Service)
     - [이슈 내용](./Project/se-community)
-- ✂️ [URL Shortener](https://github.com/selab-hs/url-shortener)
+- 💌 [Glass Bottle](https://github.com/selab-hs/glass-bottle)
+    - [이슈 내용](./Project/glass-bottle)
+- ⚖️ [Auction](https://github.com/selab-hs/auction_project)
 
 <br>
 
