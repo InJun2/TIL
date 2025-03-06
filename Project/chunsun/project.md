@@ -6,6 +6,8 @@
 - 저는 카카오 소셜 로그인과 JWT 인증/인가를 통한 회원 인증을 처리하며, SSE(Server-Sent-Events)를 활용해 과외 요청 및 결제 성공 여부를 실시간으로 전달하는 알림 기능을 구현했습니다.
 
 
+<br>
+
 ### 1-1. 서비스 주요 기능
 
 📑 회원 기능 (담당)
@@ -26,19 +28,27 @@
 📑 알림 기능 (담당)
 - 과외 요청 및 성사, 결제 성공 실시간 SSE 알림
 
-<br>
+<br><br>
 
 ### 1-2. 서비스 아키텍처
 
 ![Service Architecture](./img/architecture.png)
 
-- CI/CD 자동화: GitLab, Jenkins, Docker, AWS EC2를 활용한 CI/CD 배포 자동화를 구축하였습니다.
-- MSA 기반 서비스 설계: SSAFY 교육기관에서 제공하는 메모리 16GB의 EC2 환경에서 Docker-Compose를 이용해 MSA (Microservices Architecture) 구조를 설계하였습니다. 이를 통해 서비스 간 결합도를 낮추고 확장성을 고려한 아키텍처를 구현하였습니다.
-- Spring Cloud 기반 서비스 디스커버리: Spring Cloud, Eureka, Gateway, Config Discovery 등을 활용하여 서비스 간 통신을 효율적으로 관리하고, 동적인 서비스 등록 및 탐색이 가능하도록 설계하였습니다.
-
 <br>
 
+- CI/CD 자동화
+    - GitLab, Jenkins, Docker, AWS EC2를 활용한 CI/CD 배포 자동화를 구축하였습니다.
+- MSA 기반 서비스 설계
+    - SSAFY 교육기관에서 제공하는 메모리 16GB의 EC2 환경에서 Docker-Compose를 이용해 MSA (Microservices Architecture) 구조를 설계하였습니다.
+    - 이를 통해 서비스 간 결합도를 낮추고 확장성을 고려한 아키텍처를 구현하였습니다.
+- Spring Cloud 기반 서비스 디스커버리
+    - Spring Cloud, Eureka, Gateway, Config Discovery 등을 활용하여 서비스 간 통신을 효율적으로 관리하고, 동적인 서비스 등록 및 탐색이 가능하도록 설계하였습니다.
+
+<br><br>
+
 ![local docker container](./img/docker-container.png)
+
+<br>
 
 - 로컬 환경에서의 도커 연결 동작 확인 후 remote branch에 반영하였습니다.
 - 각 주요 서비스 및 데이터베이스를 컨테이너로 생성하여 빌드 완료하였습니다.
@@ -61,8 +71,7 @@
 #### ✅ Infra
 - Docker, AWS EC2, AWS S3, Jenkins, Nginx
 
-
-<br>
+<br><br>
 
 ## 2. 프로젝트 구현 사항
 
@@ -74,33 +83,39 @@
 
 <br>
 
-#### eureka server
+#### ✨ eureka server
 - <code>spring-cloud-starter-netflix-eureka-server</code> 의존성을 추가한 서버로 모든 마이크로 서비스가 자신을 등록하는 중앙 저장소
 - 서비스 등록 및 검색 기능을 제공하여 Eureka 대시보드를 통해 등록된 서비스의 상태를 모니터링 할 수 있으며 동적 서비스 등록 및 검색이 용이하여 이후 서버 생성 및 제거 확장성 향상
 
-#### discovery server
+#### ✨ discovery server
 - <code>spring-cloud-starter-netflix-eureka-server</code> 라이브러리를 통해 각 마이크로서비스가 Eureka에 등록된 다른 서비스 정보를 조회하여 호출할 수 있도록 지원
 - 각 마이크로 서비스는 <code>spring-cloud-starter-netflix-eureka-client</code> 의존성을 내장해 부팅 시 eureka 서버에 자신을 등록하고, 필요한 경우 등록된 서비스 목록을 조회
 - 각 마이크로 서비스는 spring cloud 사용 연계를 위해 openfeign client를 사용하여 server to server 통신 진행 
 
-#### gateway server
+#### ✨ gateway server
 - <code>spring-cloud-starter-gateway</code> 라이브러리를 통한 API Gateway 역할을 수행
 - 외부 클라이언트의 요청을 받아 내부의 여러 마이크로 서비스로 라우팅하는 단일 진입점 역할 수행
 - 내부 서비스의 위치 정보는 eureka 서버(디스커버리)를 통해 동적으로 확인
 - 유저 별 인증/인가 처리 처리 후 엔드포인트 서버로 로그인 정보 파싱하여 전송
 
-#### config server
+#### ✨ config server
 - <code>spring-cloud-config-server</code> 라이브러리를 통해 외부 설정을 중앙 설정을 통한 일괄 관리
 - 각 마이크로서비스에서 <code>spring-cloud-starter-bus-amqp</code> 의존성을 추가하여 Config 서버에서 발생하는 설정 변경 이벤트를 RabbitMQ 브로커를 통해 전체 서비스에 전파하는 역할을 담당
     - 즉, Config 서버는 설정 변경 시(/actuator/bus-refresh) 이벤트를 생성하여 RabbitMQ 를 통해 전체 마이크로 서비스로 전파되고 설정 변경
 
-<br>
+<br><br>
 
 ### 2-2. 인증 서버 구현 및 게이트웨이 서버 인가 설정
 
 ![auth-login](./img/authserver-login.png)
 
+- Auth Controller
+
 ![snowflake](./img/snowflake.png)
+
+- Snowflake Generator
+
+<br>
 
 ####  카카오 소셜 로그인 및 회원가입
 
@@ -122,11 +137,23 @@
 
 <br>
 
+![gateway0](./img/gateway.png)
+
+- 인증이 필요없는 요청 경로
+
 ![gateway1](./img/gateway1.png)
+
+- 인증이 필요한 요청 경로
 
 ![gateway2](./img/gateway2.png)
 
+- HttpExchange 인메모리 설정 및 Cors 설정, 권한 객체 관리
+
 ![gateway filter](./img/gateway-filter.png)
+
+- 인증 필터 구현
+
+<br>
 
 #### 게이트웨이 서버 인가 설정
 
@@ -146,11 +173,21 @@
 
 ![kafka producer yml](./img/kafka-producer-yml.png)
 
+- kafka producer 설정
+
 ![kafka consumer yml](./img/kafka-consumer-yml.png)
+
+- kafka consumer 설정
 
 ![sse emitoer](./img/sse-service.png)
 
+- sse service
+
 ![kafka consumer](./img/notification-kafka-consumer.png)
+
+- 알림 Consumer 구현
+
+<br>
 
 #### 알림 서버 구현
 
@@ -173,6 +210,10 @@
 
 ![Refresh Token Refresh](./img/change-role-jwt.png)
 
+- 권한 변경 시 Redis 사용자 객체 Role 변경
+
+<br>
+
 ### 1. 유저 권한 변경이후 RefreshToken 재발급 시 문제 발생
 - 로그인 성공 시 AccessToken과 RefreshToken을 생성하였습니다.
 - 로그인 이후, RefreshToken을 Redis에 저장하였습니다. ( key: RefreshToken, value: 사용자 일부 정보 객체 )
@@ -186,6 +227,10 @@
 
 ![Cors Configuration](./img/cors-configuration.png)
 
+- CorsWebFilter 설정
+
+<br>
+
 ### 2. 게이트웨이 서버에서 CORS 문제발생
 
 - 로컬에서는 문제가 있지 않았으나 EC2 환경 배포 이후 게이트웨이 서버 요청 시 CORS 문제가 발생하였습니다.
@@ -197,6 +242,10 @@
 
 ![Composite index](./img/composite-index.png)
 
+- mongoDB Entity
+
+<br>
+
 ### 3. 알림 조회에 대해 복합인덱스 적용
 - 유저별로 많은 알림이 존재할 수 있고 읽지 않은 알림 최신순 이후 읽은 알림 최신순으로 정렬하기 위한 복합 인덱스를 적용하였습니다.
 - 각 사용자별 별도의 인덱스 그룹을 최신순으로 조회하기 위한 MongoDB 복합인덱스 설정을 진행하였습니다.
@@ -206,6 +255,10 @@
 <br>
 
 ![coupone send to all user](./img/send-all-sse-event.png)
+
+- 유효한 모든 유저 쿠폰 알림
+
+<br>
 
 ### 4. 새로운 선착순 쿠폰 생성시 전체 유저 알림
 - 새로운 쿠폰이 발급이 가능해졌을 경우 모든 인원에게 알림을 전송해야했습니다.
