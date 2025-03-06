@@ -73,9 +73,67 @@
 
 <br><br>
 
-## 2. 프로젝트 구현 사항
 
-### 2-1. 하나의 EC2에서 MSA 아키텍처 구조 설계
+## 2. 협업 진행 방식
+
+<br>
+
+### 2-1. Jira 협업 툴 사용
+
+![JIRA1](./img/jira1.png)
+
+- Jira 스프린트 진행
+
+<br>
+
+### 2-2. Excalidraw 와이어프레임
+
+![wireframe](./img/wireframe.png)
+
+- Excalidraw를 사용한 와이어프레임 작성
+
+<br>
+
+### 2-3. Notion 명세 및 문서화
+
+![Notion1](./img/notion.png)
+
+<br>
+
+![Notion2](./img/notion-SRS.png)
+
+- 프로젝트 설계 및 구현 문서화
+    - [프로젝트 문서화 링크](https://faithful-medicine-736.notion.site/1a31e69284f780f98c8ffde7b596d4b3?v=1a31e69284f781cc8300000ca3ef7180&pvs=4)
+- 노션 1차 요구사항 명세서 작성
+
+<br>
+
+![API Document](./img/api-document.png)
+
+- API 명세서 노션으로 작성
+- API 테스트는 PostMan 사용
+
+<br>
+
+### 2-4. ERD 설계
+
+![ERD Cloud](./img/erd-design.png)
+
+- RDB ERD 설계
+
+<br>
+
+### 2-5. GitLab MergeRequest
+
+![Gitlab Gitflow](./img/gitlab.png)
+
+- Jira 이슈 번호를 사용한 Gitflow 방식 협업 진행
+
+<br><br>
+
+## 3. 프로젝트 구현 사항
+
+### 3-1. 하나의 EC2에서 MSA 아키텍처 구조 설계
 
 - SSAFY 내의 하나의 EC2 서버에서 MSA 아키텍처를 구성하기 위해 여러개의 docker 컨테이너를 생성하였습니다.
 - 컨테이너 생성을 통해 여러 서버를 구축하고 이를 통해 서버 가용성 및 추가 서버 생성 및 제거에 대한 확장성을 향상하였습니다.
@@ -105,7 +163,7 @@
 
 <br><br>
 
-### 2-2. 인증 서버 구현 및 게이트웨이 서버 인가 설정
+### 3-2. 인증 서버 구현 및 게이트웨이 서버 인가 설정
 
 ![auth-login](./img/authserver-login.png)
 
@@ -189,7 +247,7 @@
 
 <br>
 
-#### 알림 서버 구현
+### 3-3. 알림 서버 구현
 
 - Kafka를 통한 비동기 알림 처리를 구현하였습니다.
     - alarm 토픽에 메시지를 발행하여 알림 요청을 비동기로 분산 처리
@@ -206,7 +264,7 @@
 
 <br>
 
-## 3. 프로젝트 진행 중 이슈 사항
+## 4. 프로젝트 진행 중 이슈 사항
 
 ![Refresh Token Refresh](./img/change-role-jwt.png)
 
@@ -214,7 +272,7 @@
 
 <br>
 
-### 1. 유저 권한 변경이후 RefreshToken 재발급 시 문제 발생
+### 4-1. 유저 권한 변경이후 RefreshToken 재발급 시 문제 발생
 - 로그인 성공 시 AccessToken과 RefreshToken을 생성하였습니다.
 - 로그인 이후, RefreshToken을 Redis에 저장하였습니다. ( key: RefreshToken, value: 사용자 일부 정보 객체 )
     - 재로그인 시 Redis에서 RefreshToken을 조회하여 AccessToken을 재발급함으로써 DB I/O를 줄이는 방식 사용
@@ -231,7 +289,7 @@
 
 <br>
 
-### 2. 게이트웨이 서버에서 CORS 문제발생
+### 4-2. 게이트웨이 서버에서 CORS 문제발생
 
 - 로컬에서는 문제가 있지 않았으나 EC2 환경 배포 이후 게이트웨이 서버 요청 시 CORS 문제가 발생하였습니다.
 - 해당 문제는 Spring Cloud는 Netty 기반 WebFlux 환경이므로 CorsFilter 가 아닌 CorsWebFilter 설정을 통해 CORS 허용 설정이 필요했고 이에 CORS 허용이 성공하지 못했습니다.
@@ -246,7 +304,7 @@
 
 <br>
 
-### 3. 알림 조회에 대해 복합인덱스 적용
+### 4-3. 알림 조회에 대해 복합인덱스 적용
 - 유저별로 많은 알림이 존재할 수 있고 읽지 않은 알림 최신순 이후 읽은 알림 최신순으로 정렬하기 위한 복합 인덱스를 적용하였습니다.
 - 각 사용자별 별도의 인덱스 그룹을 최신순으로 조회하기 위한 MongoDB 복합인덱스 설정을 진행하였습니다.
     - 사용자별 최신순 정렬
@@ -260,7 +318,7 @@
 
 <br>
 
-### 4. 새로운 선착순 쿠폰 생성시 전체 유저 알림
+### 4-4. 새로운 선착순 쿠폰 생성시 전체 유저 알림
 - 새로운 쿠폰이 발급이 가능해졌을 경우 모든 인원에게 알림을 전송해야했습니다.
 - OpenFeign을 활용하여 유저 서버에서 탈퇴하지 않은 전체 사용자 정보를 조회한 후, 멀티 스레드 방식으로 알림을 전송하였습니다.
 - 하지만 해당 구조는 모든 알림이 성공적으로 전송되었음이 보장되지 않아 추가적인 구현사항이 필요헀습니다.
@@ -270,11 +328,11 @@
 
 <br>
 
-## 4. 화면 구성
+## 5. 화면 구성
 
 <br>
 
-### 1. 천선 메인 페이지
+### 5-1. 천선 메인 페이지
 
 ![main page](./img/main.png)
 
@@ -282,7 +340,7 @@
 
 <br>
 
-### 2. 카카오 로그인
+### 5-2. 카카오 로그인
 
 ![sign-uo](./img/login.png)
 
@@ -290,7 +348,7 @@
 
 <br>
 
-### 3. 과외 매칭 서비스
+### 5-3. 과외 매칭 서비스
 
 ![student description create](./img/student-description.png)
 
@@ -316,70 +374,10 @@
 
 <br>
 
-### 4. 과외 비용 결제
+### 5-4. 과외 비용 결제
 
 ![payment](./img/payment.png)
 
 - 쿠폰 적용 및 총 과외 비용 결제
 
 <br>
-
-## 5. 협업 진행 방식
-
-<br>
-
-### 4-1. Jira 협업 툴 사용
-
-![JIRA1](./img/jira1.png)
-
-![JIRA2](./img/jira2.png)
-
-- Jira 스프린트 진행
-
-<br>
-
-### 4-2. Excalidraw 와이어프레임
-
-![wireframe](./img/wireframe.png)
-
-- Excalidraw를 사용한 와이어프레임 작성
-
-<br>
-
-### 4-3. Notion 명세 및 문서화
-
-![Notion1](./img/notion.png)
-
-- 프로젝트 설계 및 구현 문서화
-- [문서화 링크](https://faithful-medicine-736.notion.site/1a31e69284f780f98c8ffde7b596d4b3?v=1a31e69284f781cc8300000ca3ef7180&pvs=4)
-
-<br>
-
-![Notion2](./img/notion-SRS.png)
-
-- 노션 1차 요구사항 명세서 작성
-
-<br>
-
-### 4-4. API 명세서 작성
-
-![API Document](./img/api-document.png)
-
-- API 명세서 노션으로 작성
-- API 테스트는 PostMan 사용
-
-<br>
-
-### 4-4. ERD 설계
-
-![ERD Cloud](./img/erd-design.png)
-
-- RDB ERD 설계
-
-<br>
-
-### 4-5. GitLab MergeRequest
-
-![Gitlab Gitflow](./img/gitlab.png)
-
-- Jira 이슈 번호를 사용한 Gitflow 방식 협업 진행
