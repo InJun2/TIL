@@ -1,6 +1,7 @@
 # 📝 공부 내용 정리
 
 ## 📂 Project
+- 👨‍💻 [Chunsun](https://github.com/InJun2/Chunsun)
 - ✂️ [URL Shortener](https://github.com/selab-hs/url-shortener)
 - 🌍 [SE Community Service](https://github.com/selab-hs/SE-Community-Service)
     - [이슈 내용](./Project/se-community)
