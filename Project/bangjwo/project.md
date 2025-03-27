@@ -333,7 +333,8 @@ public class Likes {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long likeId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+    // 현재 단방향으로 구성
+	@ManyToOne(fetch = FetchType.LAZY)  // 연관관계가 Lazy로 되어있어 실제 사용 시점에 각각 별도의 조회 발생
 	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
     // ...
@@ -404,21 +405,17 @@ List<RoomSummaryResponse> roomSummaryList = roomPage.getContent().stream()
 
 ```java
 @Transactional(readOnly = true)
-public RoomListResponseDto searchRooms(Integer price, List<RoomAreaType> areaTypes,
-    BigDecimal centerLat, BigDecimal centerLng, Integer zoom, Integer page, Long memberId) {
-    Specification<Room> spec = buildRoomSearchSpec(price, areaTypes, centerLat, centerLng, zoom);
-    Pageable pageable = PaginationRequest.toPageable(page);
-    Page<Room> roomPage = roomRepository.findAll(spec, pageable);
-    List<Room> rooms = roomPage.getContent();
+public RoomListResponseDto createRoomListResponseDto(
+    List<Room> rooms, int totalItems, int page, int size, Long memberId) {
+    List<Long> roomIds = rooms.stream()
+        .map(Room::getRoomId)
+        .toList();
 
-    // Like IN 절 단건 조회
-    List<Likes> likes = likeRepository.findByRoomInAndMemberId(rooms, memberId);
+    List<Likes> likes = likeService.getLikeRooms(rooms, memberId);
     Map<Long, Boolean> likeMap = likes.stream()
         .collect(Collectors.toMap(l -> l.getRoom().getRoomId(), Likes::getFlag, (a, b) -> a));
 
-    // Image IN 절 단건 조회
-    List<Long> roomIds = rooms.stream().map(Room::getRoomId).toList();
-    List<Image> images = imageRepository.findMainImagesByRoomIds(roomIds);
+    List<Image> images = imageService.getMainImages(roomIds);
     Map<Long, String> imageMap = images.stream()
         .collect(Collectors.toMap(i -> i.getRoom().getRoomId(), Image::getImageUrl, (a, b) -> a));
 
@@ -426,12 +423,11 @@ public RoomListResponseDto searchRooms(Integer price, List<RoomAreaType> areaTyp
         .map(room -> {
             boolean liked = likeMap.getOrDefault(room.getRoomId(), false);
             String imageUrl = imageMap.getOrDefault(room.getRoomId(), null);
-            
             return RoomConverter.convertToRoomSummary(room, liked, imageUrl);
         })
         .toList();
 
-    return new RoomListResponseDto((int)roomPage.getTotalElements(), page, pageable.getPageSize(), roomSummaryList);
+    return new RoomListResponseDto(totalItems, page, size, roomSummaryList);
 }
 
 // Image JPQL
