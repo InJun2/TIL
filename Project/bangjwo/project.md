@@ -102,6 +102,13 @@
 
 ## 4. 프로젝트 진행 중 이슈 사항
 
+### 4-1. 단방향 연관관계 JPQL 코드 수정 고민
+- 단건 조회에서 매물(Room)에 관련된 객체를 받아오고 각각의 Repository에서 조회하고 있는데 이후 GPT를 통해 JPQL을 이용한 아래 방법이 되는지 확인해봤는데 역시 안됨
+    - 현재 Room에는 양방향 연관관계가 되어있지 않음
+    - 객체와 SQL문이 섞여 사용하다보니 복잡하기도 함
+- 1:1 관계인 Address나 Likes 같이 단일 값은 처리하기 쉽지만, Options, MaintenanceInclude, Image와 같은 1:N 컬렉션을 포함하면 데이터 중복 문제가 발생할 수 있다고 함
+- 현재 단건조회 이며 추가적인 조회쿼리에 대해서는 각각의 엔티티 별도의 Repository 가 나뉘어 있으니 각각 단건 조회하는 것이 좋다고 생각되었음. 이전 방법을 그대로 이용
+
 ```java
 // 기존 코드
 @Transactional(readOnly = true)
@@ -133,14 +140,13 @@ Optional<SearchRoomResponseDto> findRoomDetailsByRoomId(Long roomId);
 
 ```
 
-### 4-1. 단방향 연관관계 JPQL 코드 수정 고민
-- 단건 조회에서 매물(Room)에 관련된 객체를 받아오고 각각의 Repository에서 조회하고 있는데 이후 GPT를 통해 JPQL을 이용한 아래 방법이 되는지 확인해봤는데 역시 안됨
-    - 현재 Room에는 양방향 연관관계가 되어있지 않음
-    - 객체와 SQL문이 섞여 사용하다보니 복잡하기도 함
-- 1:1 관계인 Address나 Likes 같이 단일 값은 처리하기 쉽지만, Options, MaintenanceInclude, Image와 같은 1:N 컬렉션을 포함하면 데이터 중복 문제가 발생할 수 있다고 함
-- 현재 단건조회 이며 추가적인 조회쿼리에 대해서는 각각의 엔티티 별도의 Repository 가 나뉘어 있으니 각각 단건 조회하는 것이 좋다고 생각되었음. 이전 방법을 그대로 이용
-
 <br><br>
+
+
+### 4-2. 매물 조회 중 페이지네이션 로직 분리
+- 기존 모든 리스트 정보를 조회 후 해당 리스트를 페이지네이션으로 변환했던 과정을 페이지네이션 객체를 미리 생성 후 JPA 파라미터로 추가하는 로직으로 변경
+- 기존 로직은 모든 리스트 조회하고 페이지네이션 객체를 생성하는 것은 N개의 엔티티들을 모두 조회
+- 현재 로직은 요청되는 페이지에 해당되는 엔티티만을 조회
 
 ```java
 // 응답 반환을 위한 페이지네이션 공통 모듈 분리
@@ -208,12 +214,12 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 }
 ```
 
-<br>
+<br><br>
 
-### 4-2. 매물 조회 중 페이지네이션 로직 분리
-- 기존 모든 리스트 정보를 조회 후 해당 리스트를 페이지네이션으로 변환했던 과정을 페이지네이션 객체를 미리 생성 후 JPA 파라미터로 추가하는 로직으로 변경
-- 기존 로직은 모든 리스트 조회하고 페이지네이션 객체를 생성하는 것은 N개의 엔티티들을 모두 조회
-- 현재 로직은 요청되는 페이지에 해당되는 엔티티만을 조회
+### 4-3. 매물 조회 시 N + 1 문제 발생
+- 현재 Page로 생성한 ROOM 엔티티 리스트를 먼저 조회하고 각 ROOM 엔티티 마다 LIKES, IMAGE 엔티티가 N번(Room 리스트 size 만큼) 씩 추가 조회 쿼리가 실행됨
+    - 현재 페이지네이션을 통해 총 page size * 2 번 만큼 반복되고 있음 ( 1 + 2N )
+- 현재 구성은 ROOM 엔티티를 조회 이후 LIKES, IMAGE 엔티티 내부에 ROOM이 있고, 해당 ROOM으로 LazyLoading 조회를 통해 1 + 2N 조회되는 문제가 발생함
 
 <br>
 
@@ -235,7 +241,7 @@ Hibernate:
 
 - 변경된 sql 페이지네이션 조회 결과
 
-<br>
+<br><br>
 
 ```sql
 Hibernate: 
@@ -312,32 +318,8 @@ Hibernate:
     /* <criteria> */ select
         l1_0.like_id,
         l1_0.flag,
-        ...
-    from
-        likes l1_0 
-    where
-        l1_0.room_id=? 
-        and l1_0.member_id=?
-Hibernate: 
-    /* <criteria> */ select
-        i1_0.image_id,
-        i1_0.created_at,
-        ...
-    from
-        image i1_0 
-    where
-        i1_0.room_id=? 
-    order by
-        i1_0.room_id desc 
-    limit
-        ?
-    ...
+    ......  /*  page 만큼 반복 */
 ```
-
-### 4-2. 매물 조회 시 N + 1 문제 발생
-- 현재 Page로 생성한 ROOM 엔티티 리스트를 먼저 조회하고 각 ROOM 엔티티 마다 LIKES, IMAGE 테이블이 N번 씩 추가 쿼리가 실행됨
-    - 현재 페이지네이션을 통해 총 page size * 3 번 만큼 반복되고 있음 ( 3N )
-- 현재 구성은 ROOM 엔티티를 조회 이후 LIKES, IMAGE 엔티티 내부에 ROOM이 있고, 해당 ROOM으로 LazyLoading 조회를 통해 N + 2N 조회되는 문제가 발생함
 
 <br>
 
@@ -345,19 +327,18 @@ Hibernate:
 
 ```java
 @Entity
-@Table(name = "ADDRESS") // ...
-public class Address {
+@Table(name = "LIKES") // ...
+public class Likes {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long addressId;
+	private Long likeId;
 
-    // 현재 단방향으로 구성
-	@OneToOne(fetch = FetchType.LAZY)  // 연관관계가 Lazy로 되어있어 실제 사용 시점에 각각 별도의 조회 발생
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
-    
     // ...
 }
+
 
 @Entity
 @Table(name = "IMAGE") // ...
@@ -375,7 +356,7 @@ public class Image extends BaseEntity {
 
 // RoomService searchRooms() 메서드
 Pageable pageable = PaginationRequest.toPageable(page);
-Page<Room> roomPage = roomRepository.findAll(spec, pageable);   // Room N번 조회
+Page<Room> roomPage = roomRepository.findAll(spec, pageable);   // Page에 일치하는 Room 리스트 조회
 
 List<RoomSummaryResponse> roomSummaryList = roomPage.getContent().stream()
     .map(room -> {
@@ -389,8 +370,9 @@ List<RoomSummaryResponse> roomSummaryList = roomPage.getContent().stream()
 ```
 
 ### 문제 해결 방식
-- 문제를 해결할 수 있는 첫번째 방식은 Room 을 N번 조회한 후 해당 엔티티들의 RoomId를 추출하여 다른 리스트로 모으고 해당 RoomId 리스트를 In 절으로 배치 조회
+- 문제를 해결할 수 있는 첫번째 방식은 Room 을 1번 조회한 후 해당 엔티티들의 RoomId를 추출하여 다른 리스트로 모으고 해당 RoomId 리스트를 In 절으로 배치 조회
 - 두번째 방식은 Fetch Join 으로 변경하여 Room과 연관된 Likes, Images 엔티티를 한 번에 조회
+    - 물론, Fetch Join을 하기위해서는 Room에 연관 관계를 추가하여 사용하여야함
     - 하지만 페이징과 Fetch Join을 함께 사용시 결과 행이 중복되어 페이징 계산에 문제가 발생할 수 있어 DISTINCT 사용 필요
 
 <br>
@@ -400,16 +382,25 @@ List<RoomSummaryResponse> roomSummaryList = roomPage.getContent().stream()
 - 이후 Address, Image, Options, Likes 등의 객체를 가져올때 Room을 한번에 가져오는 것은 좋은 생각이었다고 생각
 - 그러나 Room을 조회하고 이후 Room에 관련된 객체들을 조회하려니 N + 1 문제가 발생한 것
 - fetch 조인을 한다고 해결하려 했지만 다음과 같은 문제가 발생
-    - 현재 단방향으로 되어있는데 양방향으로 된다고 할 때 순환 참조가 발생할 수 있음
-    - 또한 페이지네이션을 선 처리했으므로 중복되는 문제가 발생할 수 있다고 함
+    - 현재 단방향으로 되어있어 Room에는 연관 엔티티가 없어 양방향으로 바꾸지 않으면 Fetch 조인이 불가능. 양방향으로 된다고 할 때 순환 참조가 발생할 수 있음
+    - 또한 Spring Data JPA 공식 문서에 따르면, 페치 조인 + 페이징은 권장하지 않는다고 함
 
 <br>
 
 ### 연관 관계 정리
 - Lazy 연관 관계는 불필요한 엔티티에 대해 직접 조회하기 전까지는 쿼리를 날리지 않아 해당 엔티티를 안쓰는 항목이 있으면 좋음. 하지만 이후 쓰게 된다면 그 시점에 조회하기 때문에 추가적인 쿼리가 나가게 됨
-- JPQL에서 JOIN FETCH 구문을 통해 명시적으로 필요한 엔티티를 JOIN으로 한꺼번에 조회함. Lazy로 설정된 관계라도, 필요한 시점에만 동적으로 fetch join 가능. 그런데 엔티티를 안써도 모두 가져오기 때문에 불필요한 JOIN이 될 수 있음
+- JPQL에서 JOIN FETCH 구문을 통해 명시적으로 필요한 엔티티를 JOIN으로 한꺼번에 조회함. Lazy로 설정된 관계라도, 필요한 시점에만 동적으로 fetch join 가능
+- [해당 블로그](https://velog.io/@xogml951/JPA-N1-문제-해결-총정리)가 정리가 잘되어있어 참조
 
 <br>
+
+### 배치 방식으로 해결 이유
+- Page 객체로 선처리 했던 값을 사용하다보니 Fetch 조인은 중복 문제 발생 가능 + 양방향으로 변경 필요하므로, 첫번째 해결 방법인 배치 방법으로 문제 해결
+- 네이티브 쿼리를 사용하지 않은 이유는 하나의 레포지토리에서 다른 엔티티에 대한 의존성이 생길 수 있어, 도메인 책임 분리를 유지하기 위해 JPQL과 배치 조회 방식으로 해결 결정
+    - 네이티브 쿼리를 사용시 반환 타입이 Entity가 아니라면 네이티브 쿼리는 영속성 컨텍스트에서 관리되지 않음
+    - ex) Room Repository에서 Likes 엔티티를 반환해도 영속성 컨텍스트에 관리되지만 반환 타입이 맞지 않다면 관리되지 않음
+- 변경된 코드와 발생 쿼리는 아래와 같음
+    - 추가적으로 JPQL 에서 서브쿼리에서 ORDER BY, LIMIT 같은 문법을 지원하지 않아 MAX로 변경
 
 ```java
 @Transactional(readOnly = true)
@@ -420,11 +411,12 @@ public RoomListResponseDto searchRooms(Integer price, List<RoomAreaType> areaTyp
     Page<Room> roomPage = roomRepository.findAll(spec, pageable);
     List<Room> rooms = roomPage.getContent();
 
-    // Like 테이블 조회
+    // Like IN 절 단건 조회
     List<Likes> likes = likeRepository.findByRoomInAndMemberId(rooms, memberId);
     Map<Long, Boolean> likeMap = likes.stream()
         .collect(Collectors.toMap(l -> l.getRoom().getRoomId(), Likes::getFlag, (a, b) -> a));
 
+    // Image IN 절 단건 조회
     List<Long> roomIds = rooms.stream().map(Room::getRoomId).toList();
     List<Image> images = imageRepository.findMainImagesByRoomIds(roomIds);
     Map<Long, String> imageMap = images.stream()
@@ -441,10 +433,104 @@ public RoomListResponseDto searchRooms(Integer price, List<RoomAreaType> areaTyp
 
     return new RoomListResponseDto((int)roomPage.getTotalElements(), page, pageable.getPageSize(), roomSummaryList);
 }
+
+// Image JPQL
+@Query("""
+        SELECT i
+        FROM Image i
+        WHERE i.room.roomId IN :roomIds
+        AND i.createdAt = (
+            SELECT MAX(i2.createdAt)
+            FROM Image i2
+            WHERE i2.room.roomId = i.room.roomId
+        )
+    """)
+List<Image> findMainImagesByRoomIds(@Param("roomIds") List<Long> roomIds);
+
+// Likes JPQL
+@Query("""
+        SELECT l
+        FROM Likes l
+		WHERE l.room IN :rooms AND l.memberId = :memberId
+    """)
+List<Likes> findByRoomInAndMemberId(@Param("rooms") List<Room> rooms, @Param("memberId") Long memberId);
 ```
 
-### 해결 방식
-- 처음 진행한 방법인 배치 방법으로 문제 헤걀
+<br>
+
+```java
+Hibernate: 
+    /* <criteria> */ select
+        r1_0.room_id,
+        r1_0.available_from,
+        ...
+    from
+        room r1_0 
+    where
+        r1_0.monthly_rent<=? 
+        and (
+            r1_0.exclusive_area between ? and ? 
+            or r1_0.exclusive_area between ? and ? 
+            or r1_0.exclusive_area between ? and ?
+        ) 
+        and r1_0.room_id in ((select
+            a1_0.room_id 
+        from
+            address a1_0 
+        where
+            a1_0.lat between ? and ? 
+            and a1_0.lng between ? and ?)) 
+    limit
+        ?, ?
+Hibernate: 
+    /* SELECT
+        l 
+    FROM
+        Likes l 
+    WHERE
+        l.room IN :rooms 
+        AND l.memberId = :memberId  */ select
+            l1_0.like_id,
+            l1_0.member_id,
+            l1_0.room_id
+            ...
+        from
+            likes l1_0 
+        where
+            l1_0.room_id in (?, ?, ?) 
+            and l1_0.member_id=?
+Hibernate: 
+    /*     SELECT
+        i     
+    FROM
+        Image i     
+    WHERE
+        i.room.roomId IN :roomIds     
+        AND i.createdAt = (
+            SELECT
+                MAX(i2.createdAt)         
+            FROM
+                Image i2         
+            WHERE
+                i2.room.roomId = i.room.roomId     
+        )  */ select
+            i1_0.image_id,
+            i1_0.image_url,
+            i1_0.room_id,
+            ...
+        from
+            image i1_0 
+        where
+            i1_0.room_id in (?, ?, ?) 
+            and i1_0.created_at=(
+                select
+                    max(i2_0.created_at) 
+                from
+                    image i2_0 
+                where
+                    i2_0.room_id=i1_0.room_id
+            )
+```
 
 <br>
 
