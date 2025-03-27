@@ -103,6 +103,46 @@
 ## 4. 프로젝트 진행 중 이슈 사항
 
 ```java
+// 기존 코드
+@Transactional(readOnly = true)
+public SearchRoomResponseDto searchRoom(Long roomId, Long memberId) {
+    var room = findRoom(roomId);
+    var address = addressService.findByRoom(room);
+    var options = optionService.findByRoom(room);
+    var maintenanceIncludes = maintenanceIncludeService.findByRoom(room);
+    var images = imageService.findByRoom(room);
+    var isLiked = likeRepository.findByRoomAndMemberId(room, memberId)
+        .map(Likes::getFlag)
+        .orElse(false);
+
+    return RoomConverter.convert(room, isLiked, address, options, maintenanceIncludes, images);
+}
+
+// 이후 고민 코드
+@Query("""
+    SELECT new com.bangjwo.room.application.dto.response.SearchRoomResponseDto(
+            r, a, o, m, i)
+    FROM Room r
+    LEFT JOIN Address a ON a.room = r
+    LEFT JOIN Options o ON o.room = r
+    LEFT JOIN MaintenanceInclude m ON m.room = r
+    LEFT JOIN Image i ON i.room = r
+    WHERE r.roomId = :roomId
+    """)
+Optional<SearchRoomResponseDto> findRoomDetailsByRoomId(Long roomId);
+
+```
+
+### 4-1. 단방향 연관관계 JPQL 코드 수정 고민
+- 단건 조회에서 매물(Room)에 관련된 객체를 받아오고 각각의 Repository에서 조회하고 있는데 이후 GPT를 통해 JPQL을 이용한 아래 방법이 되는지 확인해봤는데 역시 안됨
+    - 현재 Room에는 양방향 연관관계가 되어있지 않음
+    - 객체와 SQL문이 섞여 사용하다보니 복잡하기도 함
+- 1:1 관계인 Address나 Likes 같이 단일 값은 처리하기 쉽지만, Options, MaintenanceInclude, Image와 같은 1:N 컬렉션을 포함하면 데이터 중복 문제가 발생할 수 있다고 함
+- 현재 단건조회 이며 추가적인 조회쿼리에 대해서는 각각의 엔티티 별도의 Repository 가 나뉘어 있으니 각각 단건 조회하는 것이 좋다고 생각되었음. 이전 방법을 그대로 이용
+
+<br><br>
+
+```java
 // 응답 반환을 위한 페이지네이션 공통 모듈 분리
 @Getter
 @JsonPropertyOrder({"totalItems", "totalPages", "currentPage", "size", "currentPageItemCount", "offset", "items"})
@@ -170,7 +210,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
 <br>
 
-### 4-1. 매물 조회 중 페이지네이션 로직 분리
+### 4-2. 매물 조회 중 페이지네이션 로직 분리
 - 기존 모든 리스트 정보를 조회 후 해당 리스트를 페이지네이션으로 변환했던 과정을 페이지네이션 객체를 미리 생성 후 JPA 파라미터로 추가하는 로직으로 변경
 - 기존 로직은 모든 리스트 조회하고 페이지네이션 객체를 생성하는 것은 N개의 엔티티들을 모두 조회
 - 현재 로직은 요청되는 페이지에 해당되는 엔티티만을 조회
@@ -312,7 +352,7 @@ public class Address {
 	private Long addressId;
 
     // 현재 단방향으로 구성
-	@ManyToOne(fetch = FetchType.LAZY)  // 연관관계가 Lazy로 되어있어 실제 사용 시점에 각각 별도의 조회 발생
+	@OneToOne(fetch = FetchType.LAZY)  // 연관관계가 Lazy로 되어있어 실제 사용 시점에 각각 별도의 조회 발생
 	@JoinColumn(name = "room_id", nullable = false)
 	private Room room;
     
@@ -359,7 +399,7 @@ List<RoomSummaryResponse> roomSummaryList = roomPage.getContent().stream()
 - 현재 Room을 생성할 때 Address, Image, Options, Likes 등의 객체를 가져오는데 해당 객체들은 모두 RoomId가 내부에 있기에 해당 테이블안에 위치해두었음
 - 이후 Address, Image, Options, Likes 등의 객체를 가져올때 Room을 한번에 가져오는 것은 좋은 생각이었다고 생각
 - 그러나 Room을 조회하고 이후 Room에 관련된 객체들을 조회하려니 N + 1 문제가 발생한 것
-- fetch 조인을 한다고 해결하려 했지만 Member는 다른 객체들과 연결되어 있지 않아서(단방향) Fetch 조인이 불가능
+- fetch 조인을 한다고 해결하려 했지만 다음과 같은 문제가 발생
     - 현재 단방향으로 되어있는데 양방향으로 된다고 할 때 순환 참조가 발생할 수 있음
     - 또한 페이지네이션을 선 처리했으므로 중복되는 문제가 발생할 수 있다고 함
 
@@ -368,6 +408,43 @@ List<RoomSummaryResponse> roomSummaryList = roomPage.getContent().stream()
 ### 연관 관계 정리
 - Lazy 연관 관계는 불필요한 엔티티에 대해 직접 조회하기 전까지는 쿼리를 날리지 않아 해당 엔티티를 안쓰는 항목이 있으면 좋음. 하지만 이후 쓰게 된다면 그 시점에 조회하기 때문에 추가적인 쿼리가 나가게 됨
 - JPQL에서 JOIN FETCH 구문을 통해 명시적으로 필요한 엔티티를 JOIN으로 한꺼번에 조회함. Lazy로 설정된 관계라도, 필요한 시점에만 동적으로 fetch join 가능. 그런데 엔티티를 안써도 모두 가져오기 때문에 불필요한 JOIN이 될 수 있음
+
+<br>
+
+```java
+@Transactional(readOnly = true)
+public RoomListResponseDto searchRooms(Integer price, List<RoomAreaType> areaTypes,
+    BigDecimal centerLat, BigDecimal centerLng, Integer zoom, Integer page, Long memberId) {
+    Specification<Room> spec = buildRoomSearchSpec(price, areaTypes, centerLat, centerLng, zoom);
+    Pageable pageable = PaginationRequest.toPageable(page);
+    Page<Room> roomPage = roomRepository.findAll(spec, pageable);
+    List<Room> rooms = roomPage.getContent();
+
+    // Like 테이블 조회
+    List<Likes> likes = likeRepository.findByRoomInAndMemberId(rooms, memberId);
+    Map<Long, Boolean> likeMap = likes.stream()
+        .collect(Collectors.toMap(l -> l.getRoom().getRoomId(), Likes::getFlag, (a, b) -> a));
+
+    List<Long> roomIds = rooms.stream().map(Room::getRoomId).toList();
+    List<Image> images = imageRepository.findMainImagesByRoomIds(roomIds);
+    Map<Long, String> imageMap = images.stream()
+        .collect(Collectors.toMap(i -> i.getRoom().getRoomId(), Image::getImageUrl, (a, b) -> a));
+
+    List<RoomSummaryResponse> roomSummaryList = rooms.stream()
+        .map(room -> {
+            boolean liked = likeMap.getOrDefault(room.getRoomId(), false);
+            String imageUrl = imageMap.getOrDefault(room.getRoomId(), null);
+            
+            return RoomConverter.convertToRoomSummary(room, liked, imageUrl);
+        })
+        .toList();
+
+    return new RoomListResponseDto((int)roomPage.getTotalElements(), page, pageable.getPageSize(), roomSummaryList);
+}
+```
+
+### 해결 방식
+- 처음 진행한 방법인 배치 방법으로 문제 헤걀
 
 <br>
 
