@@ -102,48 +102,9 @@
 
 ## 4. 프로젝트 진행 중 이슈 사항
 
-### 4-1. 단방향 연관관계 JPQL 코드 수정 고민
-- 단건 조회에서 매물(Room)에 관련된 객체를 받아오고 각각의 Repository에서 조회하고 있는데 이후 GPT를 통해 JPQL을 이용한 아래 방법이 되는지 확인해봤는데 역시 안됨
-    - 현재 Room에는 양방향 연관관계가 되어있지 않음
-    - 객체와 SQL문이 섞여 사용하다보니 복잡하기도 함
-- 1:1 관계인 Address나 Likes 같이 단일 값은 처리하기 쉽지만, Options, MaintenanceInclude, Image와 같은 1:N 컬렉션을 포함하면 데이터 중복 문제가 발생할 수 있다고 함
-- 현재 단건조회 이며 추가적인 조회쿼리에 대해서는 각각의 엔티티 별도의 Repository 가 나뉘어 있으니 각각 단건 조회하는 것이 좋다고 생각되었음. 이전 방법을 그대로 이용
+### 4-1. 공통 모듈 분리
 
-```java
-// 기존 코드
-@Transactional(readOnly = true)
-public SearchRoomResponseDto searchRoom(Long roomId, Long memberId) {
-    var room = findRoom(roomId);
-    var address = addressService.findByRoom(room);
-    var options = optionService.findByRoom(room);
-    var maintenanceIncludes = maintenanceIncludeService.findByRoom(room);
-    var images = imageService.findByRoom(room);
-    var isLiked = likeRepository.findByRoomAndMemberId(room, memberId)
-        .map(Likes::getFlag)
-        .orElse(false);
-
-    return RoomConverter.convert(room, isLiked, address, options, maintenanceIncludes, images);
-}
-
-// 이후 고민 코드
-@Query("""
-    SELECT new com.bangjwo.room.application.dto.response.SearchRoomResponseDto(
-            r, a, o, m, i)
-    FROM Room r
-    LEFT JOIN Address a ON a.room = r
-    LEFT JOIN Options o ON o.room = r
-    LEFT JOIN MaintenanceInclude m ON m.room = r
-    LEFT JOIN Image i ON i.room = r
-    WHERE r.roomId = :roomId
-    """)
-Optional<SearchRoomResponseDto> findRoomDetailsByRoomId(Long roomId);
-
-```
-
-<br><br>
-
-
-### 4-2. 매물 조회 중 페이지네이션 로직 분리
+#### 1. 매물 조회 중 페이지네이션 로직 분리
 - 기존 모든 리스트 정보를 조회 후 해당 리스트를 페이지네이션으로 변환했던 과정을 페이지네이션 객체를 미리 생성 후 JPA 파라미터로 추가하는 로직으로 변경
 - 기존 로직은 모든 리스트 조회하고 페이지네이션 객체를 생성하는 것은 N개의 엔티티들을 모두 조회
 - 현재 로직은 요청되는 페이지에 해당되는 엔티티만을 조회
@@ -212,6 +173,154 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
 	Page<Room> findAll(Specification<Room> spec, Pageable pageable);
 }
+```
+
+<br><br>
+
+#### 2. S3 File Upload 모듈 분리
+
+```java
+// 매물 저장 기존 코드
+@Service
+public class RoomImageService {
+	private final ImageRepository imageRepository;
+	private final RoomRepository roomRepository;
+
+	private final S3Client s3Client;
+
+	@Value("${aws.s3.bucket}")
+	private String bucketName;
+
+	@Value("${aws.region}")
+	private String awsRegion;
+
+	public void uploadAndSaveImage(Room room, MultipartFile file) {
+		try {
+			String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(bucketName)
+				.key(fileName)
+				.build();
+
+			s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+
+			String imageUrl = "https://" + bucketName + ".s3." + awsRegion + ".amazonaws.com/" + fileName;
+
+			Room managedRoom = roomRepository.getReferenceById(room.getRoomId());
+
+			Image image = Image.builder()
+				.room(managedRoom)
+				.imageUrl(imageUrl)
+				.build();
+
+			imageRepository.save(image);
+		} catch (IOException e) {
+			throw new BusinessException(RoomErrorCode.FAIL_IMAGE_UPLOAD);
+		}
+	}
+}
+```
+
+#### 문제 사항
+- 해당 코드를 잘 사용하고 있다가 이후 다른 도메인에서도 이미지 저장하는 로직이 필요
+- S3에 대한 정보를 애초에 매물 ImageService 이 관리하고 있는 구조가 잘못된 설계라고 생각이 들게되었음
+    - 이후 확장될 수 있을 만한 기능에 대해서 설계에서 분리하는 습관을 들이면 좋을 것 같음..
+- 이후 다른 도메인에서도 사용할 수 있도록 어댑터 패턴을 이용한 아래 방법으로 분리
+
+```java
+// 이후 기능이 추가될수 있어 추상화
+public interface FileUploaderPort {
+	String upload(MultipartFile file, String directory, String fileName);
+}
+
+// S3 관련 데이터를 해당 어댑터과 관리
+@Service
+@RequiredArgsConstructor
+public class S3FileUploaderAdapter implements FileUploaderPort {
+	private final S3Client s3Client;
+
+	@Value("${aws.s3.bucket}")
+	private String bucketName;
+
+	@Value("${aws.region}")
+	private String awsRegion;
+
+	@Override
+    public String upload(MultipartFile file, String directory, String fileName) {
+		try {
+			String key = directory + fileName;
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(bucketName)
+				.key(key)
+				.build();
+
+			s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+
+			return "https://" + bucketName + ".s3." + awsRegion + ".amazonaws.com/" + key;
+		} catch (IOException e) {
+			throw new BusinessException(GlobalErrorCodes.FAIL_IMAGE_UPLOAD);
+		}
+	}
+}
+
+// 이후 S3 관련 정보는 FileUploaderPort 인터페이스가 관리
+@Service
+@RequiredArgsConstructor
+public class RoomImageService {
+    private final static String IMAGE_PATH = "rooms/"
+	private final FileUploaderPort fileUploader;
+	private final RoomImageRepository imageRepository;
+	private final RoomRepository roomRepository;
+
+	public void uploadAndSaveImage(Room room, MultipartFile file) {
+		String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+		String imageUrl = fileUploader.upload(file, IMAGE_PATH, fileName);
+		Room managedRoom = roomRepository.getReferenceById(room.getRoomId());
+		Image image = Image.builder().room(managedRoom).imageUrl(imageUrl).build();
+		imageRepository.save(image);
+	}
+}
+```
+
+<br><br>
+
+### 4-2. 단방향 연관관계 JPQL 코드 수정 고민
+- 단건 조회에서 매물(Room)에 관련된 객체를 받아오고 각각의 Repository에서 조회하고 있는데 이후 GPT를 통해 JPQL을 이용한 아래 방법이 되는지 확인해봤는데 역시 안됨
+    - 현재 Room에는 양방향 연관관계가 되어있지 않음
+    - 객체와 SQL문이 섞여 사용하다보니 복잡하기도 함
+- 1:1 관계인 Address나 Likes 같이 단일 값은 처리하기 쉽지만, Options, MaintenanceInclude, Image와 같은 1:N 컬렉션을 포함하면 데이터 중복 문제가 발생할 수 있다고 함
+- 현재 단건조회 이며 추가적인 조회쿼리에 대해서는 각각의 엔티티 별도의 Repository 가 나뉘어 있으니 각각 단건 조회하는 것이 좋다고 생각되었음. 이전 방법을 그대로 이용
+
+```java
+// 기존 코드
+@Transactional(readOnly = true)
+public SearchRoomResponseDto searchRoom(Long roomId, Long memberId) {
+    var room = findRoom(roomId);
+    var address = addressService.findByRoom(room);
+    var options = optionService.findByRoom(room);
+    var maintenanceIncludes = maintenanceIncludeService.findByRoom(room);
+    var images = imageService.findByRoom(room);
+    var isLiked = likeRepository.findByRoomAndMemberId(room, memberId)
+        .map(Likes::getFlag)
+        .orElse(false);
+
+    return RoomConverter.convert(room, isLiked, address, options, maintenanceIncludes, images);
+}
+
+// 이후 고민 코드
+@Query("""
+    SELECT new com.bangjwo.room.application.dto.response.SearchRoomResponseDto(
+            r, a, o, m, i)
+    FROM Room r
+    LEFT JOIN Address a ON a.room = r
+    LEFT JOIN Options o ON o.room = r
+    LEFT JOIN MaintenanceInclude m ON m.room = r
+    LEFT JOIN Image i ON i.room = r
+    WHERE r.roomId = :roomId
+    """)
+Optional<SearchRoomResponseDto> findRoomDetailsByRoomId(Long roomId);
+
 ```
 
 <br><br>
@@ -527,6 +636,9 @@ Hibernate:
                     i2_0.room_id=i1_0.room_id
             )
 ```
+
+<br>
+
 
 <br>
 
