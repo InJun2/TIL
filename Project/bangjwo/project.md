@@ -834,6 +834,89 @@ void testConcurrentRedisLock() throws InterruptedException {
 - 현재 Jenkins 빌드에서 테스트 코드 동작에 있어 Docker 내부에 있는 MySQL 에 접근하는데 문제 발생
 - 이에 있어 기존 clean build를 테스트 코드를 제외하고 실행하는 clean build -x test 로 빌드 명령어 수정
 
+<br>
+
+### 4-5. Swagger 문서화 정리
+
+![스웨거 문서화](./img/swagger.png)
+
+- 스웨거를 통한 API 별 설명 및 요청 파라미터 예제 문서화
+- JWT AccessToken 문서화 설정 추가 후 커스텀 어노테이션을 사용하여 API 별 로그인 필요 API 명시
+- 커스텀 어노테이션에서 로그인 시 추가정보가 제공되는 API를 위해 boolean 필드를 통해 로직 분리
+- 같은 수정 요청 DTO에 대해 임시 저장/최종 저장을 적용하기 위해 그룹 클래스로 분리
+
+```java
+// 'JWT'을 이름으로 로그인 필요 API 문서화 설정
+@Configuration
+@SecurityScheme(
+	name = "JWT",
+	type = SecuritySchemeType.HTTP,
+	scheme = "bearer",
+	bearerFormat = "JWT"
+)
+public class SwaggerConfig {
+    // ...
+}
+
+// 사용이 필요한 클래스에서 @Operation security 설정을 통해 로그인 필요 API 문서화
+@Operation(
+    // ...
+    security = @SecurityRequirement(name = "JWT")   // 
+)
+@GetMapping("/{id}")
+public ResponseEntity<RegistryDocument> getRegistryDoc(
+    @Parameter(description = "등기부 문서 ID", example = "67e6332b68f0cb1ff92bf31e", required = true)
+    @PathVariable String id,
+    @MemberHeader Long memberId) {  // 커스텀 어노테이션을 사용한 JWT 파싱 후 유저 ID 조회
+    // ...
+}
+
+// 로그인 커스텀 어노테이션
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+@Parameter(hidden = true)
+@Documented
+public @interface MemberHeader {
+	boolean required() default true;    // required false 일시 memberId 요청 파라미터에 null 반환
+}
+
+// ArgumentResolver를 활용하여 로그인 커스텀 어노테이션 JWT 파싱
+@RequiredArgsConstructor
+public class MemberHeaderArgumentResolver implements HandlerMethodArgumentResolver {
+	private final JwtTokenProvider jwtTokenProvider;
+
+	@Override
+	public boolean supportsParameter(MethodParameter parameter) {
+		return parameter.hasParameterAnnotation(MemberHeader.class)
+			&& parameter.getParameterType().equals(Long.class);
+	}
+
+	@Override
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+		String authorizationHeader = request.getHeader("Authorization");
+
+		MemberHeader memberHeader = parameter.getParameterAnnotation(MemberHeader.class);
+
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			if (!memberHeader.required()) {
+				return null;
+			} else {
+				throw new BusinessException(AuthErrorCode.NOT_EXIST_AUTHORIZATION_TOKEN);
+			}
+		}
+		String token = authorizationHeader.substring(7);
+		String memberIdStr = jwtTokenProvider.getClaims(token);
+
+		try {
+			return Long.valueOf(memberIdStr);
+		} catch (NumberFormatException e) {
+			throw new BusinessException(AuthErrorCode.INVALID_AUTHORIZATION_TOKEN);
+		}
+	}
+}
+```
 
 <br>
 
