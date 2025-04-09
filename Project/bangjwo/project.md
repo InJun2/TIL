@@ -667,6 +667,167 @@ Hibernate:
 
 <br>
 
+### 해결 코드
+
+```java
+// 임대인 계약서 수정 메서드
+@Transactional
+@RedisLock(key = "'contract:' + #requestDto.contractId", errorCode = RedisLockErrorCode.TENANT_IN_PROGRESS)
+public void finalLandlordAfterTenant(UpdateLandlordInfoDto requestDto, Long memberId) {
+    // ...
+}
+
+// 임차인 계약서 서명 메서드
+@Transactional
+@RedisLock(key = "'contract:' + #requestDto.contractId", errorCode = RedisLockErrorCode.LANDLORD_IN_PROGRESS)
+public void updateTenantSignature(TenantSignatureUpdateRequestDto requestDto, Long memberId) {
+    // ...
+}
+
+// RedisLock 커스텀 어노테이션
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RedisLock {
+	String key();
+	long leaseTime() default 1800;
+	RedisLockErrorCode errorCode() default RedisLockErrorCode.LOCKED_RESOURCE;
+}
+
+// Redis AOP 
+@Slf4j
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class RedisLockAspect {
+	private final StringRedisTemplate redisTemplate;
+
+    // 락의 소유자만 락을 풀수 있도록 하기 위한 Redis Lua 스크립트
+	private static final String UNLOCK_SCRIPT =
+		"if redis.call('get', KEYS[1]) == ARGV[1] then " +
+			"   return redis.call('del', KEYS[1]) " +
+			"else " +
+			"   return 0 " +
+			"end";
+
+	@Around("@annotation(redisLock)")
+	public Object around(ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable {
+		String key = parseKey(redisLock.key(), joinPoint);
+		long leaseTime = redisLock.leaseTime();
+
+		String uuid = UUID.randomUUID().toString();
+
+        // setIfAbsent를 사용하면 RedisClient 내부적으로 SENTX 구문을 사용하여 하나의 스레드만 접근이 가능
+		Boolean success = redisTemplate
+			.opsForValue()
+			.setIfAbsent(key, uuid, leaseTime, TimeUnit.SECONDS);
+
+		if (Boolean.FALSE.equals(success)) {
+			throw new BusinessException(redisLock.errorCode());
+		}
+
+		try {
+			return joinPoint.proceed();
+		} finally {
+			releaseLock(key, uuid);
+		}
+	}
+
+    // 락 해제
+	private void releaseLock(String key, String uuid) {
+		redisTemplate.execute(
+			new DefaultRedisScript<>(UNLOCK_SCRIPT, Long.class),
+			List.of(key),
+			uuid
+		);
+	}
+
+    // 
+	private String parseKey(String keyExpression, ProceedingJoinPoint joinPoint) {
+		MethodSignature signature = (MethodSignature)joinPoint.getSignature();
+
+		EvaluationContext context = new StandardEvaluationContext();
+		String[] parameterNames = signature.getParameterNames();
+		Object[] args = joinPoint.getArgs();
+
+		for (int i = 0; i < parameterNames.length; i++) {
+			context.setVariable(parameterNames[i], args[i]);
+		}
+
+		ExpressionParser parser = new SpelExpressionParser();
+		return parser.parseExpression(keyExpression).getValue(context, String.class);
+	}
+}
+```
+- AOP 및 퍼사드 패턴을 활용한 Redis 단순 락 구현
+- Lock 조회에서 setIfAbsent() 명령은, Redis 내부적으로 SENTX를 활용하여 단일 스레드만 접근이 가능
+- Lock Key는 SpEL을 통해 동적으로 생성되어, 'contract: {contractId}' 형식으로 Key를 지정
+- 불가피하게 서버가 종료되더라도 TTL 이후 락이 해제가 되고, 30분간 2명만이 사용하는 계약서에 접근 못하는 것은 큰 문제가 아니라고 판단
+- 또한, 서버가 잠시 중단되고 다시 실행되었을 때 다른 스레드가 락을 다시 가지고 있지만 서버가 중단되는 시점에 중지됬던 스레드가 다시 동작하여 다른 스레드가 가지고 있는 락을 해제하는 경우를 막기 위해 Lua 스크립트를 활용해 락 소유자만 락을 해제할 수 있도록 지정
+
+<br>
+
+### 단위 테스트를 통한 동시성 문제 해결 확인
+```java
+@Test
+void testConcurrentRedisLock() throws InterruptedException {
+    int threadCount = 20;
+    ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch doneLatch = new CountDownLatch(threadCount);
+    AtomicInteger successCount = new AtomicInteger(0);
+    AtomicInteger failCount = new AtomicInteger(0);
+
+    for (int i = 0; i < threadCount; i++) {
+        executorService.submit(() -> {
+            try {
+                TenantSignatureUpdateRequestDto dto = new TenantSignatureUpdateRequestDto();
+                dto.setContractId(1L);
+                MultipartFile file = mock(MultipartFile.class);
+                given(file.getBytes()).willReturn("mock-content".getBytes());
+                dto.setSignature(file);
+
+                startLatch.await(); // CountDownLatch를 활용하여 스레드 동시 동작
+                contractService.updateTenantSignature(dto, 999L);
+                successCount.incrementAndGet();
+            } catch (BusinessException e) {
+                failCount.incrementAndGet();
+                System.out.println("[FAIL] " + e.getErrorCode().getCode());
+            } catch (Exception e) {
+                failCount.incrementAndGet();
+                e.printStackTrace();
+            } finally {
+                doneLatch.countDown();
+            }
+        });
+    }
+
+    startLatch.countDown(); // 일제히 출발
+    doneLatch.await(); // 모두 완료될 때까지 대기
+    executorService.shutdown();
+
+    System.out.println("성공: " + successCount.get());
+    System.out.println("실패: " + failCount.get());
+
+    assertEquals(1, successCount.get(), "성공한 스레드는 정확히 1개여야 합니다");
+    assertEquals(threadCount - 1, failCount.get(), "나머지 스레드는 락 에러가 발생해야 합니다");
+}
+```
+
+<br>
+
+![동시성 테스트](./img/concurrency-test.png)
+
+- 해당 노란색 테두리를 보면 스레드 동작 시점은 T13:43:58.595 ~ T13:43:58.596 으로 동시에 시도
+- 해당 파란색 테두리를 보면 다양한 스레드가 동작한다는 것을 볼 수 있음
+
+```
+// 테스트 성공
+성공: 1
+실패: 19
+```
+
+<br>
+
 ![젠킨스 테스트 코드 빌드 에러](./img/jenkins-test-error.png)
 
 ### 테스트 코드 Jenkins 빌드 중 문제 발생
