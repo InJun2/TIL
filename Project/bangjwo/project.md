@@ -1,32 +1,38 @@
 # 방줘 프로젝트 ( 25.03.10 ~ 25.04.10 )
 
-## 1. 프로젝트 소개 (현재 작성 중)
+![메인 페이지](./img/main-page.png)
+
+<br>
+
+## 1. 프로젝트 소개
 - '방줘' 프로젝트는 월세를 저렴하게 구하고 싶은 청년들을 타겟으로 한 서비스로 공인중계사 없이 월세 거래를 진행할 수 있도록 도와주는 서비스입니다.
 - 등기부 등본 정보를 통해 임대 건물에 대한 정보를 조회하고 위험도 분석 및 임대인과 임차인의 거래가 가능하도록 해당 서비스를 통해 계약서를 작성 및 작성 보조 기능을 제공합니다.
-- BE 4명, FE 2명으로 구성되어 진행하였으며 저는 매물 기능 및 결제 기능을 담당하였습니다.
+- BE 4명, FE 2명으로 구성되어 진행하였으며 저는 로그인 및 회원 기능, 매물 기능 및 계약 기능을 담당하였습니다.
 
 
 <br>
 
 ### 1-1. 담당 서비스 도메인
 
-📑 매물 기능
-- 매물 등록 및 조회
-- 집주인 인증
-- 포트원 본인 인증
-- 등기부 위험도 분석
+📑 회원 기능
+- 카카오 소셜 로그인
+- 회원가입, 회원 정보 수정/조회
+- 마이페이지 조회 (매물/계약/결제 내역 등)
+- 포트원 본인인증
 
-📑 결제 기능
-- 포트원 금액 결제
-- 결제 내역 조회
+📑 매물 기능
+- 매물 등록/ 필터링 조회
+- 카카오 장소 API 매물 주소 조회
+
+📑 계약 기능
+- 계약서 생성/수정/조회
+- 포트원 결제 및 내역 조회
 
 <br><br>
 
 ### 1-2. 서비스 아키텍처
 
-
-
-<br>
+![서비스 아키텍처](./img/architecture.png)
 
 
 <br><br>
@@ -35,10 +41,10 @@
 ### 1-3. 내가 사용한 기술 스택
 
 #### ✅ BE
-- Java, SpringBoot, JPA, Swagger
+- Java, SpringBoot, JPA, Oauth2, Webflux, AWS S3, Swagger
 
 #### ✅ DB
-- MySQL, Redis
+- MySQL, MongoDB, Redis
 
 <br><br>
 
@@ -49,8 +55,9 @@
 
 ### 2-1. Jira 협업 툴 사용
 
+![jira](./img/jira.png)
 
-- Jira 스프린트 진행
+- Jira 스프린트 이슈 해결
 
 <br>
 
@@ -78,8 +85,16 @@
 
 ![postman](./img/postman.png)
 
+<br>
+
+![스웨거 문서화](./img/swagger.png)
+
+<br>
+
+![스웨거 문서화2](./img/swagger2.png)
+
 - 요구사항 명세서, API 명세서 노션으로 작성
-- API 테스트는 PostMan 사용
+- API 테스트는 PostMan, Swagger 사용
 
 <br>
 
@@ -96,15 +111,9 @@
 
 <br><br>
 
-## 3. 프로젝트 구현 사항
+## 3. 코드 리팩토링
 
-<br>
-
-## 4. 프로젝트 진행 중 이슈 사항
-
-### 4-1. 공통 모듈 분리
-
-#### 1. 매물 조회 중 페이지네이션 로직 분리
+#### 3-1. 페이지네이션 공통 모듈 분리
 - 기존 모든 리스트 정보를 조회 후 해당 리스트를 페이지네이션으로 변환했던 과정을 페이지네이션 객체를 미리 생성 후 JPA 파라미터로 추가하는 로직으로 변경
 - 기존 로직은 모든 리스트 조회하고 페이지네이션 객체를 생성하는 것은 N개의 엔티티들을 모두 조회
 - 현재 로직은 요청되는 페이지에 해당되는 엔티티만을 조회
@@ -175,9 +184,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 }
 ```
 
-<br><br>
+<br>
 
-#### 2. S3 File Upload 모듈 분리
+#### 3-2. S3 File Upload 모듈 분리
 
 ```java
 // 매물 저장 기존 코드
@@ -234,7 +243,7 @@ public interface FileUploaderPort {
 	String upload(MultipartFile file, String directory, String fileName);
 }
 
-// S3 관련 데이터를 해당 어댑터과 관리
+// S3 관련 데이터를 해당 어댑터가 관리
 @Service
 @RequiredArgsConstructor
 public class S3FileUploaderAdapter implements FileUploaderPort {
@@ -283,9 +292,137 @@ public class RoomImageService {
 }
 ```
 
+<br>
+
+### 3-3. JWT 로그인 API 공통 모듈 분리
+
+- @SecurityScheme를 통해 Swagger에 JWT 인증 스키마를 등록하고, @MemberHeader라는 커스텀 어노테이션을 만들어, 컨트롤러에서 로그인된 유저의 memberId를 자동으로 주입
+- HandlerMethodArgumentResolver를 사용해 JWT 파싱 로직을 공통화하고, 로그인 시 추가정보가 제공되는 API가 있어 로그인 여부에 따라 required 값을 통해 유연하게 대응할 수 있도록 설계
+- Swagger 문서에서는 각 API에 @SecurityRequirement(name = "JWT")를 명시하여 로그인 필요 API를 시각적으로 구분이 가능하도록 함
+
+```java
+/**
+ * @SecurityScheme 애노테이션을 통해 Swagger 문서에서 사용할 보안 스키마를 등록
+ * name = "JWT"로 명명하여, 이후 API 메서드에 @SecurityRequirement(name = "JWT")를 달면 "JWT 인증이 필요한 API"로 표시
+ * type = SecuritySchemeType.HTTP와 scheme = "bearer"는 Bearer 타입의 HTTP 인증임을 의미
+ */
+@Configuration
+@SecurityScheme(
+    name = "JWT",
+    type = SecuritySchemeType.HTTP,
+    scheme = "bearer",
+    bearerFormat = "JWT"
+)
+public class SwaggerConfig {
+    // Swagger 설정과 관련된 추가 설정
+}
+
+/**
+ * 특정 컨트롤러 메서드에서 @Operation 내 security 속성을 사용해,
+ * JWT 인증이 필요한 API임을 Swagger 문서에 명시
+ *
+ * @Parameter(description, example 등으로 스웨거 파라미터 정보를 설정할 수 있음
+ * @MemberHeader를 사용해 JWT에서 파싱된 memberId가 자동 주입
+ */
+@Operation(
+    summary = "등기부 문서 조회 예시",
+    description = "JWT 인증이 필요한 API",
+    security = @SecurityRequirement(name = "JWT")  // "JWT" 보안 스키마를 적용
+)
+@GetMapping("/{id}")
+public ResponseEntity<RegistryDocument> getRegistryDoc(
+    @Parameter(description = "등기부 문서 ID", example = "67e6332b68f0cb1ff92bf31e", required = true)
+    @PathVariable String id,
+    @MemberHeader Long memberId  // 커스텀 어노테이션을 통한 JWT 파싱 후 유저 ID 조회
+) {
+    // 실제 비즈니스 로직
+    return ResponseEntity.ok(new RegistryDocument());
+}
+
+/**
+ * 로그인 커스텀 어노테이션.
+ *
+ * @Parameter(hidden = true)를 통해 Swagger 문서에서 이 파라미터가 노출되지 않도록 설정
+ * required()가 true이면 토큰이 없거나 유효하지 않을 경우 예외가 발생하며,
+ * false일 경우 토큰이 없어도 null 값으로 주입
+ */
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+@Parameter(hidden = true)
+@Documented
+public @interface MemberHeader {
+    boolean required() default true;
+}
+
+/**
+ * ArgumentResolver를 활용해 @MemberHeader가 붙은 Long 타입 파라미터에 대한
+ * JWT 파싱 로직을 공통화
+ *
+ * 1) 헤더 검증: Authorization 헤더가 비어있거나 Bearer 로 시작하지 않으면 예외(또는 null)
+ * 2) 토큰 파싱: 'Bearer ' 제거 후 JwtTokenProvider로 실제 파싱 및 검증
+ * 3) 토큰이 유효하지 않거나 memberId가 숫자로 변환 불가 시 예외 발생
+ * 4) 성공 시, 컨트롤러 메서드 파라미터에 memberId(Long) 주입
+ */
+@RequiredArgsConstructor
+public class MemberHeaderArgumentResolver implements HandlerMethodArgumentResolver {
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        // @MemberHeader 애노테이션이 달리고, 타입이 Long인 경우만 처리
+        return parameter.hasParameterAnnotation(MemberHeader.class)
+            && parameter.getParameterType().equals(Long.class);
+    }
+
+    @Override
+    public Object resolveArgument(
+        MethodParameter parameter,
+        ModelAndViewContainer mavContainer,
+        NativeWebRequest webRequest,
+        WebDataBinderFactory binderFactory
+    ) throws Exception {
+        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        String authorizationHeader = request.getHeader("Authorization");
+
+        MemberHeader memberHeader = parameter.getParameterAnnotation(MemberHeader.class);
+
+        // 1) 토큰 유무 및 Bearer 형식 확인
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            // required=false인 경우 토큰이 없어도 null을 반환
+            if (!memberHeader.required()) {
+                return null;
+            } else {
+                // required=true인데 토큰이 존재하지 않거나 형식이 잘못된 경우 예외
+                throw new BusinessException(AuthErrorCode.NOT_EXIST_AUTHORIZATION_TOKEN);
+            }
+        }
+
+        // 2) 'Bearer ' 부분 제거 후 실제 토큰 문자열 추출
+        String token = authorizationHeader.substring(7);
+
+        // 3) 토큰 파싱 및 memberId 추출
+        String memberIdStr = jwtTokenProvider.getClaims(token);
+
+        // 4) 숫자 변환 실패 시 예외
+        try {
+            return Long.valueOf(memberIdStr);
+        } catch (NumberFormatException e) {
+            throw new BusinessException(AuthErrorCode.INVALID_AUTHORIZATION_TOKEN);
+        }
+    }
+}
+```
+
 <br><br>
 
-### 4-2. 단방향 연관관계 JPQL 코드 수정 고민
+
+<br>
+
+<br><br>
+
+### 4. 트러블 슈팅
+
+### 4-1. 단방향 연관관계 JPQL 코드 수정 고민
 - 단건 조회에서 매물(Room)에 관련된 객체를 받아오고 각각의 Repository에서 조회하고 있는데 이후 GPT를 통해 JPQL을 이용한 아래 방법이 되는지 확인해봤는데 역시 안됨
     - 현재 Room에는 양방향 연관관계가 되어있지 않음
     - 객체와 SQL문이 섞여 사용하다보니 복잡하기도 함
@@ -325,7 +462,7 @@ Optional<SearchRoomResponseDto> findRoomDetailsByRoomId(Long roomId);
 
 <br><br>
 
-### 4-3. 매물 조회 시 N + 1 문제 발생
+### 4-2. 매물 조회 시 N + 1 문제 발생
 - 현재 Page로 생성한 ROOM 엔티티 리스트를 먼저 조회하고 각 ROOM 엔티티 마다 LIKES, IMAGE 엔티티가 N번(Room 리스트 size 만큼) 씩 추가 조회 쿼리가 실행됨
     - 현재 페이지네이션을 통해 총 page size * 2 번 만큼 반복되고 있음 ( 1 + 2N )
 - 현재 구성은 ROOM 엔티티를 조회 이후 LIKES, IMAGE 엔티티 내부에 ROOM이 있고, 해당 ROOM으로 LazyLoading 조회를 통해 1 + 2N 조회되는 문제가 발생함
@@ -640,7 +777,7 @@ Hibernate:
 <br><br>
 
 
-### 4-4. 계약서 작성 시 동시성 문제 발생
+### 4-3. 계약서 작성 시 동시성 문제 발생
 - 현재 계약서 작성 과정은 다음과 같고, 해당 과정이 끝나야만 다음 단계로 접근 가능
     1. 계약 진행에 따른 계약서 생성
     2. 임대인 계약서 저장
@@ -656,7 +793,7 @@ Hibernate:
 <br>
 
 ### 문제 해결 방법으로 Redis 단순 락으로 사용한 이유
-- 방법으로는 다양한 방법들이 존재했는데 JVM 내부 락(synchronized, ReentrantLock), Redission 분산락, DB 낙관적/비관적 락 등이 존재
+- 방법으로는 다양한 방법들이 존재했는데 JVM 내부 락(synchronized, ReentrantLock), 스핀락, Redission 분산락, DB 낙관적/비관적 락 등이 존재
 - 우선 Redis를 사용한 간단한 락으로 구현하기로 결정했는데 이유는 아래들과 같음
     - 계약서 락 자동 해제는 TTL 기반으로, 인메모리 DB를 사용한 Redis 단순 락 방식으로 결정
     - 현재 채팅 관련으로 Redis를 이미 사용하고 있음
@@ -767,6 +904,9 @@ public class RedisLockAspect {
 <br>
 
 ### 단위 테스트를 통한 동시성 문제 해결 확인
+
+![동시성 해결 테스트 코드](./img/concurreny-test.gif)
+
 ```java
 @Test
 void testConcurrentRedisLock() throws InterruptedException {
@@ -828,99 +968,24 @@ void testConcurrentRedisLock() throws InterruptedException {
 
 <br>
 
-![젠킨스 테스트 코드 빌드 에러](./img/jenkins-test-error.png)
-
 ### 테스트 코드 Jenkins 빌드 중 문제 발생
 - 현재 Jenkins 빌드에서 테스트 코드 동작에 있어 Docker 내부에 있는 MySQL 에 접근하는데 문제 발생
 - 이에 있어 기존 clean build를 테스트 코드를 제외하고 실행하는 clean build -x test 로 빌드 명령어 수정
 
 <br>
 
-### 4-5. Swagger 문서화 정리
-
-![스웨거 문서화](./img/swagger.png)
-
-- 스웨거를 통한 API 별 설명 및 요청 파라미터 예제 문서화
-- JWT AccessToken 문서화 설정 추가 후 커스텀 어노테이션을 사용하여 API 별 로그인 필요 API 명시
-- 커스텀 어노테이션에서 로그인 시 추가정보가 제공되는 API를 위해 boolean 필드를 통해 로직 분리
-- 같은 수정 요청 DTO에 대해 임시 저장/최종 저장을 적용하기 위해 그룹 클래스로 분리
-
-```java
-// 'JWT'을 이름으로 로그인 필요 API 문서화 설정
-@Configuration
-@SecurityScheme(
-	name = "JWT",
-	type = SecuritySchemeType.HTTP,
-	scheme = "bearer",
-	bearerFormat = "JWT"
-)
-public class SwaggerConfig {
-    // ...
-}
-
-// 사용이 필요한 클래스에서 @Operation security 설정을 통해 로그인 필요 API 문서화
-@Operation(
-    // ...
-    security = @SecurityRequirement(name = "JWT")   // 
-)
-@GetMapping("/{id}")
-public ResponseEntity<RegistryDocument> getRegistryDoc(
-    @Parameter(description = "등기부 문서 ID", example = "67e6332b68f0cb1ff92bf31e", required = true)
-    @PathVariable String id,
-    @MemberHeader Long memberId) {  // 커스텀 어노테이션을 사용한 JWT 파싱 후 유저 ID 조회
-    // ...
-}
-
-// 로그인 커스텀 어노테이션
-@Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.RUNTIME)
-@Parameter(hidden = true)
-@Documented
-public @interface MemberHeader {
-	boolean required() default true;    // required false 일시 memberId 요청 파라미터에 null 반환
-}
-
-// ArgumentResolver를 활용하여 로그인 커스텀 어노테이션 JWT 파싱
-@RequiredArgsConstructor
-public class MemberHeaderArgumentResolver implements HandlerMethodArgumentResolver {
-	private final JwtTokenProvider jwtTokenProvider;
-
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return parameter.hasParameterAnnotation(MemberHeader.class)
-			&& parameter.getParameterType().equals(Long.class);
-	}
-
-	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-		String authorizationHeader = request.getHeader("Authorization");
-
-		MemberHeader memberHeader = parameter.getParameterAnnotation(MemberHeader.class);
-
-		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-			if (!memberHeader.required()) {
-				return null;
-			} else {
-				throw new BusinessException(AuthErrorCode.NOT_EXIST_AUTHORIZATION_TOKEN);
-			}
-		}
-		String token = authorizationHeader.substring(7);
-		String memberIdStr = jwtTokenProvider.getClaims(token);
-
-		try {
-			return Long.valueOf(memberIdStr);
-		} catch (NumberFormatException e) {
-			throw new BusinessException(AuthErrorCode.INVALID_AUTHORIZATION_TOKEN);
-		}
-	}
-}
-```
-
 <br>
 
 ## 5. 화면 구성
 
+### 1. 임대인 계약서 작성
+
+![임대인 계약서 작성](./img/landlord-contract.gif)
+
 <br>
 
+### 2. 계약서 챗봇
+
+![계약서 챗봇](./img/AIchatbot.gif)
+
+<br>
