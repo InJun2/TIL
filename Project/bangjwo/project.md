@@ -990,13 +990,19 @@ void testConcurrentRedisLock() throws InterruptedException {
 
 <br>
 
-### 4. 임대인 계약서 작성
+### 4. 문의 채팅
+
+![계약 문의 채팅](./img/chat.gif)
+
+<br>
+
+### 5. 계약서 작성
 
 ![임대인 계약서 작성](./img/landlord-contract.gif)
 
 <br>
 
-### 5. 계약서 챗봇
+### 6. 계약서 챗봇
 
 ![계약서 챗봇](./img/AIchatbot.gif)
 
