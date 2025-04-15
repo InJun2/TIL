@@ -104,11 +104,6 @@
 
 - ERD-Cloud 를 사용한 ERD 설계
 
-<br>
-
-### 2-5. GitLab MergeRequest
-
-
 <br><br>
 
 ## 3. 코드 리팩토링
@@ -236,6 +231,7 @@ public class RoomImageService {
 - S3에 대한 정보를 애초에 매물 ImageService 이 관리하고 있는 구조가 잘못된 설계라고 생각이 들게되었음
     - 이후 확장될 수 있을 만한 기능에 대해서 설계에서 분리하는 습관을 들이면 좋을 것 같음..
 - 이후 다른 도메인에서도 사용할 수 있도록 어댑터 패턴을 이용한 아래 방법으로 분리
+    - 추상화된 기능을 구현한 구현체를 의존성 주입하여 연결하는 어댑터 패턴 적용
 
 ```java
 // 이후 기능이 추가될수 있어 추상화
@@ -412,11 +408,6 @@ public class MemberHeaderArgumentResolver implements HandlerMethodArgumentResolv
     }
 }
 ```
-
-<br><br>
-
-
-<br>
 
 <br><br>
 
@@ -731,7 +722,8 @@ Hibernate:
         Likes l 
     WHERE
         l.room IN :rooms 
-        AND l.memberId = :memberId  */ select
+        AND l.memberId = :memberId  */
+         select
             l1_0.like_id,
             l1_0.member_id,
             l1_0.room_id
@@ -755,7 +747,8 @@ Hibernate:
                 Image i2         
             WHERE
                 i2.room.roomId = i.room.roomId     
-        )  */ select
+        )  */ 
+        select
             i1_0.image_id,
             i1_0.image_url,
             i1_0.room_id,
@@ -775,7 +768,6 @@ Hibernate:
 ```
 
 <br><br>
-
 
 ### 4-3. 계약서 작성 시 동시성 문제 발생
 - 현재 계약서 작성 과정은 다음과 같고, 해당 과정이 끝나야만 다음 단계로 접근 가능
@@ -978,13 +970,33 @@ void testConcurrentRedisLock() throws InterruptedException {
 
 ## 5. 화면 구성
 
-### 1. 임대인 계약서 작성
+### 1. 카카오 로그인
+
+![카카오 로그인](./img/login.gif)
+
+<br>
+
+### 2. 매물 등록
+
+![임대인 매물 정보 등록](./img/room-input-info.gif)
+
+![등록 매물 검증](./img/room-verify.gif)
+
+<br>
+
+### 3. 매물 조회 및 등기부등본 위험도 분석
+
+![매물 조회](./img/contract-risk.gif)
+
+<br>
+
+### 4. 임대인 계약서 작성
 
 ![임대인 계약서 작성](./img/landlord-contract.gif)
 
 <br>
 
-### 2. 계약서 챗봇
+### 5. 계약서 챗봇
 
 ![계약서 챗봇](./img/AIchatbot.gif)
 
