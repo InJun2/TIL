@@ -1007,3 +1007,7 @@ void testConcurrentRedisLock() throws InterruptedException {
 ![계약서 챗봇](./img/AIchatbot.gif)
 
 <br>
+
+### 7. 마이페이지
+
+![마이페이지](./img/mypage.gif)
