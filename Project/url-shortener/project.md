@@ -1,4 +1,4 @@
-# URL 단축기 구성
+# URL 단축기 프로젝트
 
 ## 1. 프로젝트 소개
 - 해당 프로젝트는 요청되는 긴 URL을 짧게 변경하게 사용자에게 반환해주는 서비스 입니다.
@@ -27,7 +27,7 @@
 
 ![Service Architecture](./img/Architecture.png)
 
-- GitAction - Docker - AWS VPC (EC2, RDB, ElastiCache) 구조의 CI/CD 배포 자동화를 진행하였습니다.
+- GitHub Action - Docker - AWS VPC (EC2, RDS, ElastiCache) 구조의 CI/CD 배포 자동화를 진행하였습니다.
 - AWS Route53, Certification, Elastic Load Balancer 를 사용하여 사용한 도메인의 HTTP(80) 트래픽을 HTTPS(443)로 자동 리다이렉트 리다이렉트를 제공하였습니다.
 
 <br>
