@@ -1,8 +1,12 @@
 # 📝 공부 내용 정리
 
 ## 📂 Project
+- 🏠 [BangJwo](https://github.com/InJun2/Bangjwo)
+    - [이슈 내용](https://github.com/InJun2/TIL/blob/main/Project/bangjwo/project.md)
 - 👨‍💻 [Chunsun](https://github.com/InJun2/Chunsun)
+    - [이슈 내용](https://github.com/InJun2/TIL/blob/main/Project/chunsun/project.md)
 - ✂️ [URL Shortener](https://github.com/selab-hs/url-shortener)
+    - [이슈 내용](https://github.com/InJun2/TIL/blob/main/Project/url-shortener/project.md)
 - 🌍 [SE Community Service](https://github.com/selab-hs/SE-Community-Service)
     - [이슈 내용](./Project/se-community)
 - 💌 [Glass Bottle](https://github.com/selab-hs/glass-bottle)
