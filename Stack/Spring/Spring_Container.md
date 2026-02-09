@@ -23,7 +23,7 @@
 ![Spring Context](./img/spring_context.png)
 
 #### 1. Application Context
-- 스프링 Context 기능의 중심인 최상위 인터페이스
+- 스프링 Context 기능의 중심인 최상위 인터페이스 ( 단, BeanFactory를 의존함 )
 - 거의 스프링 Context는 해당 Context를 구현하며 기능에 따라 "---ApplicationContext"로 명칭함
 #### 2. AbstractApplication ContextApplication Context
 - 기능의 중심적인 역할을 수행하면 ApplicztionContext를 구현한 추상 클래스로 내부에 정의된 특수한 빈들을 등록할 수 있음
@@ -42,6 +42,12 @@
 - 말 그대로 클래스 경로가 아닌 실제 파일 경로로 불러옴
 #### 7. AnnotationConfigApplicationContext 
 - 자바 어노테이션을 이용한 클래스로부터 객체 설정 정보를 가져옴 ( ApplicationContext의 하위 인터페이스 )
+
+```
+BeanFactory : 빈을 생성하고 관계를 설정하는 IoC 컨테이너이자 클래스로 스프링 빈 컨테이너에 접근하기 위한 최상위 인터페이스로 Lazy-loading 방식 사용
+
+ApplicationContext : BeanFactory를 확장하며 스프링 컨텍스트를 사용하기 위한 가장 대표적인 인터페이스. Eager-loading 방식 사용
+```
 
 <br>
 
