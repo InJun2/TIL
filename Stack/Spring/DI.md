@@ -525,6 +525,17 @@ public class BootPhoneTest {
 
 <br>
 
+```
+빈 자동 주입 시 중복된 인터페이스 구현체 빈이 등록되어 있는 경우
+
+@Qualifier = 클래스 레벨에서 각각 어떤 빈을 쓸지 직접 이름으로 지정하고 생성자 파라미터에서 지정된 필요 구현체 사용 가능 ( 주입 시점에 명확하게 선택 )
+@Primary = 여러 빈 중에서 기본값(default) 으로 사용할 빈을 지정. 별도 지정이 없으면 자동으로 선택됨
+
+- 보통 자주 사용되는 빈이 있기 마련이므로 기본적으로는 @Primary를 더 많이 사용. 모든 빈에 @Qualifier를 붙이기 보다 메인인 @Primary를 기본값으로 주입하고, 예외로 다른 빈을 등록해야하는 경우 @Qualifier를 사용해서 다른 빈을 주입할 수 있음
+```
+
+<br>
+
 ## Reference
 
 - https://goodteacher.tistory.com/235
