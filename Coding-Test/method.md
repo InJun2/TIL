@@ -14,6 +14,14 @@
 s.length()        // 문자열 길이
 s.charAt(i)       // i번째 문자 (char)
 ```
+* 👉 사용: **문자열 숫자 합**
+
+```java
+int sum = 0;
+for (char c : s.toCharArray()) {
+    sum += c - '0';
+}
+```
 
 ### ✔️ 문자열 자르기
 
@@ -144,63 +152,7 @@ Character.isLowerCase('a')
 
 ---
 
-## 🔥 7. 코테 주요 패턴
-
-### ✔️ 문자열 숫자 합
-
-```java
-int sum = 0;
-for (char c : s.toCharArray()) {
-    sum += c - '0';
-}
-```
-
-### ✔️ 2진수 활용
-
-```java
-Integer.toBinaryString(n)
-Integer.bitCount(n)
-```
-
-### ✔️ 정렬
-
-```java
-Arrays.sort(arr);
-```
-
----
-
-## 🔥 8. 진짜 핵심 TOP 5
-
-1. `s.charAt(i)`
-2. `s.equals()`
-3. `Integer.parseInt()`
-4. `Integer.toBinaryString()`
-5. `Arrays.sort()`
-
----
-
-## 🔥 9. 상황별 사용법
-
-### ✔️ 문자열 문제
-
-* `charAt`
-* `substring`
-* `replace`
-
-### ✔️ 숫자 문제
-
-* `Math`
-* `Integer`
-
-### ✔️ 성능 문제
-
-* `StringBuilder`
-* `bitCount`
-
----
-
-## 한 줄 핵심 정리
+## 한 줄 간단 클래스 정리
 
 👉 문자열 → `String`
 👉 숫자 변환 → `Integer`
@@ -218,14 +170,23 @@ Arrays.sort(arr);
 
 ## 🔥 0. Collections
 
+### ✔️ 리스트 계열 Collections
+
 ```java
-Collections.sort(list)
-Collections.reverse(list)
-Collections.max(list)
-Collections.min(list)
+// Collections.sort(List<T> list)
+// ArrayList, LinkedList, Stack, Vector 등
+Collections.sort(list)      // 정렬
+Collections.reverse(list)   // 역정렬
 ```
 
-## 🔥 1. ArrayList (동적 배열)
+### ✔️ Collection 인터페이스 구현체
+
+```java
+Collections.max(list)       // 최대값
+Collections.min(list)       // 최소값
+```
+
+## 🔥 1. ArrayList (동적 리스트)
 
 ```java
 List<Integer> list = new ArrayList<>();
@@ -245,7 +206,7 @@ list.size();
 
 ---
 
-## 🔥 2. LinkedList
+## 🔥 2. LinkedList (연결 리스트)
 
 ```java
 LinkedList<Integer> list = new LinkedList<>();
@@ -267,11 +228,18 @@ list.removeLast();
 ## 🔥 3. Stack (LIFO)
 
 ```java
-Stack<Integer> stack = new Stack<>();
+// 레거시 클래스
+Stack<Integer> s = new Stack<>();
 
-stack.push(1);
-stack.pop();
-stack.peek();
+// 더 빠름
+Deque<Integer> stack = new ArrayDeque<>();
+
+stack.push(1);  // 앞에 넣음
+stack.push(3);  // 앞에 넣음
+stack.peek();   // 앞쪽값 : 3
+stack.peekFirst(); // 앞쪽값 : 3
+stack.peekLast();  // 뒤쪽값 : 1
+stack.pop();       // 앞쪽값 제거 : 3 반환, 비었을때 예외 발생
 ```
 
 * 👉 사용: **괄호 문제 / DFS / 역순 처리**
@@ -281,11 +249,17 @@ stack.peek();
 ## 🔥 4. Queue (FIFO)
 
 ```java
+// 노드 기반, 메모리 비효율
 Queue<Integer> q = new LinkedList<>();
 
-q.offer(1);
-q.poll();
-q.peek();
+Queue<Integer> queue = new ArrayDeque<>();
+
+queue.offer(1);  // 뒤에 넣음
+queue.offer(3);  // 뒤에 넣음
+queue.peek();   // 앞쪽값 : 1
+queue.peekFirst(); // 앞쪽값 : 1
+queue.peekLast();  // 뒤쪽값 : 3
+queue.poll();       // 앞쪽값 제거 : 1 반환, 비었을때 null 반환
 ```
 
 * 👉 사용: **BFS / 순서 처리**
@@ -299,13 +273,17 @@ PriorityQueue<Integer> pq = new PriorityQueue<>();
 
 pq.offer(3);
 pq.offer(1);
-pq.poll(); // 가장 작은 값
+pq.poll(); // 가장 작은 값 : 1
 ```
 
 ### ✔️ 최대 힙
 
 ```java
 PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
+
+pq.offer(3);
+pq.offer(1);
+pq.poll(); // 가장 큰 값 : 3
 ```
 
 ### ✔️ 특징
@@ -348,7 +326,7 @@ map.remove("a");
 
 ---
 
-## 🔥 8. 자주 쓰는 패턴 (🔥 중요)
+## 🔥 자주 쓰는 패턴
 
 ### ✔️ 빈도수 카운팅
 
@@ -368,7 +346,7 @@ Set<Integer> set = new HashSet<>(list);
 
 ---
 
-## 🔥 9. 상황별 선택 기준
+## 🚀 상황별 선택 기준
 
 * **순서 + 인덱스 필요** → `ArrayList`
 * **삽입/삭제 많음** → `LinkedList`
@@ -394,7 +372,7 @@ Set<Integer> set = new HashSet<>(list);
 ````markdown
 ---
 
-## 🔥 10. Deque (양방향 큐)
+## 🔥 8. Deque (양방향 큐)
 
 ```java
 Deque<Integer> dq = new ArrayDeque<>();
@@ -416,23 +394,27 @@ dq.peekLast();
 * 양쪽에서 삽입/삭제 가능
 
 * 👉 사용: **슬라이딩 윈도우 / 양방향 처리 / BFS 변형**
-* 👉 팁: **Stack 대신 Deque 사용 추천**
+* 👉 추천: **Stack, Queue 대신 Deque 사용 추천**
 
 ---
 
-## 🔥 11. TreeSet (정렬된 Set)
+## 🔥 9. TreeSet (정렬된 Set)
 
 ```java
 TreeSet<Integer> set = new TreeSet<>();
 
 set.add(3);
+set.add(2);
 set.add(1);
 
-set.first();   // 최소값
-set.last();    // 최대값
+set.first();   // 최소값 : 1
+set.last();    // 최대값 : 3
 
-set.higher(1); // 1보다 큰 값
-set.lower(3);  // 3보다 작은 값
+set.higher(2); // 2보다 큰 가장 가까운 값 : 3
+set.lower(2);  // 2보다 작은 가장 가까운 값 : 1
+
+set.tailSet(2);   // 2 이상 모든 값 : 2, 3
+set.headSet(2);   // 2 미만 모든 값 : 1
 ```
 
 ### ✔️ 특징
@@ -445,19 +427,24 @@ set.lower(3);  // 3보다 작은 값
 
 ---
 
-## 🔥 12. TreeMap (정렬된 Map)
+## 🔥 10. TreeMap (정렬된 Map)
 
 ```java
 TreeMap<Integer, String> map = new TreeMap<>();
 
 map.put(3, "c");
+map.put(2, "b");
 map.put(1, "a");
 
-map.firstKey();  // 최소 키
-map.lastKey();   // 최대 키
+map.get(1);        // "a"
+map.firstKey();    // 최소키 : 1
+map.lastKey();     // 최대키 : 3
 
-map.higherKey(1);
-map.lowerKey(3);
+map.higherKey(2);  // 2보다 큰 가장 가까운 값 : 3
+map.lowerKey(2);   // 2보다 작은 가장 가까운 값 : 1
+
+map.tailMap(2);    // 2이상 모든 값 : 2, 3
+map.headMap(2);    // 2미만 모든 값 : 1
 ```
 
 ### ✔️ 특징
@@ -470,72 +457,58 @@ map.lowerKey(3);
 
 ---
 
-## 🔥 13. Comparator (정렬 커스터마이징)
+## 🔥 11. Comparator (정렬 커스터마이징)
 
 ```java
-Arrays.sort(arr, (a, b) -> b - a); // 내림차순
-```
+// int[]의 경우 comparator 못쓰므로 Integer[]로 사용할 것
+Arrays.sort(arr);   // 오름차순
+Arrays.sort(arr, (a, b) -> b - a);  // 내림차순
 
-```java
-list.sort((a, b) -> a[1] - b[1]);
+Collections.sort(list);     // 오름차순
+Collections.sort(list, (a, b) -> b - a);    // 내림차순
+Collections.reverse(list);     // 뒤집기 ( List만 가능 )
+
+
+list.sort(null);    // 오름차순
+list.sort((a, b) -> a[1] - b[1]);    // 특정 인덱스([1]) 값 기준 오름차순
+list.sort((a, b) -> b[1] - a[1]);    // 특정 인덱스([1]) 값 기준 내림차순
+
+PriorityQueue<Integer> minPq =
+    new PriorityQueue<>();  // 최소 힙
+PriorityQueue<Integer> maxPq =
+    new PriorityQueue<>((a, b) -> b - a); // 최대 힙
+
+TreeSet<Integer> ascSet =
+    new TreeSet<>();    // 오름차순
+TreeSet<Integer> descSet =
+    new TreeSet<>((a, b) -> b - a); // 내림차순
+
+TreeMap<Integer> ascMap=
+    new TreeMap<>();    // 오름차순
+TreeMap<Integer> descMap =
+    new TreeMap<>((a, b) -> b - a); // 내림차순
+
 ```
 
 ### ✔️ 특징
 
 * 정렬 기준 직접 정의 가능
-
+* 리스트에서 한번만 뒤집는 용도로는 Collections.reverse(list) 사용
+    - 리스트 인터페이스 상속받은 자료구조만 가능
+* '(a,b) -> b - a' 방식 보다는 (a,b) -> Integer.compare(b,a) 같은 방식이 더 권장됨
 * 👉 사용: **정렬 문제 필수**
 
 ---
 
-## 🔥 14. 투 포인터 (Two Pointer)
+<br><br>
 
-```java
-int left = 0;
-int right = 0;
+# 📌 주요 알고리즘
 
-while (right < n) {
-    // 조건 처리
-    right++;
-}
-```
 
-### ✔️ 특징
-
-* 두 개의 포인터로 범위 탐색
-
-* 👉 사용: **부분합 / 구간 탐색 / 정렬된 배열 문제**
-
+````markdown
 ---
 
-## 🔥 15. 이분 탐색 (Binary Search)
-
-```java
-int left = 0;
-int right = n - 1;
-
-while (left <= right) {
-    int mid = (left + right) / 2;
-
-    if (arr[mid] == target) {
-        // 찾음
-    } else if (arr[mid] < target) {
-        left = mid + 1;
-    } else {
-        right = mid - 1;
-    }
-}
-```
-
-### ✔️ 특징
-
-* 탐색 시간 O(log N)
-
-* 👉 사용: **탐색 범위 줄이기 / 최적값 찾기**
-
----
-
-## 🔥 16. BFS / DFS 패턴
+## 🔥 1. 그래프 탐색 (BFS/DFS)
 
 ### ✔️ BFS (너비 우선 탐색)
 
@@ -573,7 +546,56 @@ void dfs(int x, int y) {
 
 ---
 
-## 🔥 17. 문자열 뒤집기
+---
+
+## 🔥 2. 투 포인터 (Two Pointer)
+
+```java
+int left = 0;
+int right = 0;
+
+while (right < n) {
+    // 조건 처리
+    right++;
+}
+```
+
+### ✔️ 특징
+
+* 두 개의 포인터로 범위 탐색
+
+* 👉 사용: **부분합 / 구간 탐색 / 정렬된 배열 문제**
+
+---
+
+## 🔥 3. 이분 탐색 (Binary Search)
+
+```java
+int left = 0;
+int right = n - 1;
+
+while (left <= right) {
+    int mid = (left + right) / 2;
+
+    if (arr[mid] == target) {
+        // 찾음
+    } else if (arr[mid] < target) {
+        left = mid + 1;
+    } else {
+        right = mid - 1;
+    }
+}
+```
+
+### ✔️ 특징
+
+* 탐색 시간 O(log N)
+
+* 👉 사용: **탐색 범위 줄이기 / 최적값 찾기**
+
+
+
+## 🔥 4. 문자열 뒤집기
 
 ```java
 String reversed = new StringBuilder(s).reverse().toString();
@@ -581,29 +603,7 @@ String reversed = new StringBuilder(s).reverse().toString();
 
 ---
 
-## 🔥 18. char 배열 변환
-
-```java
-char[] arr = s.toCharArray();
-```
-
-### ✔️ 특징
-
-* 문자열 수정 시 빠름
-
-* 👉 사용: **문자열 직접 조작**
-
----
-
-<br><br>
-
-# 📌 주요 알고리즘
-
-
-````markdown
----
-
-## 🔥 19. Prefix Sum (누적합)
+## 🔥 5. Prefix Sum (누적합)
 
 ```java
 int[] prefix = new int[n + 1];
@@ -624,7 +624,7 @@ int sum = prefix[r] - prefix[l - 1];
 
 ---
 
-## 🔥 20. Sliding Window
+## 🔥 6. Sliding Window
 
 ```java
 int sum = 0;
@@ -647,7 +647,7 @@ for (int right = 0; right < n; right++) {
 
 ---
 
-## 🔥 21. Greedy (탐욕법)
+## 🔥 7. Greedy (탐욕법)
 
 ```java
 Arrays.sort(arr);
@@ -663,12 +663,12 @@ for (int i = 0; i < n; i++) {
 ### ✔️ 특징
 
 * 매 순간 최선 선택
-
+* 매번 사용해야 하는 알고리즘이 다름
 * 👉 사용: **정렬 + 선택 문제**
 
 ---
 
-## 🔥 22. Backtracking
+## 🔥 8. Backtracking
 
 ```java
 void dfs(int depth) {
@@ -694,7 +694,7 @@ void dfs(int depth) {
 
 ---
 
-## 🔥 23. Union-Find (Disjoint Set)
+## 🔥 9. Union-Find (Disjoint Set)
 
 ```java
 int[] parent = new int[n];
@@ -720,7 +720,7 @@ void union(int a, int b) {
 
 ---
 
-## 🔥 24. Topological Sort (위상 정렬)
+## 🔥 10. Topological Sort (위상 정렬)
 
 ```java
 Queue<Integer> q = new LinkedList<>();
@@ -744,7 +744,7 @@ while (!q.isEmpty()) {
 
 ---
 
-## 🔥 25. Dijkstra (최단 경로)
+## 🔥 11. Dijkstra (최단 경로)
 
 ```java
 PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
@@ -764,7 +764,7 @@ while (!pq.isEmpty()) {
 
 ---
 
-## 🔥 26. DP (동적 계획법)
+## 🔥 12. DP (동적 계획법)
 
 ```java
 int[] dp = new int[n + 1];
@@ -785,7 +785,7 @@ for (int i = 2; i <= n; i++) {
 
 ---
 
-## 🔥 27. BitMask
+## 🔥 13. BitMask
 
 ```java
 int bit = 0;
@@ -808,7 +808,7 @@ if ((bit & (1 << i)) != 0) { }
 
 ---
 
-## 🔥 28. LIS (최장 증가 부분 수열)
+## 🔥 14. LIS (최장 증가 부분 수열)
 
 ```java
 int[] dp = new int[n];
@@ -831,7 +831,7 @@ for (int i = 0; i < n; i++) {
 
 ---
 
-## 🔥 29. Permutation (순열)
+## 🔥 15. Permutation (순열)
 
 ```java
 void perm(int depth) {
@@ -849,7 +849,7 @@ void perm(int depth) {
 
 ---
 
-## 🔥 30. Combination (조합)
+## 🔥 16. Combination (조합)
 
 ```java
 void comb(int start, int depth) {
@@ -860,12 +860,4 @@ void comb(int start, int depth) {
     }
 }
 ```
-
----
-
-## 🚀 최종 정리
-
-👉 1~10 : 기본 문법
-👉 10~18 : 자료구조 + 탐색
-👉 19~30 : 알고리즘 핵심
 
