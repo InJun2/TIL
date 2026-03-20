@@ -504,8 +504,6 @@ TreeMap<Integer> descMap =
 
 # 📌 주요 알고리즘
 
-
-````markdown
 ---
 
 ## 🔥 1. 그래프 탐색 (BFS/DFS)
@@ -860,4 +858,3 @@ void comb(int start, int depth) {
     }
 }
 ```
-
